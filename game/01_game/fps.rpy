@@ -9,28 +9,22 @@ init python:
             self.old_st = None
             self.delta_time = 0
             self.framerate = 0
-            self.center_offset = None
-
+            
             self.background = Solid("#444")
-            self.map = Map()
-            self.player = Player()
+            self.map = Map(self)
+            self.player = Player(self, (config.screen_width // 4, config.screen_height // 2))
 
         def render(self, width, height, st, at):
 
             r = renpy.Render(width, height)
             canvas = r.canvas()
 
-            ## if the center offset is not set yet, calculate and set it
-            if (self.center_offset is None):
-                width, height = canvas.get_surface().get_size()
-                self.center_offset = (width // 2, height // 2)
-
             ## update loop for our game
             self.update(st)
 
-            self.map.draw_2d(canvas, self.center_offset)
+            self.map.draw_2d(canvas)
 
-            self.player.draw_2d(canvas, self.center_offset)
+            self.player.draw_2d(canvas)
             
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
