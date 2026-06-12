@@ -3,16 +3,18 @@ init python:
     
     class FpsDisplayable(renpy.Displayable):
 
-        def __init__(self):
+        def __init__(self, scale=1):
             super().__init__()
             
             self.old_st = None
             self.delta_time = 0
             self.framerate = 0
-            
+            self.scale = scale
+
             self.background = Solid("#444")
             self.map = Map(self)
-            self.player = Player(self, (config.screen_width // 4, config.screen_height // 2))
+            self.player = Player(self, (15, 7))
+            self.rayCaster = RayCaster(self)
 
         def render(self, width, height, st, at):
 
@@ -21,11 +23,11 @@ init python:
 
             ## update loop for our game
             self.update(st)
-
+            
             self.map.draw_2d(canvas)
 
             self.player.draw_2d(canvas)
-            
+            self.rayCaster.cast_rays(canvas)
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
             return r
@@ -37,7 +39,7 @@ init python:
             self.update_delta_time(st)
 
             self.player.update(self.delta_time)
-
+            
             pass
 
         def event(self, ev, x, y, st): ## use this for reacting to events
@@ -92,7 +94,7 @@ screen FpsScreen():
 
     modal True
 
-    default fps = FpsDisplayable()
+    default fps = FpsDisplayable(30)
 
     add fps
 

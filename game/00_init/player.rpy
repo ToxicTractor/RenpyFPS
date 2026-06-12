@@ -7,14 +7,12 @@ init python:
             self.game = game
             self.pos_x, self.pos_y = pos
             self.angle = angle
-            self.speed = 200
+            self.speed = 5
             self.angular_speed = 2
 
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
-
-            self.image = Solid("#ff0", xsize=16, ysize=16)
 
 
         def reset_input(self):
@@ -50,11 +48,8 @@ init python:
         def update(self, delta_time):
             self.move(delta_time)
 
-        def to_coord(self, x, y):
-            return self.game.map.pos_to_coord(x, y)
-
         def is_wall(self, x, y):
-            return self.to_coord(x, y) in self.game.map.world_map
+            return (int(x), int(y)) in self.game.map.world_map
 
         def wall_collision_x(self, delta_x):
             return self.is_wall(self.pos_x + delta_x, self.pos_y)
@@ -65,14 +60,16 @@ init python:
 
         def draw_2d(self, canvas):
 
-            canvas.line("#ff0", (self.pos_x, self.pos_y), (self.pos_x + config.screen_width * math.cos(self.angle), self.pos_y + config.screen_width * math.sin(self.angle)), 2)
-            canvas.circle("#0f0", (self.pos_x, self.pos_y), 10)
+            # canvas.line("#ff0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 
+            #     (self.pos_x * self.game.scale + config.screen_width * math.cos(self.angle) , self.pos_y  * self.game.scale + config.screen_width * math.sin(self.angle)), 2)
+
+            canvas.circle("#0f0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 10)
 
 
         @property
         def pos(self):
             return self.pos_x, self.pos_y
 
-
-        def coord(self):
+        @property
+        def coordinate(self):
             return int(self.pos_x), int(self.pos_y)
