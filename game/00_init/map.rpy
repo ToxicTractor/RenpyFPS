@@ -25,14 +25,16 @@ init python:
                         self.world_map[(x, y)] = value
 
 
-        def draw_2d(self, render, width, height, st, at):
-            
-            x_offset = width // 2 - self.half_map_width
-            y_offset = height // 2 - self.half_map_height
+        #def draw_2d(self, render, width, height, st, at):
+        def draw_2d(self, canvas, center_offset):    
 
+            x_offset, y_offset = center_offset
+            x_offset -= self.half_map_width
+            y_offset -= self.half_map_height
+            
             for coord, value in self.world_map.items():
                 
                 x, y = coord
 
-                cell = renpy.render(self.cell_img, width, height, st, at)
-                render.blit(cell, (x * self.cell_size + x_offset, y * self.cell_size + y_offset))
+                canvas.rect("#444", (x * self.cell_size + x_offset, y * self.cell_size + y_offset, self.cell_size, self.cell_size), 2)
+
