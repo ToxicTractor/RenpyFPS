@@ -16,6 +16,9 @@ init python:
             self.player = Player(self, (15, 7))
             self.rayCaster = RayCaster(self)
 
+            self.test = FpsSettings.HALF_SCREEN_HEIGHT
+
+
         def render(self, width, height, st, at):
 
             r = renpy.Render(width, height)
@@ -24,9 +27,9 @@ init python:
             ## update loop for our game
             self.update(st)
             
-            self.map.draw_2d(canvas)
+            # self.map.draw_2d(canvas)
 
-            self.player.draw_2d(canvas)
+            # self.player.draw_2d(canvas)
             self.rayCaster.cast_rays(canvas)
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
