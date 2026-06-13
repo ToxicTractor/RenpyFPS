@@ -14,23 +14,22 @@ init python:
             self.background = Solid("#444")
             self.map = Map(self)
             self.player = Player(self, (15, 7))
-            self.rayCaster = RayCaster(self)
+            self.object_renderer = ObjectRenderer(self)
+            self.raycaster = Raycaster(self)
 
             self.test = FpsSettings.HALF_SCREEN_HEIGHT
 
 
         def render(self, width, height, st, at):
 
-            r = renpy.Render(width, height)
-            canvas = r.canvas()
-
             ## update loop for our game
             self.update(st)
-            
-            # self.map.draw_2d(canvas)
 
-            # self.player.draw_2d(canvas)
-            self.rayCaster.cast_rays(canvas)
+            r = renpy.Render(width, height)
+            canvas = r.canvas()
+            
+            self.object_renderer.draw(r)
+
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
             return r
@@ -42,8 +41,9 @@ init python:
             self.update_delta_time(st)
 
             self.player.update(self.delta_time)
-            
-            pass
+
+            self.raycaster.update()
+
 
         def event(self, ev, x, y, st): ## use this for reacting to events
             

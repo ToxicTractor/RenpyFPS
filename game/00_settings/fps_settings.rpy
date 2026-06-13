@@ -20,3 +20,7 @@ init -100 python:
         ## Projection settings
         PROJECTION_DISTANCE = HALF_SCREEN_WIDTH / math.tan(HALF_FOV)
         PROJECTION_SCALE = SCREEN_WIDTH // RAY_COUNT
+
+        ## Texture settings
+        TEXTURE_SIZE = 256
+        HALF_TEXTURE_SIZE = TEXTURE_SIZE // 2
