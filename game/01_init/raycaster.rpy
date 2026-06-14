@@ -7,7 +7,18 @@ init python:
             self.ray_cast_result = []
             self.objects_to_render = []
             self.textures = self.game.object_renderer.wall_textures
-            self.column_cache = {}
+            self.ray_data = self.calculate_ray_data()
+
+
+        def calculate_ray_data(self):
+            ray_data = []
+
+            for i in range(FpsSettings.RAY_COUNT):
+                offset = -FpsSettings.HALF_FOV + i * FpsSettings.DELTA_ANGLE
+
+                ray_data.append((math.sin(offset), math.cos(offset)))
+
+            return ray_data
 
 
         def get_objects_to_draw(self):
@@ -15,106 +26,103 @@ init python:
 
             for i, values in enumerate(self.ray_cast_result):
                 depth, projection_height, texture, offset = values
+                
+                ## if texture is 0 we dont want to render anything
+                if (texture == 0):
+                    continue
 
-                wall_column = self.textures[texture].subsurface(
-                    offset * (FpsSettings.TEXTURE_SIZE - FpsSettings.PROJECTION_SCALE), 0, FpsSettings.PROJECTION_SCALE, FpsSettings.TEXTURE_SIZE
-                )
+                crop_x = int(offset * (FpsSettings.TEXTURE_SIZE - 1))
 
-                wall_column = pygame.transform.scale(wall_column, (FpsSettings.PROJECTION_SCALE, projection_height))
                 wall_pos = (i * FpsSettings.PROJECTION_SCALE, FpsSettings.HALF_SCREEN_HEIGHT - projection_height // 2)
 
-                self.objects_to_render.append((depth, wall_column, wall_pos))
+                self.objects_to_render.append(
+                    (depth,
+                    texture,
+                    crop_x,
+                    projection_height, 
+                    wall_pos))
 
 
-        def cast_rays(self):
+        def cast_rays_dda(self):
             self.ray_cast_result = []
 
             player_x = self.game.player.pos_x
             player_y = self.game.player.pos_y
             player_angle = self.game.player.angle
-            map_x, map_y = self.game.player.coordinate
+            player_coord = self.game.player.coordinate ## coordinate of the grid cell of the player
             world_map = self.game.map.world_map
             
-            texture_vertical, texture_horizontal = [255], [255]
+            sin_player_angle = math.sin(player_angle)
+            cos_player_angle = math.cos(player_angle)
 
-            ray_angle = player_angle - FpsSettings.HALF_FOV + 0.0001
-            
-            for i in range(FpsSettings.RAY_COUNT):
-                
-                sin_angle = math.sin(ray_angle)
-                cos_angle = math.cos(ray_angle)
+            for sin_offset, cos_offset in self.ray_data:
+                ## fallback texture
+                texture = 0
 
-                ## calculate the horizontal depth
-                horizontal_y = map_y + 1 if sin_angle > 0 else map_y - 1e-6
-                delta_y = 1 if sin_angle > 0 else -1
+                ## get starting coord
+                cell_x, cell_y = player_coord
 
-                horizontal_depth = (horizontal_y - player_y) / sin_angle
-                horizontal_x = player_x + horizontal_depth * cos_angle
+                ## calculate sin and cos using our precomputed offsets
+                ray_direction_x = cos_player_angle * cos_offset - sin_player_angle * sin_offset
+                ray_direction_y = sin_player_angle * cos_offset + cos_player_angle * sin_offset
 
-                delta_depth = delta_y / sin_angle
-                delta_x = delta_depth * cos_angle
+                ## calculate delta distance
+                delta_distance_x = float('inf') if ray_direction_x == 0 else abs(1 / ray_direction_x)
+                delta_distance_y = float('inf') if ray_direction_y == 0 else abs(1 / ray_direction_y)
 
-                for i in range(FpsSettings.MAX_DEPTH):
-                    cell = int(horizontal_x), int(horizontal_y)
-                    
-                    ## check if we hit a wall and break if we do
-                    if (cell in world_map):
+                ## determine step direction
+                step_x = -1 if ray_direction_x < 0 else 1
+                step_y = -1 if ray_direction_y < 0 else 1
 
-                        ## the texture is passed in as a list to allow us to change it by reference
-                        texture_horizontal = world_map[cell]
-                        break
-                    
-                    horizontal_y += delta_y
-                    horizontal_x += delta_x
-                    horizontal_depth += delta_depth
-                
-                ## calculate the vertical depth
-                vertical_x = map_x + 1 if cos_angle > 0 else map_x - 1e-6
-                delta_x = 1 if cos_angle > 0 else -1
-
-                vertical_depth = (vertical_x - player_x) / cos_angle
-                vertical_y = player_y + vertical_depth * sin_angle
-
-                delta_depth = delta_x / cos_angle
-                delta_y = delta_depth * sin_angle
-
-                for i in range(FpsSettings.MAX_DEPTH):
-                    cell = int(vertical_x), int(vertical_y)
-                    
-                    ## check if we hit a wall and break if we do
-                    if (cell in world_map):
-
-                        ## the texture is passed in as a list to allow us to change it by reference
-                        texture_vertical = world_map[cell]
-                        break
-                    
-                    vertical_x += delta_x
-                    vertical_y += delta_y
-                    vertical_depth += delta_depth
-
-                ## the depth we need is the smaller of the 2 calculated depth values
-                if (vertical_depth < horizontal_depth):
-                    depth = vertical_depth
-                    texture = texture_vertical
-                    vertical_y %= 1
-                    offset = vertical_y if cos_angle > 0 else (1 - vertical_y)
+                ## calculate initial side distances
+                if (ray_direction_x < 0):
+                    side_distance_x = (player_x - cell_x) * delta_distance_x
                 else:
-                    depth = horizontal_depth
-                    texture = texture_horizontal
-                    horizontal_x %= 1
-                    offset = (1 - horizontal_x) if sin_angle > 0 else horizontal_x
+                    side_distance_x = (cell_x + 1 - player_x) * delta_distance_x
 
-                ## eliminate 'fish lense' effect
-                depth *= math.cos(player_angle - ray_angle)
+                if (ray_direction_y < 0):
+                    side_distance_y = (player_y - cell_y) * delta_distance_y
+                else:
+                    side_distance_y = (cell_y + 1 - player_y) * delta_distance_y
 
-                ## draw 3d projection
+                ## only loop for a max number of steps to avoid an infinite loop 
+                for _ in range(FpsSettings.MAX_DEPTH):
+                    if (side_distance_x < side_distance_y):
+
+                        side_distance_x += delta_distance_x
+                        cell_x += step_x
+                        side = 0
+                    
+                    else:
+
+                        side_distance_y += delta_distance_y
+                        cell_y += step_y
+                        side = 1
+
+                    if (cell_x, cell_y) in world_map:
+                        texture = world_map[(cell_x, cell_y)]
+                        break
+
+                if (side == 0):
+                    #depth = side_distance_x - delta_distance_x
+                    depth = (cell_x - player_x + (1 - step_x) / 2) / ray_direction_x 
+                    offset = player_y + depth * ray_direction_y
+                else:
+                    #depth = side_distance_y - delta_distance_y
+                    depth = (cell_y - player_y + (1 - step_y) / 2) / ray_direction_y
+                    offset = player_x + depth * ray_direction_x
+
+                offset -= math.floor(offset)
+
+                ## eliminate fisheye effect
+                depth *= cos_offset
+
+                ## calculate projection height
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
                 self.ray_cast_result.append((depth, projection_height, texture, offset))
 
-                ray_angle += FpsSettings.DELTA_ANGLE
-
 
         def update(self):
-            self.cast_rays()
+            self.cast_rays_dda();
             self.get_objects_to_draw()
