@@ -19,6 +19,22 @@ init python:
 
             self.test = FpsSettings.HALF_SCREEN_HEIGHT
 
+            self.modify_renpy_keymaps()
+
+        @staticmethod
+        def modify_renpy_keymaps():
+            
+            config.keymap["screenshot"] = []
+            config.keymap["director"] = []
+
+            renpy.clear_keymap_cache()
+
+        @staticmethod
+        def restore_keymaps():
+            config.keymap["screenshot"] = ['alt_K_s', 'alt_shift_K_s', 'noshift_K_s']
+            config.keymap["director"] = ['noshift_K_d']
+
+            renpy.clear_keymap_cache()
 
         def render(self, width, height, st, at):
 
@@ -29,6 +45,8 @@ init python:
             canvas = r.canvas()
             
             self.object_renderer.draw(r)
+            # self.map.draw_2d(canvas)
+            # self.player.draw_2d(canvas)
 
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)

@@ -17,7 +17,6 @@ init python:
                         self.world_map[(x, y)] = value
 
 
-        #def draw_2d(self, render, width, height, st, at):
         def draw_2d(self, canvas):    
 
             for pos, value in self.world_map.items():
