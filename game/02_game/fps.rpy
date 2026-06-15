@@ -64,21 +64,21 @@ init python:
 
 
         def event(self, ev, x, y, st): ## use this for reacting to events
-            
+            key_pressed = pygame.key.get_pressed()
             self.player.reset_input()
 
-            if (pygame.key.get_pressed()[pygame.K_w]):
+            if (key_pressed[pygame.K_w]):
                 self.player.input_vertical += 1
-            if (pygame.key.get_pressed()[pygame.K_s]):
+            if (key_pressed[pygame.K_s]):
                 self.player.input_vertical -= 1    
-            if (pygame.key.get_pressed()[pygame.K_a]):
+            if (key_pressed[pygame.K_a]):
                 self.player.input_horizontal -= 1
-            if (pygame.key.get_pressed()[pygame.K_d]):
+            if (key_pressed[pygame.K_d]):
                 self.player.input_horizontal += 1
             
-            if (pygame.key.get_pressed()[pygame.K_LEFT]):
+            if (key_pressed[pygame.K_LEFT]):
                 self.player.input_angle -= 1
-            if (pygame.key.get_pressed()[pygame.K_RIGHT]):
+            if (key_pressed[pygame.K_RIGHT]):
                 self.player.input_angle += 1
 
             renpy.restart_interaction() ## make the interaction restart so text outside of the displayable can be updated
