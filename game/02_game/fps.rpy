@@ -13,7 +13,7 @@ init python:
 
             self.background = Solid("#444")
             self.map = Map(self)
-            self.player = Player(self, (15, 7))
+            self.player = Player(self, self.map.player_start_pos)
             self.object_renderer = ObjectRenderer(self)
             self.raycaster = Raycaster(self)
 

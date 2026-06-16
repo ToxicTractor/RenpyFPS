@@ -4,14 +4,15 @@ init python:
 
         def __init__(self, game):
             self.game = game
-            self.map_data = load_map("map.png")
+            map_data, self.player_start_pos = load_map("images/fps/maps/map.png")
+
             self.world_map = {}
 
-            self.create_map()
+            self.create_map(map_data)
 
 
-        def create_map(self):
-            for y, row in enumerate(self.map_data):
+        def create_map(self, map_data):
+            for y, row in enumerate(map_data):
                 for x, value in enumerate(row):
                     if (value):
                         self.world_map[(x, y)] = value
