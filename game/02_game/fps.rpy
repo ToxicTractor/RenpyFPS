@@ -16,8 +16,7 @@ init python:
             self.player = Player(self, self.map.player_start_pos)
             self.object_renderer = ObjectRenderer(self)
             self.raycaster = Raycaster(self)
-
-            self.test = FpsSettings.HALF_SCREEN_HEIGHT
+            self.weapon = Weapon("shotgun_idle", "shotgun_shoot", scale=4.0)
 
             self.modify_renpy_keymaps()
 
@@ -48,6 +47,8 @@ init python:
             # self.map.draw_2d(canvas)
             # self.player.draw_2d(canvas)
 
+            self.weapon.draw(r, st)
+
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
             return r
@@ -59,8 +60,10 @@ init python:
             self.update_delta_time(st)
 
             self.player.update(self.delta_time)
+            self.weapon.update(self.delta_time)
 
             self.raycaster.update()
+
 
 
         def event(self, ev, x, y, st): ## use this for reacting to events
@@ -80,6 +83,9 @@ init python:
                 self.player.input_angle -= 1
             if (key_pressed[pygame.K_RIGHT]):
                 self.player.input_angle += 1
+
+            if (key_pressed[pygame.K_SPACE]):
+                self.weapon.shoot()
 
             renpy.restart_interaction() ## make the interaction restart so text outside of the displayable can be updated
 

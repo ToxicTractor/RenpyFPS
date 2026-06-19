@@ -9,7 +9,7 @@ init python:
 
             self.floor_image = Solid("#333") ## floor is a solid color for now
             
-            self.is_inside = True
+            self.is_inside = False
             self.sky_offset = 0
             if (self.is_inside):
                 self.sky_image = Solid("#555")
@@ -50,7 +50,8 @@ init python:
             objects_to_render = self.game.raycaster.objects_to_render
             
             for depth, texture, crop_x, projection_height, pos in objects_to_render:
-
+                
+                #wall_slice = self.get_wall_slice(texture, crop_x, projection_height)
                 wall_slice = Transform(
                     self.wall_textures[texture],
                     crop=(crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),

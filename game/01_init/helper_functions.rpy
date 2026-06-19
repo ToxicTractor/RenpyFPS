@@ -29,3 +29,8 @@ init python:
 
         return data, player_start_pos
                 
+
+    def get_image_size(image):
+        r = renpy.render(image, 0, 0, 0, 0)
+        size = r.get_size()
+        return int(size[0]), int(size[1])
