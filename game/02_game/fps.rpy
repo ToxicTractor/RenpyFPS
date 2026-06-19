@@ -1,6 +1,6 @@
 init python:
     import pygame
-    
+    import pyautogui
     class FpsDisplayable(renpy.Displayable):
 
         def __init__(self, scale=1):
@@ -16,7 +16,21 @@ init python:
             self.player = Player(self, self.map.player_start_pos)
             self.object_renderer = ObjectRenderer(self)
             self.raycaster = Raycaster(self)
-            self.weapon = Weapon("shotgun_idle", "shotgun_shoot", scale=4.0)
+            self.weapon = Weapon(
+                "shotgun_idle", 
+                "shotgun_shoot", 
+                casing_pool=ObjectPool(
+                    Casing(
+                        shotgun_shell_anim, 
+                        (FpsSettings.HALF_SCREEN_WIDTH - 40, FpsSettings.SCREEN_HEIGHT - 80), 
+                        lifetime=0.5, 
+                        scale=4.0
+                    ), 
+                    2
+                ),
+                casing_spawn_delay=0.3,
+                scale=4.0
+            )
 
             self.modify_renpy_keymaps()
 

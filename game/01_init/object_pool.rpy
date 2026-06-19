@@ -10,7 +10,7 @@ init python:
             self.template = obj
             self.pool = {}
             for i in range(pool_size):
-                self.pool[deepcopy(self.template)] = False ## False is not taken and True is taken
+                self.pool[deepcopy(self.template)] = ObjectPool.NOT_TAKEN_VALUE
             
             self.dynamic = dynamic
         
@@ -18,12 +18,10 @@ init python:
 
             for key, value in self.pool.items():
                 if (value == ObjectPool.NOT_TAKEN_VALUE):
-                    print("existing object taken")
                     self.pool[key] = ObjectPool.TAKEN_VALUE
                     return key
             
             if (self.dynamic):
-                print("new object created")
                 new_entry = deepcopy(self.template)
                 self.pool[new_entry] = ObjectPool.TAKEN_VALUE
                 return new_entry
@@ -33,6 +31,5 @@ init python:
         def release(self, obj):
 
             if (obj in self.pool.keys()):
-                print("object released")
                 obj.reset()
                 self.pool[obj] = ObjectPool.NOT_TAKEN_VALUE

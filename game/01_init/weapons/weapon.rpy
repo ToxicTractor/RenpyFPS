@@ -2,31 +2,26 @@ init python:
 
     class Weapon():
 
-        def __init__(self, idle_image, shoot_image, reload_image=None, casing_image=None, scale=1.0):
+        def __init__(self, idle_image, shoot_image, reload_image=None, casing_pool=None, casing_spawn_delay=0, scale=1.0):
 
             self.idle_image = ImageReference(idle_image) if idle_image is not None else None
             self.shoot_image = ImageReference(shoot_image) if shoot_image is not None else None
             self.reload_image = ImageReference(reload_image) if reload_image is not None else None
-            self.casing_image = ImageReference(casing_image) if casing_image is not None else None
             
             self.idle_anim = shotgun_idle_anim
             self.shoot_anim = shotgun_shoot_anim
             self.reload_anim = None
-            self.casing_anim = shotgun_shell_anim
 
             self.scale = scale
             self.width, self.height = get_image_size(self.idle_image)
-            self.casing_width, self.casing_height = get_image_size(self.casing_anim.image) if self.casing_anim is not None else (None, None)
 
             self.at = 0
             self.current_animation = self.idle_anim
 
-            self.spawn_casing_theshold = 0.3
-            self.casing_spawn_offset = (FpsSettings.HALF_SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT - 150)
-
-            self.casing_pool = ObjectPool(Casing(self.casing_anim, self.casing_spawn_offset, scale=self.scale), 2) if self.casing_anim is not None else None
+            self.casing_pool = casing_pool
             self.casing_spawned = False
             self.casings = []
+            self.casing_spawn_delay = casing_spawn_delay
 
         
         def update(self, delta_time):
@@ -39,7 +34,10 @@ init python:
                 else:
                     self.at += delta_time
 
-            if (self.at >= self.spawn_casing_theshold and not self.casing_spawned):
+            if (self.casing_pool is None):
+                return
+
+            if (self.at >= self.casing_spawn_delay and not self.casing_spawned):
                 self.spawn_casing()
 
             for casing in self.casings:
@@ -71,6 +69,9 @@ init python:
         def draw(self, render, st):
 
             self.draw_weapon(render, st)
+
+            if (self.casing_pool is None):
+                return
 
             for casing in self.casings:
                 casing.draw(render, st)
@@ -107,7 +108,7 @@ init python:
 
 define shotgun_idle_anim = AnimationData("shotgun_idle", 0)
 define shotgun_shoot_anim = AnimationData("shotgun_shoot", 0.8)
-define shotgun_shell_anim = AnimationData("shotgun_shell", 0.2)
+define shotgun_shell_anim = AnimationData("shotgun_shell", 0.3)
 
 image shotgun_idle:
     "shotgun_idle_01"
@@ -124,6 +125,7 @@ image shotgun_shoot = Animation(
 
 image shotgun_shell = Animation(
     "shotgun_shell_01", 0.1,
-    "shotgun_shell_02", 0.1
+    "shotgun_shell_02", 0.1,
+    Transform("shotgun_shell_01", xzoom=-1), 0.1
 ) ## 0.2 seconds
     

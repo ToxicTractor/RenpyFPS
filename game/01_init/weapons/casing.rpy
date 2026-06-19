@@ -15,7 +15,6 @@ init python:
 
 
         def is_expired(self):
-            print(f"AT: {self.at} | Lifetime: {self.lifetime}")
             return self.at >= self.lifetime
 
 
@@ -49,8 +48,13 @@ init python:
         def calculate_current_position(self):
             if (self.animation.duration == 0):
                 return self.start_x, self.start_y
+
+            x = int((2000*self.at) + self.start_x)
             
-            x = int((3000*self.at) + self.start_x)
-            y = int((110 * (self.at - 0.06)) ** 2 + self.start_y)
+            a = 8000
+            b = -1800
+            c = 0
+            
+            y = int((a * self.at ** 2 + b * self.at + c) + self.start_y)
 
             return x, y
