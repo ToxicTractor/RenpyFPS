@@ -2,8 +2,9 @@ init python:
 
     class Weapon():
 
-        def __init__(self, idle_image, shoot_image, reload_image=None, casing_pool=None, casing_spawn_delay=0, scale=1.0):
+        def __init__(self, game, idle_image, shoot_image, reload_image=None, shoot_sound=None, casing_pool=None, casing_spawn_delay=0, scale=1.0):
 
+            self.game = game
             self.idle_image = ImageReference(idle_image) if idle_image is not None else None
             self.shoot_image = ImageReference(shoot_image) if shoot_image is not None else None
             self.reload_image = ImageReference(reload_image) if reload_image is not None else None
@@ -12,6 +13,7 @@ init python:
             self.shoot_anim = shotgun_shoot_anim
             self.reload_anim = None
 
+            self.shoot_sound = shoot_sound
             self.scale = scale
             self.width, self.height = get_image_size(self.idle_image)
 
@@ -64,6 +66,7 @@ init python:
                 self.casings.remove(casing)
             
             self.casing_pool.release(casing)
+            renpy.play("audio/weapons/shotgun_shell.ogg")
 
 
         def draw(self, render, st):
@@ -81,6 +84,8 @@ init python:
 
             scaled_width = int(self.width * self.scale)
             scaled_height = int(self.height * self.scale)
+            
+            offset_x, offset_y = self.game.player.calculate_sway_offset(st)
 
             render_image = self.current_animation.image
 
@@ -92,7 +97,7 @@ init python:
             x = FpsSettings.HALF_SCREEN_WIDTH - (scaled_width // 2)
             y = FpsSettings.SCREEN_HEIGHT - scaled_height
 
-            render.blit(weapon_render, (x, y))
+            render.blit(weapon_render, (x + offset_x, y + offset_y))
 
 
         def shoot(self):
@@ -100,6 +105,9 @@ init python:
             ## ignore shoot input if we are not ready to shoot
             if (self.current_animation != self.idle_anim):
                 return
+            
+            if (self.shoot_sound is not None):
+                renpy.play(self.shoot_sound)
 
             self.at = 0
             self.casing_spawned = False

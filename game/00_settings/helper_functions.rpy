@@ -1,4 +1,4 @@
-init python:
+init -100 python:
     
     def load_map(map_path):
 
@@ -34,3 +34,26 @@ init python:
         r = renpy.render(image, 0, 0, 0, 0)
         size = r.get_size()
         return int(size[0]), int(size[1])
+
+
+    ## Clamps a value between min_value and max_value
+    def clamp(value, min_value, max_value):
+        if (min_value > max_value):
+            raise Exception("Parameter 'min_value' cannot be larger than 'max_value'!")
+        return max(min_value, min(value, max_value))
+
+
+    def lerp(a, b, t, clamp_value = True):
+        ## Linear interpolation between a and b by a factor t, by default clamps the result between a and b
+        result = (t * b) + ((1 - t) * a)
+
+        min_value = (a if a < b else b)
+        max_value = (b if b > a else a)
+
+        return (clamp(result, min_value, max_value) if clamp_value else result)
+    
+
+    ## Inverse linear interpolation between a and b from a value, by default clamps result between 0 and 1
+    def inverse_lerp(a, b, value, clamp_value = True):
+        result = (value - a) / (b - a)
+        return (clamp(result, 0, 1) if clamp_value else result)

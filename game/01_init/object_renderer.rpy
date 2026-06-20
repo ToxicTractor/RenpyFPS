@@ -5,7 +5,6 @@ init python:
         def __init__(self, game):
             self.game = game
             self.wall_textures = self.load_wall_textures()
-            self.wall_slice_cache = {}
 
             self.floor_image = Solid("#333") ## floor is a solid color for now
             
@@ -20,64 +19,44 @@ init python:
             )
 
 
-        def draw(self, render):
-            self.draw_sky(render)
-            self.draw_floor(render)
-            self.draw_objects(render)
+        def draw(self, render, st):
+            self.draw_sky(render, st)
+            self.draw_floor(render, st)
+            self.draw_objects(render, st)
         
 
-        def get_wall_slice(self, texture_id, crop_x, height):
-            key = (texture_id, crop_x, int(height))
-
-            cached_slice = self.wall_slice_cache.get(key)
-
-            if (cached_slice):
-                return cached_slice
-
-            else:
-                slice = Transform(
-                    self.wall_textures[texture_id],
-                    crop=(crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),
-                    size=(FpsSettings.PROJECTION_SCALE, int(height))
-                )
-                
-                self.wall_slice_cache[key] = slice
-
-                return slice
-
-
-        def draw_objects(self, render):
+        def draw_objects(self, render, st):
             objects_to_render = self.game.raycaster.objects_to_render
-            
+            offset_x, offset_y = self.game.player.calculate_sway_offset(st)
+
             for depth, texture, crop_x, projection_height, pos in objects_to_render:
                 
-                #wall_slice = self.get_wall_slice(texture, crop_x, projection_height)
                 wall_slice = Transform(
                     self.wall_textures[texture],
                     crop=(crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),
                     size=(FpsSettings.PROJECTION_SCALE, int(projection_height)),
                     matrixcolor=BrightnessMatrix(-(depth / FpsSettings.MAX_DEPTH))
-                    #matrixcolor=OpacityMatrix((1 - (depth / FpsSettings.MAX_DEPTH)))
                 )
-
+                
                 wall_render = renpy.render(wall_slice, FpsSettings.PROJECTION_SCALE, int(projection_height), 0, 0)
 
-                render.blit(wall_render, pos)
+                render.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
 
-        def draw_floor(self, render):
+
+        def draw_floor(self, render, st):
 
             floor_render = renpy.render(self.floor_image, FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT, 0, 0)
+            offset_x, offset_y = self.game.player.calculate_sway_offset(st)
+            render.blit(floor_render, (0 + offset_x, FpsSettings.HALF_SCREEN_HEIGHT + offset_y))
+        
 
-            render.blit(floor_render, (0, FpsSettings.HALF_SCREEN_HEIGHT))
-
-
-        def draw_sky(self, render):
-            
+        def draw_sky(self, render, st):
+            offset_x, offset_y = self.game.player.calculate_sway_offset(st)
             if (self.is_inside):
 
                 ceiling_render = renpy.render(self.sky_image, FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT, 0, 0)
 
-                render.blit(ceiling_render, (0, 0))
+                render.blit(ceiling_render, (0 + offset_x, 0 + offset_y))
 
                 return
 
@@ -86,7 +65,7 @@ init python:
             sky_render = renpy.render(self.sky_image, FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT, 0, 0)
             
             for i in range(-1, 4):
-                render.blit(sky_render, ((i * FpsSettings.HALF_SCREEN_WIDTH - self.sky_offset), 0))
+                render.blit(sky_render, ((i * FpsSettings.HALF_SCREEN_WIDTH - self.sky_offset) + offset_x, 0 + offset_y))
 
 
         def load_wall_textures(self):

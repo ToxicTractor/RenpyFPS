@@ -14,6 +14,24 @@ init python:
             self.input_vertical = 0
             self.input_angle = 0
 
+            self.sway_enabled = True
+            self.sway_moved_for_duration = 0
+            self.sway_change_duration = 0.25
+            self.sway_amount = 0
+            self.sway_magnitude_x = 5
+            self.sway_magnitude_y = 5
+            self.sway_phase_x = 1
+            self.sway_phase_y = 0.5
+
+            self.footstep_played = False
+            self.footstep_last_st = 0
+            self.footstep_sounds = [
+                "audio/footsteps/footstep_01.ogg",
+                "audio/footsteps/footstep_02.ogg",
+                "audio/footsteps/footstep_03.ogg",
+                "audio/footsteps/footstep_04.ogg",
+                "audio/footsteps/footstep_05.ogg"
+            ]
 
         def reset_input(self):
             self.input_horizontal = 0
@@ -52,8 +70,20 @@ init python:
             self.angle %= math.tau
 
 
-        def update(self, delta_time):
+        def update(self, delta_time, st):
             self.move(delta_time)
+
+            self.footsteps(st)
+
+            if (not self.sway_enabled):
+                return
+
+            if (abs(self.input_horizontal) > 0 or abs(self.input_vertical) > 0):
+                self.sway_moved_for_duration = clamp(self.sway_moved_for_duration + delta_time, 0, self.sway_change_duration)
+            else:
+                self.sway_moved_for_duration = clamp(self.sway_moved_for_duration - delta_time, 0, self.sway_change_duration)
+
+            self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
 
         def is_wall(self, x, y):
             return (int(x), int(y)) in self.game.map.world_map
@@ -67,6 +97,28 @@ init python:
                 self.is_wall(x - self.size, y - self.size)
             )
 
+
+        def calculate_sway_offset(self, st):
+            
+            if (self.sway_amount == 0):
+                return (0, 0)
+            
+            x = math.sin((st * math.pi * 2) / self.sway_phase_x) * self.sway_magnitude_x * self.sway_amount
+            y = math.sin((st * math.pi * 2) / self.sway_phase_y) * self.sway_magnitude_y * self.sway_amount
+
+            return (x, y)
+
+        
+        def footsteps(self, st):
+            
+            if (self.sway_moved_for_duration <= 0):
+                return
+
+            if (self.footstep_last_st + self.sway_phase_y <= st):
+                self.footstep_last_st = st
+
+                renpy.play(self.footstep_sounds[renpy.random.randint(0, len(self.footstep_sounds) - 1)])
+            
 
         def draw_2d(self, canvas):
 

@@ -1,6 +1,5 @@
 init python:
     import pygame
-    import pyautogui
     class FpsDisplayable(renpy.Displayable):
 
         def __init__(self, scale=1):
@@ -17,13 +16,15 @@ init python:
             self.object_renderer = ObjectRenderer(self)
             self.raycaster = Raycaster(self)
             self.weapon = Weapon(
+                self,
                 "shotgun_idle", 
                 "shotgun_shoot", 
+                shoot_sound="audio/weapons/shotgun_shoot.ogg",
                 casing_pool=ObjectPool(
                     Casing(
                         shotgun_shell_anim, 
                         (FpsSettings.HALF_SCREEN_WIDTH - 40, FpsSettings.SCREEN_HEIGHT - 80), 
-                        lifetime=0.5, 
+                        lifetime=0.3, 
                         scale=4.0
                     ), 
                     2
@@ -57,7 +58,7 @@ init python:
             r = renpy.Render(width, height)
             canvas = r.canvas()
             
-            self.object_renderer.draw(r)
+            self.object_renderer.draw(r, st)
             # self.map.draw_2d(canvas)
             # self.player.draw_2d(canvas)
 
@@ -73,11 +74,10 @@ init python:
             ## update delta time
             self.update_delta_time(st)
 
-            self.player.update(self.delta_time)
+            self.player.update(self.delta_time, st)
             self.weapon.update(self.delta_time)
 
             self.raycaster.update()
-
 
 
         def event(self, ev, x, y, st): ## use this for reacting to events
