@@ -32,6 +32,8 @@ init python:
                 casing_spawn_delay=0.3,
                 scale=4.0
             )
+            self.sprite_obj1 = SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27)
+            self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
 
             self.modify_renpy_keymaps()
 
@@ -78,6 +80,10 @@ init python:
             self.weapon.update(self.delta_time)
 
             self.raycaster.update()
+            self.object_renderer.update()
+
+            self.sprite_obj1.update(self.delta_time, st)
+            self.sprite_obj2.update(self.delta_time, st)
 
 
         def event(self, ev, x, y, st): ## use this for reacting to events

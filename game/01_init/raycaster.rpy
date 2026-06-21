@@ -5,9 +5,12 @@ init python:
         def __init__(self, game):
             self.game = game
             self.ray_cast_result = []
-            self.objects_to_render = []
             self.textures = self.game.object_renderer.wall_textures
             self.ray_data = self.calculate_ray_data()
+
+
+        def update(self):
+            self.cast_rays_dda()
 
 
         def calculate_ray_data(self):
@@ -19,28 +22,6 @@ init python:
                 ray_data.append((math.sin(offset), math.cos(offset)))
 
             return ray_data
-
-
-        def get_objects_to_draw(self):
-            self.objects_to_render = []
-
-            for i, values in enumerate(self.ray_cast_result):
-                depth, projection_height, texture, offset = values
-                
-                ## if texture is 0 we dont want to render anything
-                if (texture == 0):
-                    continue
-
-                crop_x = int(offset * (FpsSettings.TEXTURE_SIZE - 1))
-
-                wall_pos = (i * FpsSettings.PROJECTION_SCALE, FpsSettings.HALF_SCREEN_HEIGHT - projection_height // 2)
-
-                self.objects_to_render.append(
-                    (depth,
-                    texture,
-                    crop_x,
-                    projection_height, 
-                    wall_pos))
 
 
         def cast_rays_dda(self):
@@ -121,8 +102,3 @@ init python:
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
                 self.ray_cast_result.append((depth, projection_height, texture, offset))
-
-
-        def update(self):
-            self.cast_rays_dda();
-            self.get_objects_to_draw()

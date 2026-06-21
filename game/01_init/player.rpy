@@ -16,12 +16,12 @@ init python:
 
             self.sway_enabled = True
             self.sway_moved_for_duration = 0
-            self.sway_change_duration = 0.25
+            self.sway_change_duration = 0.125
             self.sway_amount = 0
             self.sway_magnitude_x = 5
             self.sway_magnitude_y = 5
-            self.sway_phase_x = 1
-            self.sway_phase_y = 0.5
+            self.sway_phase_x = 0.6
+            self.sway_phase_y = 0.3
 
             self.footstep_played = False
             self.footstep_last_st = 0
