@@ -66,7 +66,6 @@ init python:
                 self.casings.remove(casing)
             
             self.casing_pool.release(casing)
-            renpy.play("audio/weapons/shotgun_shell.ogg")
 
 
         def draw(self, render, st):

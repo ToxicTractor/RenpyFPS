@@ -26,11 +26,11 @@ init python:
             self.footstep_played = False
             self.footstep_last_st = 0
             self.footstep_sounds = [
-                "audio/footsteps/footstep_01.ogg",
-                "audio/footsteps/footstep_02.ogg",
-                "audio/footsteps/footstep_03.ogg",
-                "audio/footsteps/footstep_04.ogg",
-                "audio/footsteps/footstep_05.ogg"
+                "audio/fps/footsteps/footstep_01.ogg",
+                "audio/fps/footsteps/footstep_02.ogg",
+                "audio/fps/footsteps/footstep_03.ogg",
+                "audio/fps/footsteps/footstep_04.ogg",
+                "audio/fps/footsteps/footstep_05.ogg"
             ]
 
         def reset_input(self):

@@ -12,6 +12,7 @@ init python:
 
             self.background = Solid("#444")
             self.map = Map(self)
+            self.jukebox = FpsJukebox()
             self.player = Player(self, self.map.player_start_pos)
             self.object_renderer = ObjectRenderer(self)
             self.raycaster = Raycaster(self)
@@ -19,7 +20,7 @@ init python:
                 self,
                 "shotgun_idle", 
                 "shotgun_shoot", 
-                shoot_sound="audio/weapons/shotgun_shoot.ogg",
+                shoot_sound="audio/fps/weapons/shotgun_shoot.ogg",
                 casing_pool=ObjectPool(
                     Casing(
                         shotgun_shell_anim, 
@@ -36,6 +37,7 @@ init python:
             self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
 
             self.modify_renpy_keymaps()
+            #self.jukebox.play()
 
         @staticmethod
         def modify_renpy_keymaps():
