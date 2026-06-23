@@ -1,4 +1,4 @@
-init python:
+init -10 python:
 
     class AnimationData():
 

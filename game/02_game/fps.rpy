@@ -36,6 +36,8 @@ init python:
             self.sprite_obj1 = SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27)
             self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
 
+            self.npc = NPC(self, zombie_animations, pos=(13.5, 15.5), scale=0.7, height_shift=0.35)
+
             self.modify_renpy_keymaps()
             #self.jukebox.play()
 
@@ -62,11 +64,12 @@ init python:
             r = renpy.Render(width, height)
             canvas = r.canvas()
             
-            self.object_renderer.draw(r, st)
-            # self.map.draw_2d(canvas)
-            # self.player.draw_2d(canvas)
+            self.map.draw_2d(canvas)
+            self.player.draw_2d(canvas)
+            self.npc.draw_2d(canvas)
 
-            self.weapon.draw(r, st)
+            # self.object_renderer.draw(r, st)
+            # self.weapon.draw(r, st)
 
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
@@ -84,8 +87,9 @@ init python:
             self.raycaster.update()
             self.object_renderer.update()
 
-            self.sprite_obj1.update(self.delta_time, st)
-            self.sprite_obj2.update(self.delta_time, st)
+            self.sprite_obj1.update(self.delta_time)
+            self.sprite_obj2.update(self.delta_time)
+            self.npc.update(self.delta_time)
 
 
         def event(self, ev, x, y, st): ## use this for reacting to events

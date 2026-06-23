@@ -40,7 +40,8 @@ init python:
                     self.wall_textures[texture],
                     (crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),
                     (FpsSettings.PROJECTION_SCALE, int(projection_height)),
-                    wall_pos)
+                    wall_pos,
+                    0)
                 )
 
 
@@ -62,7 +63,7 @@ init python:
             ## sort the list by depth to make sure we draw element in the correct order
             self.objects_to_render = sorted(self.objects_to_render, reverse=True)
             
-            for depth, texture, crop, projection_size, pos in self.objects_to_render:
+            for depth, texture, crop, projection_size, pos, at in self.objects_to_render:
                 
                 wall_slice = Transform(
                     texture,
@@ -71,7 +72,7 @@ init python:
                     matrixcolor=BrightnessMatrix(-(depth / FpsSettings.MAX_DEPTH))
                 )
                 
-                wall_render = renpy.render(wall_slice, FpsSettings.PROJECTION_SCALE, int(projection_size[1]), st, st)
+                wall_render = renpy.render(wall_slice, FpsSettings.PROJECTION_SCALE, int(projection_size[1]), st, at)
 
                 screen.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
 

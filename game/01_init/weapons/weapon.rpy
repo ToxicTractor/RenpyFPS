@@ -25,6 +25,8 @@ init python:
             self.casings = []
             self.casing_spawn_delay = casing_spawn_delay
 
+            self.damage = 25
+
         
         def update(self, delta_time):
 
@@ -111,6 +113,7 @@ init python:
             self.at = 0
             self.casing_spawned = False
             self.current_animation = self.shoot_anim
+            self.game.player.shoot = True
 
 
 define shotgun_idle_anim = AnimationData("shotgun_idle", 0)

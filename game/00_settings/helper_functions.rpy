@@ -1,11 +1,12 @@
 init -100 python:
-    
+    import struct
     def load_map(map_path):
 
         img = renpy.load_surface(map_path)
         rows, cols = renpy.image_size(map_path)
 
-        data = [[None for _ in range(cols)] for _ in range(rows)]
+        data = [[0 for _ in range(cols)] for _ in range(rows)]
+
         player_start_pos = 0, 0
 
         for y in range(cols):
@@ -21,7 +22,6 @@ init -100 python:
 
                 ## if the alpha channel is not at 255, it counts as an empty square
                 if (a != 255):
-                    data[y][x] = 0
                     continue
 
                 ## value of the red channel determines the wall type
@@ -57,3 +57,26 @@ init -100 python:
     def inverse_lerp(a, b, value, clamp_value = True):
         result = (value - a) / (b - a)
         return (clamp(result, 0, 1) if clamp_value else result)
+
+    
+    ## inverse sqrt approximation
+    ## https://ajcr.net/fast-inverse-square-root-python/
+    def isqrt(number):
+        threehalfs = 1.5
+        x2 = number * 0.5
+        y = number
+        
+        packed_y = struct.pack('f', y)
+        i = struct.unpack('i', packed_y)[0]
+        i = 0x5f3759df - (i >> 1)
+        packed_i = struct.pack('i', i)
+        y = struct.unpack('f', packed_i)[0]
+        
+        y = y * (threehalfs - (x2 * y * y))
+        return y
+    
+    ## normalize vector using inverse sqrt approximation
+    def normalize(x, y):
+        dot = x ** 2 + y ** 2
+        inv_length = isqrt(dot)
+        return (x * inv_length, y * inv_length)

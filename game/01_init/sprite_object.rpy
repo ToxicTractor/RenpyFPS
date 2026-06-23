@@ -1,4 +1,4 @@
-init python:
+init -1 python:
 
     class SpriteObject:
         def __init__(self, game, sprite_anim, pos=(11.5, 9.5), scale=1.0, height_shift=0.0):
@@ -21,11 +21,27 @@ init python:
             self.norm_dist = 1
             self.sprite_half_width = 0
 
+            self.at = 0
 
-        def update(self, delta_time, st):
+
+        def update(self, delta_time):
+            if (self.sprite_anim.duration > 0):
+                self.animation_just_ended = False
+
+                if (self.at >= self.sprite_anim.duration):
+                    if (self.sprite_anim.loop):
+                        self.at = 0
+                    self.on_animation_end(self.sprite_anim)
+                else:
+                    self.at += delta_time
+
             self.get_sprite()
-        
-        
+
+
+        def on_animation_end(self, animation):
+            pass
+
+
         def get_sprite_projection(self):
                 
             proj = FpsSettings.PROJECTION_DISTANCE / max(self.norm_dist, 0.0001) * self.scale
@@ -41,7 +57,8 @@ init python:
                 self.sprite_anim.image, 
                 (0, 0, self.sprite_width, self.sprite_height), 
                 (proj_width, proj_height), 
-                pos)
+                pos,
+                min(self.sprite_anim.duration - 0.0001, self.at))
             )
 
 

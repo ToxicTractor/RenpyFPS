@@ -13,6 +13,7 @@ init python:
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
+            self.shoot = False
 
             self.sway_enabled = True
             self.sway_moved_for_duration = 0
@@ -37,6 +38,7 @@ init python:
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
+            self.shoot = 0
 
 
         def move(self, delta_time):
@@ -45,16 +47,18 @@ init python:
             if delta_time == 0:
                 return
 
-            sin_angle = math.sin(self.angle)
             cos_angle = math.cos(self.angle)
-            delta_x = 0
-            delta_y = 0
+            sin_angle = math.sin(self.angle)
             speed = self.speed * delta_time
-            speed_sin = speed * sin_angle
-            speed_cos = speed * cos_angle
 
-            delta_x = self.input_vertical * speed_cos + self.input_horizontal * -speed_sin
-            delta_y = self.input_vertical * speed_sin + self.input_horizontal * speed_cos
+            speed_cos = speed * cos_angle
+            speed_sin = speed * sin_angle
+
+            ## normalize input magnitude to make sure we don't move faster when running diagonally
+            vertical, horizontal = normalize(self.input_vertical, self.input_horizontal)
+
+            delta_x = vertical * speed_cos + horizontal * -speed_sin
+            delta_y = vertical * speed_sin + horizontal * speed_cos
 
             new_x = self.pos_x + delta_x
             new_y = self.pos_y + delta_y
@@ -71,6 +75,7 @@ init python:
 
 
         def update(self, delta_time, st):
+
             self.move(delta_time)
 
             self.footsteps(st)
@@ -85,16 +90,14 @@ init python:
 
             self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
 
-        def is_wall(self, x, y):
-            return (int(x), int(y)) in self.game.map.world_map
 
         def wall_collision(self, x, y):
-            
+            map = self.game.map
             return (
-                self.is_wall(x + self.size, y + self.size) or
-                self.is_wall(x - self.size, y + self.size) or
-                self.is_wall(x + self.size, y - self.size) or
-                self.is_wall(x - self.size, y - self.size)
+                map.is_wall(x + self.size, y + self.size) or
+                map.is_wall(x - self.size, y + self.size) or
+                map.is_wall(x + self.size, y - self.size) or
+                map.is_wall(x - self.size, y - self.size)
             )
 
 
