@@ -1,29 +1,38 @@
 init python:
+    from abc import ABC, abstractmethod
+    class NPC(SpriteObject, ABC): ## abstract class to enforce inheritance for enemy types
 
-    class NPC(SpriteObject):
+        def __init__(self, game, pos, sprite_anim=None, scale=1.0, height_shift=0.0):
+            super().__init__(game, sprite_anim, pos=pos, scale=scale, height_shift=height_shift)
 
-        def __init__(self, game, animations, pos=(11.5, 9.5), scale=1.0, height_shift=0.0):
-            super().__init__(game, animations["idle"], pos, scale, height_shift)
-
+            #region Override variables
             ## animations
-            self.attack_anim = animations["attack"]
-            self.idle_anim = animations["idle"]
-            self.walk_anim = animations["walk"]
-            self.hurt_anim = animations["hurt"]
-            self.death_anim = animations["death"]
+            self.attack_anim = None
+            self.idle_anim = None
+            self.walk_anim = None
+            self.hurt_anim = None
+            self.death_anim = None
+
+            ## audio
+            self.attack_audio = None
+            self.hurt_audio = None
+            self.death_audio = None
 
             ## stats
-            self.attack_range = 5
-            self.speed = 2
-            self.size = .15
-            self.health = 100
-            self.attack_damage = 10
-            self.accuracy = 0.15
+            self.attack_range = 0
+            self.speed = 0
+            self.size = 0
+            self.health = 0
+            self.attack_damage = 0
+            self.accuracy = 0
+            #endregion
+
             self.alive = True
             self.hurt = False
+            self.attack = False
 
-            self.start_position = pos
             self.return_to_start_pos = True
+            self.start_coord = self.coordinate
 
             self.pathfinding = Pathfinding(game.map.nav_map)
             self.path = None
@@ -32,6 +41,8 @@ init python:
 
             self.has_los_to_player = False
             self.last_player_coord = None
+            self.lost_player = False
+
 
         @property
         def coordinate(self):
@@ -41,7 +52,6 @@ init python:
         def update(self, delta_time):
             super().update(delta_time)
             
-
             if self.alive:
                 player_coord = self.game.player.coordinate
                 player_coord_x, player_coord_y = player_coord
@@ -49,38 +59,60 @@ init python:
                 self.check_was_hit()
 
                 if (self.hurt):
-                    self.change_animation(self.hurt_anim)
+                    self.change_animation(self.hurt_anim, audio=self.hurt_audio)
+
+                elif (self.attack):
+                    self.change_animation(self.attack_anim, audio=self.attack_audio)
 
                 elif (self.has_los_to_player):
+                    
+                    if (self.dist <= self.attack_range):
+                        self.attack = True
+                        return
+
                     self.move_towards((player_coord_x + 0.5, player_coord_y + 0.5), delta_time)
-                    self.last_player_coord = player_coord
 
-                    ## clear any path we might have had
+                    ## set variables
                     self.path = None
+                    self.last_player_coord = player_coord
+                    self.lost_player = False
+                    self.los_grace_timer = 0
 
-                elif (self.last_player_coord is not None or self.path is not None):
+                elif (self.last_player_coord is not None):
                     self.pathfind_to_player(player_coord, delta_time)
-                
-                elif (self.return_to_start_pos):
-                    pass
+
+                elif (self.return_to_start_pos and self.lost_player):
+                    self.pathfind_to_start_pos(delta_time)
 
                 else:
                     self.change_animation(self.idle_anim)
-                    self.last_player_coord = None
 
             else:
-                self.change_animation(self.death_anim)
+                self.change_animation(self.death_anim, audio=self.death_audio)
 
 
-        def change_animation(self, animation, override_same=False):
+        def change_animation(self, animation, audio=None, override_same=False):
 
             if (self.sprite_anim == animation and not override_same):
                 return
+            
+            if (audio is not None):
+                renpy.play(audio)
 
             self.sprite_anim = animation
             self.at = 0
 
-        
+
+        def pathfind_to_start_pos(self, delta_time):
+
+            if (self.path is None):
+                self.path = self.pathfinding.find_path(self.coordinate, self.start_coord)
+            
+            ## if there is no path or we have arrived, return self.lost_player to False
+            if (not self.pathfind_along_current_path(delta_time)):
+                self.lost_player = False
+
+
         def pathfind_to_player(self, player_coord, delta_time):
 
             ## update the path if we dont have one or if the players position changed and we are still within the LOS grace period
@@ -111,10 +143,34 @@ init python:
                 self.path = None
                 self.last_player_coord = None
                 self.los_grace_timer = 0
+                self.lost_player = True
                 return
 
             self.los_grace_timer += delta_time
         
+
+        def pathfind_along_current_path(self, delta_time):
+
+            if (self.path is not None and len(self.path) > 1):
+
+                next_tile = self.path[1]
+
+                ## +0.5 to go to the center of the tile
+                target_x = next_tile[0] + 0.5
+                target_y = next_tile[1] + 0.5
+
+                distance = math.hypot(target_x - self.pos_x, target_y - self.pos_y)
+
+                ## pop the element to use the next step, next time
+                if (distance < 0.1):
+                    self.path.pop(0)
+
+                self.move_towards((target_x, target_y), delta_time)
+                
+                return True
+            
+            return False
+
 
         def move_towards(self, target_coord, delta_time):
             
@@ -158,6 +214,12 @@ init python:
                 self.sprite_anim = self.idle_anim
                 self.at = 0
 
+            elif (animation == self.attack_anim):
+
+                self.attack = False
+                self.sprite_anim = self.idle_anim
+                self.at = 0
+
 
         def check_was_hit(self):
 
@@ -169,15 +231,14 @@ init python:
                     self.game.player.shoot = False ## if weapon is piercing we dont do this
                     self.hurt = True     
                     
-                    self.deal_damage(self.game.weapon.damage)            
+                    self.take_damage(self.game.weapon.damage)            
 
 
-        def deal_damage(self, amount):
+        def take_damage(self, amount):
             self.health -= amount
 
             if (self.health <= 0 and self.alive):
                 self.alive = False
-                ## play death audio?
 
 
         def is_player_in_sight(self):
@@ -238,7 +299,8 @@ init python:
 
             return False
 
-
+        
+        ## this method exists purely for 2d debugging
         def draw_2d(self, canvas):
             canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
 

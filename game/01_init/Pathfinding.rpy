@@ -60,6 +60,7 @@ init python:
 
 
         def find_path(self, start, goal):
+
             if not self.is_walkable(*start):
                 return None
 
