@@ -33,10 +33,8 @@ image zombie_death = Animation(
     "zombie_death_05", 0.1
 ) # 0.5 seconds
 
-init python:
-    
+init python: 
     class ZombieNPC(NPC):
-
         def __init__(self, game, pos):
             super().__init__(
                 game, 

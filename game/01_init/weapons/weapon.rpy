@@ -1,35 +1,57 @@
-init python:
+init -1 python:
+    from abc import ABC, abstractmethod
+    class Weapon(ABC): ## abstract class to enforce inheritance for weapon types
+        def __init__(self, 
+            game,
+            scale=1.0):
 
-    class Weapon():
-
-        def __init__(self, game, idle_image, shoot_image, reload_image=None, shoot_sound=None, casing_pool=None, casing_spawn_delay=0, scale=1.0):
-
-            self.game = game
-            self.idle_image = ImageReference(idle_image) if idle_image is not None else None
-            self.shoot_image = ImageReference(shoot_image) if shoot_image is not None else None
-            self.reload_image = ImageReference(reload_image) if reload_image is not None else None
-            
-            self.idle_anim = shotgun_idle_anim
-            self.shoot_anim = shotgun_shoot_anim
+            #region Override variables
+            ## animations
+            self.idle_anim = None
+            self.attack_anim = None
             self.reload_anim = None
 
-            self.shoot_sound = shoot_sound
+            ## audio
+            self.attack_audio = None
+            self.reload_audio = None
+
+            ## casings
+            self.casing_pool = None
+            self.casing_spawn_delay = 0
+            
+            ## stats
+            self.damage = 0
+            self.magazine_size = 0
+            self.range = 0 ## 0 means no range limit
+
+            self.initialize()
+            #endregion
+
+            ## constructor initialization
+            self.game = game
             self.scale = scale
-            self.width, self.height = get_image_size(self.idle_image)
+
+            self.width, self.height = get_image_size(self.idle_anim.image)
+            self.scaled_width, self.scaled_height = int(self.width * self.scale), int(self.height * self.scale)
+            self.pos_x = FpsSettings.HALF_SCREEN_WIDTH - (self.scaled_width // 2)
+            self.pos_y = FpsSettings.SCREEN_HEIGHT - self.scaled_height
 
             self.at = 0
             self.current_animation = self.idle_anim
 
-            self.casing_pool = casing_pool
             self.casing_spawned = False
             self.casings = []
-            self.casing_spawn_delay = casing_spawn_delay
 
-            self.damage = 25
 
-        
+        @abstractmethod
+        def initialize(self):
+            pass
+
+        #region Update and Draw methods
+
         def update(self, delta_time):
 
+            ## update anmiation time if our current animation has a duration
             if (self.current_animation.duration > 0):
 
                 if (self.at >= self.current_animation.duration):
@@ -38,104 +60,88 @@ init python:
                 else:
                     self.at += delta_time
 
+            ## if weapon doesn't have a casing pool, just return here
             if (self.casing_pool is None):
                 return
 
+            ## spawn casing if appropriate time
             if (self.at >= self.casing_spawn_delay and not self.casing_spawned):
                 self.spawn_casing()
 
+            ## loop through our casings and despawn expired casings and update any others
             for casing in self.casings:
-                if (casing.is_expired()):
+                if (casing.is_expired):
                     self.despawn_casing(casing)
                     continue
 
                 casing.update(delta_time)
 
-        def spawn_casing(self):
 
-            casing = self.casing_pool.get()
+        def draw(self, screen, st):
 
-            if (casing is None):
+            ## draws the weapon to the screen
+            self.draw_weapon(screen, st)
+
+            ## if we dont have a casing pool, just return here
+            if (self.casing_pool is None):
                 return
 
+            ## draw each casing in our list to the screen
+            for casing in self.casings:
+                casing.draw(screen, st)
+
+
+        def draw_weapon(self, screen, st):
+
+            ## calculate the x and y offsets due to sway from movement
+            offset_x, offset_y = self.game.player.calculate_sway_offset(st)
+
+            ## get the weapon image, scaled if appropriate
+            weapon_image = self.current_animation.image if self.scale == 1.0 else Transform(self.current_animation.image, size=(self.scaled_width, self.scaled_height))
+
+            ## create a render for the weapon image
+            weapon_render = renpy.render(weapon_image, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, min(self.current_animation.duration - 0.0001, self.at)) ## make sure dont overshoot duration to avoid wrapping back to start
+
+            ## draw weapon render to the screen
+            screen.blit(weapon_render, (self.pos_x + offset_x, self.pos_y + offset_y))
+        
+        #endregion
+
+        def spawn_casing(self):
+            
+            ## gets a casing from the pool
+            casing = self.casing_pool.get()
+
+            ## if no casing was available, we just return
+            if (casing is None):
+                return
+            
+            ## add the casing to our list of casings and set the casing spawned flag to true
             self.casing_spawned = True
             self.casings.append(casing)
 
 
         def despawn_casing(self, casing):
 
+            ## if the casing is in our list we remove it from the list
             if (casing in self.casings):
                 self.casings.remove(casing)
             
+            ## release the casing back to the pool
             self.casing_pool.release(casing)
 
 
-        def draw(self, render, st):
+        def attack(self):
 
-            self.draw_weapon(render, st)
-
-            if (self.casing_pool is None):
-                return
-
-            for casing in self.casings:
-                casing.draw(render, st)
-
-
-        def draw_weapon(self, render, st):
-
-            scaled_width = int(self.width * self.scale)
-            scaled_height = int(self.height * self.scale)
-            
-            offset_x, offset_y = self.game.player.calculate_sway_offset(st)
-
-            render_image = self.current_animation.image
-
-            if (self.scale != 1.0):
-                render_image = Transform(render_image, size=(scaled_width, scaled_height))
-
-            weapon_render = renpy.render(render_image, scaled_width, scaled_height, st, min(self.current_animation.duration - 0.0001, self.at)) ## make sure dont overshoot duration to avoid wrapping back to start
-
-            x = FpsSettings.HALF_SCREEN_WIDTH - (scaled_width // 2)
-            y = FpsSettings.SCREEN_HEIGHT - scaled_height
-
-            render.blit(weapon_render, (x + offset_x, y + offset_y))
-
-
-        def shoot(self):
-
-            ## ignore shoot input if we are not ready to shoot
+            ## ignore attack input if we are not ready toattackt
             if (self.current_animation != self.idle_anim):
                 return
             
-            if (self.shoot_sound is not None):
-                renpy.play(self.shoot_sound)
+            if (self.attack_audio is not None):
+                renpy.play(self.attack_audio)
 
+            ## set variables to allow animations to play correctly
             self.at = 0
             self.casing_spawned = False
-            self.current_animation = self.shoot_anim
+            self.current_animation = self.attack_anim
             self.game.player.shoot = True
-
-
-define shotgun_idle_anim = AnimationData("shotgun_idle", 0)
-define shotgun_shoot_anim = AnimationData("shotgun_shoot", 0.8)
-define shotgun_shell_anim = AnimationData("shotgun_shell", 0.3)
-
-image shotgun_idle:
-    "shotgun_idle_01"
-
-image shotgun_shoot = Animation(
-    "shotgun_shoot_01", 0.05,
-    "shotgun_shoot_02", 0.05,
-    "shotgun_reload_01", 0.1,
-    "shotgun_reload_02", 0.1,
-    "shotgun_reload_03", 0.2,
-    "shotgun_reload_02", 0.2,
-    "shotgun_reload_01", 0.1,
-) 
-
-image shotgun_shell = Animation(
-    "shotgun_shell_01", 0.1,
-    "shotgun_shell_02", 0.1,
-    Transform("shotgun_shell_01", xzoom=-1), 0.1
-) ## 0.2 seconds
-    

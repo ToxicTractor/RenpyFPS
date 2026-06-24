@@ -1,4 +1,4 @@
-init python:
+init -1 python:
     from abc import ABC, abstractmethod
     class NPC(SpriteObject, ABC): ## abstract class to enforce inheritance for enemy types
 

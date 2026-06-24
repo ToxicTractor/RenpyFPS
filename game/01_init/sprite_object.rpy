@@ -1,4 +1,4 @@
-init -1 python:
+init -2 python:
 
     class SpriteObject:
         def __init__(self, game, sprite_anim, pos=(11.5, 9.5), scale=1.0, height_shift=0.0):
@@ -80,13 +80,3 @@ init -1 python:
 
             if (-self.half_image_width < self.screen_x < (FpsSettings.SCREEN_WIDTH + self.half_image_width) and self.norm_dist > 0.5):
                 self.get_sprite_projection()
-
-define candlestick_anim = AnimationData("candlestick", 0)
-define torch_anim = AnimationData("torch_animated", 0.4, True)
-
-image torch_animated = Animation(
-    "torch_01", 0.1,
-    "torch_02", 0.1,
-    "torch_03", 0.1,
-    "torch_04", 0.1
-) ## 0.4 seconds

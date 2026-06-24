@@ -13,7 +13,7 @@ init python:
 
             self.width, self.height = get_image_size(self.animation.image)
 
-
+        @property
         def is_expired(self):
             return self.at >= self.lifetime
 

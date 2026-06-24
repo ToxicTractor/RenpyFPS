@@ -16,23 +16,8 @@ init python:
             self.player = Player(self, self.map.player_start_pos)
             self.object_renderer = ObjectRenderer(self)
             self.raycaster = Raycaster(self)
-            self.weapon = Weapon(
-                self,
-                "shotgun_idle", 
-                "shotgun_shoot", 
-                shoot_sound="audio/fps/weapons/shotgun_shoot.ogg",
-                casing_pool=ObjectPool(
-                    Casing(
-                        shotgun_shell_anim, 
-                        (FpsSettings.HALF_SCREEN_WIDTH - 40, FpsSettings.SCREEN_HEIGHT - 80), 
-                        lifetime=0.3, 
-                        scale=4.0
-                    ), 
-                    2
-                ),
-                casing_spawn_delay=0.3,
-                scale=4.0
-            )
+            self.weapon = ShotgunWeapon(self)
+
             self.sprite_obj1 = SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27)
             self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
             
@@ -119,7 +104,7 @@ init python:
                 self.player.input_angle += 1
 
             if (key_pressed[pygame.K_SPACE]):
-                self.weapon.shoot()
+                self.weapon.attack()
 
             renpy.restart_interaction() ## make the interaction restart so text outside of the displayable can be updated
 
