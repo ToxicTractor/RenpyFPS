@@ -1,7 +1,5 @@
 init python:
-
     class Map():
-
         def __init__(self, game, path="images/fps/maps/map.png"):
             self.game = game
             map_data, self.player_start_pos = load_map(path)

@@ -1,5 +1,4 @@
 init python:
-
     class ObjectPool():
 
         TAKEN_VALUE = "taken"
@@ -14,6 +13,7 @@ init python:
             
             self.dynamic = dynamic
         
+
         def get(self):
 
             for key, value in self.pool.items():
@@ -27,6 +27,7 @@ init python:
                 return new_entry
 
             return None
+
 
         def release(self, obj):
 

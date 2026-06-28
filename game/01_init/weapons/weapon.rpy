@@ -2,7 +2,7 @@ init -1 python:
     from abc import ABC, abstractmethod
     class Weapon(ABC): ## abstract class to enforce inheritance for weapon types
         def __init__(self, 
-            game,
+            player,
             scale=1.0):
 
             #region Override variables
@@ -28,7 +28,7 @@ init -1 python:
             #endregion
 
             ## constructor initialization
-            self.game = game
+            self.player = player
             self.scale = scale
 
             self.width, self.height = get_image_size(self.idle_anim.image)
@@ -94,7 +94,7 @@ init -1 python:
         def draw_weapon(self, screen, st):
 
             ## calculate the x and y offsets due to sway from movement
-            offset_x, offset_y = self.game.player.calculate_sway_offset(st)
+            offset_x, offset_y = self.player.calculate_sway_offset(st)
 
             ## get the weapon image, scaled if appropriate
             weapon_image = self.current_animation.image if self.scale == 1.0 else Transform(self.current_animation.image, size=(self.scaled_width, self.scaled_height))
@@ -144,4 +144,4 @@ init -1 python:
             self.at = 0
             self.casing_spawned = False
             self.current_animation = self.attack_anim
-            self.game.player.shoot = True
+            self.player.is_attacking = True

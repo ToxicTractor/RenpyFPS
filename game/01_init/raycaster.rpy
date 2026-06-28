@@ -85,11 +85,9 @@ init python:
                         break
 
                 if (side == 0):
-                    #depth = side_distance_x - delta_distance_x
                     depth = (cell_x - player_x + (1 - step_x) / 2) / ray_direction_x 
                     offset = player_y + depth * ray_direction_y
                 else:
-                    #depth = side_distance_y - delta_distance_y
                     depth = (cell_y - player_y + (1 - step_y) / 2) / ray_direction_y
                     offset = player_x + depth * ray_direction_x
 

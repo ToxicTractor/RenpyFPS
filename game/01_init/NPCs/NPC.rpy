@@ -223,15 +223,15 @@ init -1 python:
 
         def check_was_hit(self):
 
-            if (self.has_los_to_player and self.game.player.shoot):
+            if (self.has_los_to_player and self.game.player.is_attacking):
                 
                 ## we should probably also check weapon range here
                 if (FpsSettings.HALF_SCREEN_WIDTH - self.sprite_half_width < self.screen_x < FpsSettings.HALF_SCREEN_WIDTH + self.sprite_half_width):
 
-                    self.game.player.shoot = False ## if weapon is piercing we dont do this
+                    self.game.player.is_attacking = False ## if weapon is piercing we dont do this
                     self.hurt = True     
                     
-                    self.take_damage(self.game.weapon.damage)            
+                    self.take_damage(self.game.player.equipped_weapon.damage)            
 
 
         def take_damage(self, amount):

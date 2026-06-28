@@ -23,8 +23,8 @@ image shotgun_shell = Animation(
 
 init python:
     class ShotgunWeapon(Weapon):
-        def __init__(self, game):
-            super().__init__(game, scale=4.0)
+        def __init__(self, player):
+            super().__init__(player, scale=4.0)
             
         def initialize(self):
 

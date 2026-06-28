@@ -10,13 +10,11 @@ init python:
             self.framerate = 0
             self.scale = scale
 
-            self.background = Solid("#444")
             self.map = Map(self)
             self.jukebox = FpsJukebox()
             self.player = Player(self, self.map.player_start_pos)
             self.object_renderer = ObjectRenderer(self)
             self.raycaster = Raycaster(self)
-            self.weapon = ShotgunWeapon(self)
 
             self.sprite_obj1 = SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27)
             self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
@@ -27,7 +25,7 @@ init python:
             ]
 
             self.modify_renpy_keymaps()
-            #self.jukebox.play()
+            self.jukebox.play()
 
         @staticmethod
         def modify_renpy_keymaps():
@@ -58,7 +56,7 @@ init python:
             #     npc.draw_2d(canvas)
 
             self.object_renderer.draw(r, st)
-            self.weapon.draw(r, st)
+            self.player.draw(r, st)
 
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
@@ -71,7 +69,6 @@ init python:
             self.update_delta_time(st)
 
             self.player.update(self.delta_time, st)
-            self.weapon.update(self.delta_time)
 
             self.raycaster.update()
             self.object_renderer.update()
@@ -79,41 +76,16 @@ init python:
             self.sprite_obj1.update(self.delta_time)
             self.sprite_obj2.update(self.delta_time)
   
-            #self.npc.update(self.delta_time)
-
             for npc in self.npcs:
                 npc.update(self.delta_time)
 
 
         def event(self, ev, x, y, st): ## use this for reacting to events
             key_pressed = pygame.key.get_pressed()
-            self.player.reset_input()
-
-            if (key_pressed[pygame.K_w]):
-                self.player.input_vertical += 1
-            if (key_pressed[pygame.K_s]):
-                self.player.input_vertical -= 1    
-            if (key_pressed[pygame.K_a]):
-                self.player.input_horizontal -= 1
-            if (key_pressed[pygame.K_d]):
-                self.player.input_horizontal += 1
             
-            if (key_pressed[pygame.K_LEFT]):
-                self.player.input_angle -= 1
-            if (key_pressed[pygame.K_RIGHT]):
-                self.player.input_angle += 1
-
-            if (key_pressed[pygame.K_SPACE]):
-                self.weapon.attack()
+            self.player.handle_input(key_pressed)
 
             renpy.restart_interaction() ## make the interaction restart so text outside of the displayable can be updated
-
-        
-        def draw_background(self, render, width, height, st, at):
-
-            bg = renpy.render(self.background, width, height, st, at)
-            
-            render.blit(bg, (0, 0))
 
 
         ## calculates and sets delta time

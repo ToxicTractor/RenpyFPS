@@ -1,8 +1,6 @@
 init python:
     import math
-
     class Player():
-
         def __init__(self, game, pos=(0, 0), angle=0.0):
             self.game = game
             self.pos_x, self.pos_y = pos
@@ -13,7 +11,6 @@ init python:
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
-            self.shoot = False
 
             self.sway_enabled = True
             self.sway_moved_for_duration = 0
@@ -34,11 +31,67 @@ init python:
                 "audio/fps/footsteps/footstep_05.ogg"
             ]
 
-        def reset_input(self):
+            self.weapons = [
+                ShotgunWeapon(self)
+                ]
+            self.equipped_weapon_index = 0
+            self.is_attacking = False
+
+
+        @property
+        def equipped_weapon(self):
+            weapon_count = len(self.weapons)
+            
+            if (weapon_count == 0):
+                return None
+            
+            return self.weapons[self.equipped_weapon_index]
+
+        @property
+        def pos(self):
+            return self.pos_x, self.pos_y
+
+        @property
+        def coordinate(self):
+            return int(self.pos_x), int(self.pos_y)
+
+        
+        def draw(self, screen, st):
+            
+            if (self.equipped_weapon is None):
+                return
+
+            self.equipped_weapon.draw(screen, st)
+
+
+        def handle_input(self, key_pressed):
+
+            ## first reset input variables
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
-            self.shoot = 0
+            self.is_attacking = False
+
+            ## find horizontal and vertical movement axis values
+            if (key_pressed[pygame.K_w]):
+                self.input_vertical += 1
+            if (key_pressed[pygame.K_s]):
+                self.input_vertical -= 1    
+            if (key_pressed[pygame.K_a]):
+                self.input_horizontal -= 1
+            if (key_pressed[pygame.K_d]):
+                self.input_horizontal += 1
+            
+            ## find angle input axis values
+            if (key_pressed[pygame.K_LEFT]):
+                self.input_angle -= 1
+            if (key_pressed[pygame.K_RIGHT]):
+                self.input_angle += 1
+
+            ## trigger an attack with the currently equipped weapon if we have one
+            if (key_pressed[pygame.K_SPACE]):
+                if (self.equipped_weapon is not None):
+                    self.equipped_weapon.attack()
 
 
         def move(self, delta_time):
@@ -79,6 +132,9 @@ init python:
             self.move(delta_time)
 
             self.footsteps(st)
+
+            if (self.equipped_weapon is not None):
+                self.equipped_weapon.update(delta_time)
 
             if (not self.sway_enabled):
                 return
@@ -129,12 +185,3 @@ init python:
                 (self.pos_x * self.game.scale + config.screen_width * math.cos(self.angle) , self.pos_y  * self.game.scale + config.screen_width * math.sin(self.angle)), 2)
 
             canvas.circle("#0f0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
-
-
-        @property
-        def pos(self):
-            return self.pos_x, self.pos_y
-
-        @property
-        def coordinate(self):
-            return int(self.pos_x), int(self.pos_y)
