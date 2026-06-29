@@ -19,8 +19,17 @@ init python:
             self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
             
             self.npcs = [
-                ZombieNPC(self, pos=(13.5, 15.5)),
-                ZombieNPC(self, pos=(9.5, 9.5))
+                ZombieNPC(self, pos=(2.5, 5.5)),
+                ZombieNPC(self, pos=(13.5, 6.5)),
+                ZombieNPC(self, pos=(8.5, 23.5)),
+                ZombieNPC(self, pos=(9.5, 26.5)),
+                ZombieNPC(self, pos=(16.5, 22.5)),
+                ZombieNPC(self, pos=(21.5, 28.5)),
+                ZombieNPC(self, pos=(28.5, 22.5)),
+                ZombieNPC(self, pos=(27.5, 14.5)),
+                ZombieNPC(self, pos=(17.5, 8.5)),
+                ZombieNPC(self, pos=(26.5, 4.5)),
+                ZombieNPC(self, pos=(27.5, 4.5))
             ]
 
             self.modify_renpy_keymaps()
