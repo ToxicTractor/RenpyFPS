@@ -1,19 +1,24 @@
 init python:
-    
     class Raycaster():
+        def __init__(self, player, map):
+            self.player = player
+            self.world_map = map.world_map
+            self.ray_cast_results = []
+            self.ray_data = self._calculate_ray_data()
 
-        def __init__(self, game):
-            self.game = game
-            self.ray_cast_result = []
-            self.textures = self.game.object_renderer.wall_textures
-            self.ray_data = self.calculate_ray_data()
-
+#region Public methods
 
         def update(self):
-            self.cast_rays_dda()
+            self._cast_rays_dda()
 
+#endregion
 
-        def calculate_ray_data(self):
+#region Private methods
+
+        def _calculate_ray_data(self):
+            """
+            Precomputes Sin and Cos for each ray.
+            """
             ray_data = []
 
             for i in range(FpsSettings.RAY_COUNT):
@@ -24,14 +29,16 @@ init python:
             return ray_data
 
 
-        def cast_rays_dda(self):
-            self.ray_cast_result = []
+        def _cast_rays_dda(self):
+            """
+            Casts a bunch of rays using a DDA algorithm and stores the results in self.ray_cast_results.
+            """
+            self.ray_cast_results = []
 
-            player_x = self.game.player.pos_x
-            player_y = self.game.player.pos_y
-            player_angle = self.game.player.angle
-            player_coord = self.game.player.coordinate ## coordinate of the grid cell of the player
-            world_map = self.game.map.world_map
+            player_x = self.player.pos_x
+            player_y = self.player.pos_y
+            player_angle = self.player.angle
+            player_coord = self.player.coordinate ## coordinate of the grid cell of the player
             
             sin_player_angle = math.sin(player_angle)
             cos_player_angle = math.cos(player_angle)
@@ -80,8 +87,8 @@ init python:
                         cell_y += step_y
                         side = 1
 
-                    if (cell_x, cell_y) in world_map:
-                        texture = world_map[(cell_x, cell_y)]
+                    if (cell_x, cell_y) in self.world_map:
+                        texture = self.world_map[(cell_x, cell_y)]
                         break
 
                 if (side == 0):
@@ -99,4 +106,6 @@ init python:
                 ## calculate projection height
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
-                self.ray_cast_result.append((depth, projection_height, texture, offset))
+                self.ray_cast_results.append((depth, projection_height, texture, offset))
+
+#endregion

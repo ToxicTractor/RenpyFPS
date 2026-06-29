@@ -6,6 +6,7 @@ init python:
 
             self.world_map = {}
             self.nav_map = []
+            
             self.create_map(map_data)
 
 

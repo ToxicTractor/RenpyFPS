@@ -12,9 +12,8 @@ init python:
 
             self.map = Map(self)
             self.jukebox = FpsJukebox()
-            self.player = Player(self, self.map.player_start_pos)
+            self.player = Player(self, pos=self.map.player_start_pos, angle=0.0)
             self.object_renderer = ObjectRenderer(self)
-            self.raycaster = Raycaster(self)
 
             self.sprite_obj1 = SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27)
             self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
@@ -70,7 +69,6 @@ init python:
 
             self.player.update(self.delta_time, st)
 
-            self.raycaster.update()
             self.object_renderer.update()
 
             self.sprite_obj1.update(self.delta_time)

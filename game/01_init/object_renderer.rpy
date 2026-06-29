@@ -4,8 +4,8 @@ init python:
         
         def __init__(self, game):
             self.game = game
-            self.wall_textures = self.load_wall_textures()
-
+            self.player = game.player
+ 
             self.floor_image = Solid("#333") ## floor is a solid color for now
             
             self.is_inside = False
@@ -24,7 +24,7 @@ init python:
         def get_walls_to_render(self):
             self.objects_to_render = []
 
-            for i, values in enumerate(self.game.raycaster.ray_cast_result):
+            for i, values in enumerate(self.player.raycaster.ray_cast_results):
                 depth, projection_height, texture, offset = values
                 
                 ## if texture is 0 we dont want to render anything
@@ -37,7 +37,7 @@ init python:
 
                 self.objects_to_render.append(
                     (depth,
-                    self.wall_textures[texture],
+                    FPS_WALL_TEXTURES[texture],
                     (crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),
                     (FpsSettings.PROJECTION_SCALE, int(projection_height)),
                     wall_pos,
@@ -50,7 +50,7 @@ init python:
 
 
         def draw(self, screen, st):
-            sway_offset = self.game.player.calculate_sway_offset(st)
+            sway_offset = self.game.player.sway_offset
 
             self.draw_sky(screen, sway_offset)
             self.draw_floor(screen, sway_offset)
@@ -104,16 +104,4 @@ init python:
                 sky_render = renpy.render(self.sky_image, FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT, 0, 0)
                 
                 for i in range(-1, 4):
-                    screen.blit(sky_render, ((i * FpsSettings.HALF_SCREEN_WIDTH - self.sky_offset) + offset_x, 0 + offset_y))
-
-
-        def load_wall_textures(self):
-            return {
-                1: Image("images/fps/textures/walls/stone_wall_01.jpg", oversample=4),
-                2: Image("images/fps/textures/walls/stone_wall_02.png", oversample=1.875),
-                3: Image("images/fps/textures/walls/stone_wall_03.png", oversample=1.875),
-                4: Image("images/fps/textures/walls/stone_wall_04.png", oversample=1.875),
-                5: Image("images/fps/textures/walls/wood_wall_01.png", oversample=1.875),
-                6: Image("images/fps/textures/walls/stone_wall_05.png", oversample=1.875),
-            }
-        
+                    screen.blit(sky_render, ((i * FpsSettings.HALF_SCREEN_WIDTH - self.sky_offset) + offset_x, 0 + offset_y))        

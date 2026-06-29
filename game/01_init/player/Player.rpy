@@ -3,15 +3,20 @@ init python:
     class Player():
         def __init__(self, game, pos=(0, 0), angle=0.0):
             self.game = game
+            self.map = game.map
             self.pos_x, self.pos_y = pos
             self.angle = angle
             self.speed = 5
             self.angular_speed = 2
             self.size = .33
+
+            self.raycaster = Raycaster(self, self.map)
+
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
 
+            self.sway_offset = (0, 0)
             self.sway_enabled = True
             self.sway_moved_for_duration = 0
             self.sway_change_duration = 0.125
@@ -21,7 +26,6 @@ init python:
             self.sway_phase_x = 0.6
             self.sway_phase_y = 0.3
 
-            self.footstep_played = False
             self.footstep_last_st = 0
             self.footstep_sounds = [
                 "audio/fps/footsteps/footstep_01.ogg",
@@ -37,9 +41,13 @@ init python:
             self.equipped_weapon_index = 0
             self.is_attacking = False
 
+#region Properties
 
         @property
         def equipped_weapon(self):
+            """
+            Returns a references to the currently equipped weapon. Can be None if the player has no weapons.
+            """
             weapon_count = len(self.weapons)
             
             if (weapon_count == 0):
@@ -49,23 +57,46 @@ init python:
 
         @property
         def pos(self):
+            """
+            A tuple representing the players current position.
+            """
             return self.pos_x, self.pos_y
 
         @property
         def coordinate(self):
+            """
+            A tuple representing the players current map coordinate.
+            """
             return int(self.pos_x), int(self.pos_y)
 
+#endregion
         
+#region Public methods
+
         def draw(self, screen, st):
-            
+            """
+            Draw the players weapon to the screen.
+            """
             if (self.equipped_weapon is None):
                 return
 
             self.equipped_weapon.draw(screen, st)
 
 
-        def handle_input(self, key_pressed):
+        def draw_2d(self, canvas):
+            """
+            Draws a 2d representation of the player to the screen. Intended for debugging only.
+            """
+            canvas.line("#ff0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 
+                (self.pos_x * self.game.scale + config.screen_width * math.cos(self.angle) , self.pos_y  * self.game.scale + config.screen_width * math.sin(self.angle)), 2)
 
+            canvas.circle("#0f0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
+
+
+        def handle_input(self, key_pressed):
+            """
+            Handles player input such as move, look and shoot.
+            """
             ## first reset input variables
             self.input_horizontal = 0
             self.input_vertical = 0
@@ -94,8 +125,35 @@ init python:
                     self.equipped_weapon.attack()
 
 
-        def move(self, delta_time):
+        def update(self, delta_time, st):
 
+            self._move(delta_time)
+
+            self._calculate_sway_offset(st)
+            self._footsteps(st)
+
+            if (self.equipped_weapon is not None):
+                self.equipped_weapon.update(delta_time)
+
+            if (self.sway_enabled):
+
+                if (abs(self.input_horizontal) > 0 or abs(self.input_vertical) > 0):
+                    self.sway_moved_for_duration = clamp(self.sway_moved_for_duration + delta_time, 0, self.sway_change_duration)
+                else:
+                    self.sway_moved_for_duration = clamp(self.sway_moved_for_duration - delta_time, 0, self.sway_change_duration)
+
+                self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
+
+            self.raycaster.update()
+
+#endregion
+
+#region Private methods
+
+        def _move(self, delta_time):
+            """
+            Moves the player according to the current input and checks for collisions along the way.
+            """
             ## if delta time is 0, return to avoid dividing by 0
             if delta_time == 0:
                 return
@@ -116,9 +174,9 @@ init python:
             new_x = self.pos_x + delta_x
             new_y = self.pos_y + delta_y
 
-            if (not self.wall_collision(new_x, self.pos_y)):
+            if (not self._wall_collision(new_x, self.pos_y)):
                 self.pos_x = new_x
-            if (not self.wall_collision(self.pos_x, new_y)):
+            if (not self._wall_collision(self.pos_x, new_y)):
                 self.pos_y = new_y
 
             delta_angle = self.input_angle * self.angular_speed * delta_time
@@ -127,49 +185,35 @@ init python:
             self.angle %= math.tau
 
 
-        def update(self, delta_time, st):
-
-            self.move(delta_time)
-
-            self.footsteps(st)
-
-            if (self.equipped_weapon is not None):
-                self.equipped_weapon.update(delta_time)
-
-            if (not self.sway_enabled):
-                return
-
-            if (abs(self.input_horizontal) > 0 or abs(self.input_vertical) > 0):
-                self.sway_moved_for_duration = clamp(self.sway_moved_for_duration + delta_time, 0, self.sway_change_duration)
-            else:
-                self.sway_moved_for_duration = clamp(self.sway_moved_for_duration - delta_time, 0, self.sway_change_duration)
-
-            self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
-
-
-        def wall_collision(self, x, y):
-            map = self.game.map
+        def _wall_collision(self, x, y):
+            """
+            Checks whether or not a given position is in a wall or not.
+            """
             return (
-                map.is_wall(x + self.size, y + self.size) or
-                map.is_wall(x - self.size, y + self.size) or
-                map.is_wall(x + self.size, y - self.size) or
-                map.is_wall(x - self.size, y - self.size)
+                self.map.is_wall(x + self.size, y + self.size) or
+                self.map.is_wall(x - self.size, y + self.size) or
+                self.map.is_wall(x + self.size, y - self.size) or
+                self.map.is_wall(x - self.size, y - self.size)
             )
 
 
-        def calculate_sway_offset(self, st):
-            
-            if (self.sway_amount == 0):
+        def _calculate_sway_offset(self, st):
+            """
+            Calculates the offset caused by movement sway.
+            """
+            if (self.sway_amount == 0 or not self.sway_enabled):
                 return (0, 0)
             
             x = math.sin((st * math.pi * 2) / self.sway_phase_x) * self.sway_magnitude_x * self.sway_amount
             y = math.sin((st * math.pi * 2) / self.sway_phase_y) * self.sway_magnitude_y * self.sway_amount
 
-            return (x, y)
+            self.sway_offset = (x, y)
 
-        
-        def footsteps(self, st):
-            
+
+        def _footsteps(self, st):
+            """
+            Plays a randomized footstep sound in sync with the sway.
+            """
             if (self.sway_moved_for_duration <= 0):
                 return
 
@@ -178,10 +222,4 @@ init python:
 
                 renpy.play(self.footstep_sounds[renpy.random.randint(0, len(self.footstep_sounds) - 1)])
             
-
-        def draw_2d(self, canvas):
-
-            canvas.line("#ff0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 
-                (self.pos_x * self.game.scale + config.screen_width * math.cos(self.angle) , self.pos_y  * self.game.scale + config.screen_width * math.sin(self.angle)), 2)
-
-            canvas.circle("#0f0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
+#endregion
