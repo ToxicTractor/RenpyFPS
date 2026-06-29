@@ -12,7 +12,7 @@ init -100 python:
         ## Raycasting settings
         FOV = math.pi / 3
         HALF_FOV = FOV / 2
-        RAY_COUNT = SCREEN_WIDTH // 2
+        RAY_COUNT = SCREEN_WIDTH // 4
         HALF_RAY_COUNT = RAY_COUNT // 2
         DELTA_ANGLE = FOV / RAY_COUNT
         MAX_DEPTH = 20
