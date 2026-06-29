@@ -1,27 +1,19 @@
 init python:
-
     class ObjectRenderer():
-        
-        def __init__(self, game):
-            self.game = game
-            self.player = game.player
- 
-            self.floor_image = Solid("#333") ## floor is a solid color for now
-            
-            self.is_inside = False
+        def __init__(self, player, map):
+
+            self.player = player
+
+            self.is_inside = map.is_inside
+            self.floor_image = map.floor_image
+            self.sky_image = map.sky_image
             self.sky_offset = 0
-            if (self.is_inside):
-                self.sky_image = Solid("#555")
-            else:
-                self.sky_image = Transform(
-                    Image("images/fps/textures/skies/sky_sunset.png"), 
-                    size=(FpsSettings.HALF_SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT)
-            )
 
             self.objects_to_render = []
 
+#region Public methods
 
-        def get_walls_to_render(self):
+        def update(self):
             self.objects_to_render = []
 
             for i, values in enumerate(self.player.raycaster.ray_cast_results):
@@ -45,19 +37,22 @@ init python:
                 )
 
 
-        def update(self):
-            self.get_walls_to_render()
-
-
         def draw(self, screen, st):
-            sway_offset = self.game.player.sway_offset
+            sway_offset = self.player.sway_offset
 
-            self.draw_sky(screen, sway_offset)
-            self.draw_floor(screen, sway_offset)
-            self.draw_objects(screen, sway_offset, st)
+            self._draw_sky(screen, sway_offset)
+            self._draw_floor(screen, sway_offset)
 
+            self._draw_objects(screen, sway_offset, st)
 
-        def draw_objects(self, screen, offset, st):
+#endregion
+
+#region Private methods
+
+        def _draw_objects(self, screen, offset, st):
+            """
+            Draws objects to the screen. Objects inclued walls, NPCs, static objets, etc.
+            """
             offset_x, offset_y = offset
             
             ## sort the list by depth to make sure we draw element in the correct order
@@ -77,7 +72,10 @@ init python:
                 screen.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
 
 
-        def draw_floor(self, screen, offset):
+        def _draw_floor(self, screen, offset):
+            """
+            Draws the floor to the screen.
+            """
             offset_x, offset_y = offset
 
             ## we simply draw a box on the lower half of the screen for the floor
@@ -86,7 +84,10 @@ init python:
             screen.blit(floor_render, (0 + offset_x, FpsSettings.HALF_SCREEN_HEIGHT + offset_y))
         
 
-        def draw_sky(self, screen, offset):
+        def _draw_sky(self, screen, offset):
+            """
+            Draws the sky or ceiling to the screen.
+            """
             offset_x, offset_y = offset
 
             ## if we are inside we just draw a box for the roof
@@ -99,9 +100,11 @@ init python:
             ## if we are outside we draw a scrolling texture that repeat to simulate the sky
             else:
 
-                self.sky_offset = (self.game.player.angle / (2 * math.pi) * FpsSettings.SCREEN_WIDTH) % FpsSettings.SCREEN_WIDTH
+                self.sky_offset = (self.player.angle / (2 * math.pi) * FpsSettings.SCREEN_WIDTH) % FpsSettings.SCREEN_WIDTH
                 
                 sky_render = renpy.render(self.sky_image, FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT, 0, 0)
                 
                 for i in range(-1, 4):
-                    screen.blit(sky_render, ((i * FpsSettings.HALF_SCREEN_WIDTH - self.sky_offset) + offset_x, 0 + offset_y))        
+                    screen.blit(sky_render, ((i * FpsSettings.HALF_SCREEN_WIDTH - self.sky_offset) + offset_x, 0 + offset_y))  
+
+#endregion

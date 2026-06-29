@@ -1,5 +1,4 @@
 init -2 python:
-
     class SpriteObject:
         def __init__(self, game, sprite_anim, pos=(11.5, 9.5), scale=1.0, height_shift=0.0):
             self.game = game

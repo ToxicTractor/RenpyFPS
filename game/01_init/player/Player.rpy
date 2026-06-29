@@ -75,8 +75,9 @@ init python:
 
         def draw(self, screen, st):
             """
-            Draw the players weapon to the screen.
+            Draw the game to the screen.
             """
+
             if (self.equipped_weapon is None):
                 return
 
