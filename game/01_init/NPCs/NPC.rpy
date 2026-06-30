@@ -304,7 +304,7 @@ init -1 python:
         def draw_2d(self, canvas):
             canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
 
-            if (not self.is_player_in_sight()):
+            if (not self.alive and not self.is_player_in_sight()):
                 return
 
             canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 

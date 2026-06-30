@@ -5,7 +5,7 @@ init python:
             self.game = game
             self.map = game.map
             self.pos_x, self.pos_y = pos
-            self.angle = angle
+            self.angle = angle * 0.0174532925 # convert angle to radians
             self.speed = 5
             self.angular_speed = 2
             self.size = .33

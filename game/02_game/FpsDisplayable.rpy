@@ -12,7 +12,7 @@ init python:
 
             self.map = Map01(scale)
             self.jukebox = FpsJukebox(self.map)
-            self.player = Player(self, pos=self.map.player_start_pos, angle=0.0)
+            self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.object_renderer = ObjectRenderer(self.player, self.map)
 
             self.sprite_obj1 = SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27)
@@ -119,7 +119,7 @@ screen FpsScreen():
 
     modal True
 
-    default fps = FpsDisplayable(30)
+    default fps = FpsDisplayable(scale=30)
 
     add fps
 
