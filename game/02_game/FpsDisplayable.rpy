@@ -11,7 +11,7 @@ init python:
             self.scale = scale
 
             self.map = Map01(scale)
-            self.map.world_map[(7,8)] = DoorCell((7,8), 0)
+            self.map.world_map[(7,8)] = DoorCell((7,8), 254, orientation="horizontal")
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.object_renderer = ObjectRenderer(self.player, self.map)

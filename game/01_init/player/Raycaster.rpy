@@ -95,13 +95,24 @@ init python:
                         break
 
                     if (cell.type == "door"):
+
+                        hit = cell.intersect(player_x, player_y, ray_direction_x, ray_direction_y)
+                        
+                        if (hit is None):
+                            continue
+                        
+                        depth, offset = hit
+
                         texture = cell.texture_id
+
+                        side = None
+
                         break
 
                 if (side == 0):
                     depth = (cell_x - player_x + (1 - step_x) / 2) / ray_direction_x 
                     offset = player_y + depth * ray_direction_y
-                else:
+                elif (side == 1):
                     depth = (cell_y - player_y + (1 - step_y) / 2) / ray_direction_y
                     offset = player_x + depth * ray_direction_x
 

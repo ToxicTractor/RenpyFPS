@@ -12,7 +12,9 @@ init -100 python:
         if (min_value > max_value):
             raise Exception("Parameter 'min_value' cannot be larger than 'max_value'!")
         return max(min_value, min(value, max_value))
-
+    
+    def clamp01(value):
+        return clamp(value, 0, 1)
 
     def lerp(a, b, t, clamp_value = True):
         ## Linear interpolation between a and b by a factor t, by default clamps the result between a and b
