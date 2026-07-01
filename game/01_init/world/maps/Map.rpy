@@ -21,18 +21,30 @@ init python:
             """
             Draws a 2D representation of the map to the screen. Intended for debugging only.
             """
-            for pos, value in self.world_map.items():
+            for coordinate, cell in self.world_map.items():
                 
-                x, y = pos
+                x, y = coordinate
 
-                canvas.rect("#444", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
+                if (cell.type == "empty"):
+                    continue
+                
+                if (cell.type == "wall"):
+                    canvas.rect("#444", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
+
+                if (cell.type == "door"):
+                    canvas.rect("#0f0" if cell.open_amount >= 1.0 else "#f00", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
 
 
         def is_wall(self, x, y):
             """
-            Returns wether or not a specified cell is a wall.
+            Returns whether or not a specified cell is a wall.
             """
-            return (int(x), int(y)) in self.world_map
+            cell = self.world_map[(int(x), int(y))]
+
+            if (cell is None):
+                return False
+
+            return cell.type == "wall"
 
 #endregion
 
@@ -52,9 +64,11 @@ init python:
                     ## if the value is greater than 0 we add the value to the world_map
                     ## 0 is empty space
                     if (value > 0):
-                        self.world_map[(x, y)] = value
+                        self.world_map[(x, y)] = WallCell((x, y), value)
+                    else:
+                        self.world_map[(x, y)] = EmptyCell((x, y))
                     
-                    ## if add the walls to the navigation map
+                    ## add the walls to the navigation map
                     self.nav_map[y][x] = 0 if value < 1 else 1
 
 

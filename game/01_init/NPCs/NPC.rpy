@@ -289,12 +289,14 @@ init -1 python:
                     cell_y += step_y
                     side = 1
 
+                cell = world_map[(cell_x, cell_y)]
+
                 ## we reached the enemy, thus we have line of sight
-                if (cell_x, cell_y) == self.game.player.coordinate:
+                if cell.coordinate == self.game.player.coordinate:
                     return True
 
-                ## we are blocked by a wall
-                if (cell_x, cell_y) in world_map:
+                ## we are blocked by a wall closed door
+                if cell.type == "wall" or (cell.type == "door" and cell.open_amount < 1.0):
                     return False
 
             return False
@@ -304,7 +306,7 @@ init -1 python:
         def draw_2d(self, canvas):
             canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
 
-            if (not self.alive and not self.is_player_in_sight()):
+            if (not self.alive or not self.is_player_in_sight()):
                 return
 
             canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 

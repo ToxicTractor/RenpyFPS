@@ -87,8 +87,15 @@ init python:
                         cell_y += step_y
                         side = 1
 
-                    if (cell_x, cell_y) in self.world_map:
-                        texture = self.world_map[(cell_x, cell_y)]
+
+                    cell = self.world_map[(cell_x, cell_y)]
+
+                    if (cell.type == "wall"):
+                        texture = cell.texture_id
+                        break
+
+                    if (cell.type == "door"):
+                        texture = cell.texture_id
                         break
 
                 if (side == 0):

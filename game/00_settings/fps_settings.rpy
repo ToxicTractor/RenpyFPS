@@ -15,7 +15,7 @@ init -100 python:
         RAY_COUNT = SCREEN_WIDTH // 4
         HALF_RAY_COUNT = RAY_COUNT // 2
         DELTA_ANGLE = FOV / RAY_COUNT
-        MAX_DEPTH = 20
+        MAX_DEPTH = 64
 
         ## Projection settings
         PROJECTION_DISTANCE = HALF_SCREEN_WIDTH / math.tan(HALF_FOV)

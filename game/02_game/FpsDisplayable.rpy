@@ -11,6 +11,7 @@ init python:
             self.scale = scale
 
             self.map = Map01(scale)
+            self.map.world_map[(7,8)] = DoorCell((7,8), 0)
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.object_renderer = ObjectRenderer(self.player, self.map)
@@ -58,13 +59,13 @@ init python:
             r = renpy.Render(width, height)
             canvas = r.canvas()
             
+            self.object_renderer.draw(r, st)
+            self.player.draw(r, st)
+
             # self.map.draw_2d(canvas)
             # self.player.draw_2d(canvas)
             # for npc in self.npcs:
             #     npc.draw_2d(canvas)
-
-            self.object_renderer.draw(r, st)
-            self.player.draw(r, st)
 
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
