@@ -11,6 +11,10 @@ init python:
         @property
         def coord_y(self):
             return self.coordinate[1]
+
+        @property
+        def interactable(self):
+            return False
         
         @abstractmethod
         def blocks_movement(self, x, y, radius):

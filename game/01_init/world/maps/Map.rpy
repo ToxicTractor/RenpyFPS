@@ -13,9 +13,20 @@ init python:
             self.music_tracks = []
 
             map_data, self.player_start_pos = self._load_map(path)
+            self.width = len(map_data[0])
+            self.height = len(map_data)
+
             self._create_map(map_data)
 
 #region Public methods
+
+        def update(self, delta_time):
+
+            for cell in self.world_map.values():
+
+                if (cell.type == "door"):
+                    cell.update(delta_time)
+
 
         def draw_2d(self, canvas):    
             """

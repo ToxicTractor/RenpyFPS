@@ -9,12 +9,14 @@ init python:
             self.speed = 5
             self.angular_speed = 2
             self.size = .33
+            self.interact_range = 0.8
 
             self.raycaster = Raycaster(self, self.map)
 
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
+            self.input_use = InputKeyHandler(pygame.K_e, on_key_down=self._on_use_down)
 
             self.sway_offset = (0, 0)
             self.sway_enabled = True
@@ -40,6 +42,7 @@ init python:
                 ]
             self.equipped_weapon_index = 0
             self.is_attacking = False
+
 
 #region Properties
 
@@ -70,7 +73,7 @@ init python:
             return int(self.pos_x), int(self.pos_y)
 
 #endregion
-        
+
 #region Public methods
 
         def draw(self, screen, st):
@@ -120,6 +123,9 @@ init python:
             if (key_pressed[pygame.K_RIGHT]):
                 self.input_angle += 1
 
+            ## register use key pressed
+            self.input_use.handle_input(key_pressed)
+
             ## trigger an attack with the currently equipped weapon if we have one
             if (key_pressed[pygame.K_SPACE]):
                 if (self.equipped_weapon is not None):
@@ -148,6 +154,25 @@ init python:
             self.raycaster.update()
 
 #endregion
+
+
+#region Event handlers
+
+        def _on_use_down(self):
+            
+            coord_x, coord_y = self.coordinate
+
+            for x in [max(0, coord_x - 1), coord_x, min(self.map.width - 1, coord_x + 1)]:
+                for y in [max(0, coord_y - 1), coord_y, min(self.map.height - 1, coord_y + 1)]:
+                    
+                    cell = self.map.world_map[(x, y)]
+
+                    if (cell.interactable):
+
+                        cell.interact()
+
+#endregion
+
 
 #region Private methods
 

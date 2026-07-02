@@ -78,6 +78,7 @@ init python:
             self.update_delta_time(st)
 
             self.player.update(self.delta_time, st)
+            self.map.update(self.delta_time)
 
             self.object_renderer.update()
 

@@ -21,4 +21,7 @@ init -10 python:
 
         def invoke(self, event_data=None):
             for listener in self._listeners:
-                listener(event_data)
+                if (event_data is None):
+                    listener()
+                else:
+                    listener(event_data)

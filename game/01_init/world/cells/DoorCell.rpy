@@ -9,6 +9,8 @@ init python:
             self.orientation = orientation
             self.open_amount = 0.5
             self.thickness = 0.1
+            self.speed = 2.5
+            self.is_open_state = False
         
         def intersect(self, player_x, player_y, ray_dx, ray_dy):
             
@@ -43,6 +45,29 @@ init python:
 
             return depth, offset
         
+
+        @property
+        def interactable(self):
+
+            ## door is only interactable when it is fully open or closed
+            return ((self.open_amount == 1.0 and self.is_open_state) or
+                    (self.open_amount == 0.0 and not self.is_open_state))
+
+
+        def interact(self):
+
+            self.is_open_state = not self.is_open_state
+
+
+        def update(self, delta_time):
+
+            if (self.is_open_state):
+                if (self.open_amount < 1.0):
+                    self.open_amount = clamp01(self.open_amount + self.speed * delta_time)
+            else:
+                if (self.open_amount > 0.0):
+                    self.open_amount = clamp01(self.open_amount - self.speed * delta_time)
+
 
         def get_aabb(self):
 
