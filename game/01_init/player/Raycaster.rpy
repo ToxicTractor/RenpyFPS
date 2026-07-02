@@ -45,7 +45,7 @@ init python:
 
             for sin_offset, cos_offset in self.ray_data:
                 ## fallback texture
-                texture = 0
+                hit_cell = None
 
                 ## get starting coord
                 cell_x, cell_y = player_coord
@@ -91,7 +91,7 @@ init python:
                     cell = self.world_map[(cell_x, cell_y)]
 
                     if (cell.type == "wall"):
-                        texture = cell.texture_id
+                        hit_cell = cell
                         break
 
                     if (cell.type == "door"):
@@ -103,12 +103,15 @@ init python:
                         
                         depth, offset = hit
 
-                        texture = cell.texture_id
+                        hit_cell = cell
 
                         side = None
 
                         break
 
+                if (hit_cell is None):
+                    continue
+                    
                 if (side == 0):
                     depth = (cell_x - player_x + (1 - step_x) / 2) / ray_direction_x 
                     offset = player_y + depth * ray_direction_y
@@ -124,6 +127,6 @@ init python:
                 ## calculate projection height
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
-                self.ray_cast_results.append((depth, projection_height, texture, offset))
+                self.ray_cast_results.append((depth, projection_height, hit_cell, offset))
 
 #endregion

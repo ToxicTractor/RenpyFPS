@@ -190,19 +190,19 @@ init -1 python:
             new_x = self.pos_x + delta_x
             new_y = self.pos_y + delta_y
 
-            if (not self.wall_collision(new_x, self.pos_y)):
+            if (not self._collision(new_x, self.pos_y)):
                 self.pos_x = new_x
-            if (not self.wall_collision(self.pos_x, new_y)):
+            if (not self._collision(self.pos_x, new_y)):
                 self.pos_y = new_y
 
 
-        def wall_collision(self, x, y):
+        def _collision(self, x, y):
             map = self.game.map
             return (
-                map.is_wall(x + self.size, y + self.size) or
-                map.is_wall(x - self.size, y + self.size) or
-                map.is_wall(x + self.size, y - self.size) or
-                map.is_wall(x - self.size, y - self.size)
+                map.is_blocking(x + self.size, y + self.size, self.size) or
+                map.is_blocking(x - self.size, y + self.size, self.size) or
+                map.is_blocking(x + self.size, y - self.size, self.size) or
+                map.is_blocking(x - self.size, y - self.size, self.size)
             )
 
 

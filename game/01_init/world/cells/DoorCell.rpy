@@ -1,10 +1,10 @@
 init python:
     class DoorCell(CellBase):
-        def __init__(self, coordinate, texture_id, offset=0.5, orientation="horizontal"):
+        def __init__(self, coordinate, image, offset=0.5, orientation="horizontal"):
             super().__init__(coordinate)
 
             self.type = "door"
-            self.texture_id = texture_id
+            self.image = image
             self.offset = offset
             self.orientation = orientation
             self.open_amount = 0.5
@@ -12,19 +12,8 @@ init python:
         
         def intersect(self, player_x, player_y, ray_dx, ray_dy):
             
-            cell_x, cell_y = self.coordinate
+            min_x, max_x, min_y, max_y = self.get_aabb()
 
-            if (self.orientation == "horizontal"):
-                min_x = cell_x + self.open_amount
-                max_x = cell_x + 1
-                min_y = cell_y + self.offset - self.thickness / 2
-                max_y = cell_y + self.offset + self.thickness / 2
-            elif (self.orientation == "vertical"):
-                min_x = cell_x + self.offset - self.thickness / 2
-                max_x = cell_x + self.offset + self.thickness / 2
-                min_y = cell_y + self.open_amount
-                max_y = cell_y + 1.0
-                
             depth = self._aabb_test(player_x, player_y, ray_dx, ray_dy, min_x, max_x, min_y, max_y)
 
             if (depth is None or depth <= 0):
@@ -43,13 +32,34 @@ init python:
                 face = "top"
             else:
                 face = "bottom"
-
+            
+            visible_width = 1.0 - self.open_amount
             if (face == "left" or face == "right"):
-                offset = hit_y - math.floor(hit_y)
+                door_left = self.coord_y + self.open_amount
+                offset = hit_y - door_left
             else:
-                offset = hit_x - math.floor(hit_x)
+                door_left = self.coord_x + self.open_amount
+                offset = hit_x - door_left
 
             return depth, offset
+        
+
+        def get_aabb(self):
+
+            cell_x, cell_y = self.coordinate
+
+            if (self.orientation == "horizontal"):
+                min_x = cell_x + self.open_amount
+                max_x = cell_x + 1
+                min_y = cell_y + self.offset - self.thickness / 2
+                max_y = cell_y + self.offset + self.thickness / 2
+            elif (self.orientation == "vertical"):
+                min_x = cell_x + self.offset - self.thickness / 2
+                max_x = cell_x + self.offset + self.thickness / 2
+                min_y = cell_y + self.open_amount
+                max_y = cell_y + 1.0
+            
+            return min_x, max_x, min_y, max_y
 
 
         def _aabb_test(self, player_x, player_y, ray_dx, ray_dy, min_x, max_x, min_y, max_y):
@@ -86,7 +96,26 @@ init python:
             return tmin
         
 
+        def blocks_movement(self, x, y, radius):
+
+            if (self.open_amount >= 1.0):
+                return False
+
+            min_x, max_x, min_y, max_y = self.get_aabb()
+
+            closest_x = clamp(x, min_x, max_x)
+            closest_y = clamp(y, min_y, max_y)
+            
+            dx = x - closest_x
+            dy = y - closest_y
+
+            return dx ** 2 + dy ** 2 < radius ** 2
+
+            return (min_x <= x <= max_x and
+                    min_y <= y <= max_y)
+
+
 define FPS_DOOR_TEXTURES = {
-    0: Image("images/fps/textures/doors/metal_door.png", oversample=1),
-    1: Image("images/fps/textures/doors/blue_door.png", oversample=1)
+    0: Image("images/fps/textures/doors/metal_door.png", oversample=0.25),
+    1: Image("images/fps/textures/doors/blue_door.png", oversample=0.25)
 }

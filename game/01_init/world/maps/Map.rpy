@@ -35,16 +35,11 @@ init python:
                     canvas.rect("#0f0" if cell.open_amount >= 1.0 else "#f00", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
 
 
-        def is_wall(self, x, y):
-            """
-            Returns whether or not a specified cell is a wall.
-            """
+        def is_blocking(self, x, y, radius):
+
             cell = self.world_map[(int(x), int(y))]
 
-            if (cell is None):
-                return False
-
-            return cell.type == "wall"
+            return cell.blocks_movement(x, y, radius)
 
 #endregion
 
@@ -64,7 +59,7 @@ init python:
                     ## if the value is greater than 0 we add the value to the world_map
                     ## 0 is empty space
                     if (value > 0):
-                        self.world_map[(x, y)] = WallCell((x, y), value)
+                        self.world_map[(x, y)] = WallCell((x, y), FPS_WALL_TEXTURES[value])
                     else:
                         self.world_map[(x, y)] = EmptyCell((x, y))
                     

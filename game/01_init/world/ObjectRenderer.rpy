@@ -17,19 +17,20 @@ init python:
             self.objects_to_render = []
 
             for i, values in enumerate(self.player.raycaster.ray_cast_results):
-                depth, projection_height, texture, offset = values
+                depth, projection_height, cell, offset = values
                 
-                ## if texture is 0 we dont want to render anything
-                if (texture == 0):
+                if (cell.type == "empty"):
                     continue
+
+                texture = cell.image
 
                 crop_x = int(offset * (FpsSettings.TEXTURE_SIZE - 1))
 
                 wall_pos = (i * FpsSettings.PROJECTION_SCALE, FpsSettings.HALF_SCREEN_HEIGHT - projection_height // 2)
-
+            
                 self.objects_to_render.append(
                     (depth,
-                    FPS_WALL_TEXTURES[texture],
+                    texture,
                     (crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),
                     (FpsSettings.PROJECTION_SCALE, int(projection_height)),
                     wall_pos,

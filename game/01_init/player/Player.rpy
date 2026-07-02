@@ -175,9 +175,9 @@ init python:
             new_x = self.pos_x + delta_x
             new_y = self.pos_y + delta_y
 
-            if (not self._wall_collision(new_x, self.pos_y)):
+            if (not self._collision(new_x, self.pos_y)):
                 self.pos_x = new_x
-            if (not self._wall_collision(self.pos_x, new_y)):
+            if (not self._collision(self.pos_x, new_y)):
                 self.pos_y = new_y
 
             delta_angle = self.input_angle * self.angular_speed * delta_time
@@ -186,15 +186,15 @@ init python:
             self.angle %= math.tau
 
 
-        def _wall_collision(self, x, y):
+        def _collision(self, x, y):
             """
-            Checks whether or not a given position is in a wall or not.
+            Checks whether or not a given position is blocked.
             """
             return (
-                self.map.is_wall(x + self.size, y + self.size) or
-                self.map.is_wall(x - self.size, y + self.size) or
-                self.map.is_wall(x + self.size, y - self.size) or
-                self.map.is_wall(x - self.size, y - self.size)
+                self.map.is_blocking(x + self.size, y + self.size, self.size) or
+                self.map.is_blocking(x - self.size, y + self.size, self.size) or
+                self.map.is_blocking(x + self.size, y - self.size, self.size) or
+                self.map.is_blocking(x - self.size, y - self.size, self.size)
             )
 
 
