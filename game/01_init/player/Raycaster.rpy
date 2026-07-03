@@ -11,6 +11,58 @@ init python:
         def update(self):
             self._cast_rays_dda()
 
+        
+        def center_raycast(self, max_distance):
+
+            player_x, player_y = self.player.pos
+            angle = self.player.angle
+            cell_x, cell_y = self.player.coordinate
+
+            ray_direction_x = math.cos(angle)
+            ray_direction_y = math.sin(angle)
+
+            ## calculate delta distance
+            delta_distance_x = float('inf') if ray_direction_x == 0 else abs(1 / ray_direction_x)
+            delta_distance_y = float('inf') if ray_direction_y == 0 else abs(1 / ray_direction_y)
+
+            ## determine step direction
+            step_x = -1 if ray_direction_x < 0 else 1
+            step_y = -1 if ray_direction_y < 0 else 1
+
+            ## calculate initial side distances
+            if (ray_direction_x < 0):
+                side_distance_x = (player_x - cell_x) * delta_distance_x
+            else:
+                side_distance_x = (cell_x + 1 - player_x) * delta_distance_x
+
+            if (ray_direction_y < 0):
+                side_distance_y = (player_y - cell_y) * delta_distance_y
+            else:
+                side_distance_y = (cell_y + 1 - player_y) * delta_distance_y
+            
+            depth = 0
+
+            while depth < max_distance:
+
+                if (side_distance_x < side_distance_y):
+                    depth = side_distance_x
+                    side_distance_x += delta_distance_x
+                    cell_x += step_x
+                else:
+                    depth = side_distance_y
+                    side_distance_y += delta_distance_y
+                    cell_y += step_y
+
+                cell = self.world_map[(cell_x, cell_y)]
+
+                if (cell.type == "wall"):
+                    return None
+
+                if (cell.type == "door"):
+                    return cell
+
+            return None
+
 #endregion
 
 #region Private methods
@@ -44,7 +96,8 @@ init python:
             cos_player_angle = math.cos(player_angle)
 
             for sin_offset, cos_offset in self.ray_data:
-                ## fallback texture
+                ## defaults
+                texture_index = 0
                 hit_cell = None
 
                 ## get starting coord
@@ -101,10 +154,8 @@ init python:
                         if (hit is None):
                             continue
                         
-                        depth, offset = hit
-
+                        depth, offset, texture_index = hit
                         hit_cell = cell
-
                         side = None
 
                         break
@@ -127,6 +178,6 @@ init python:
                 ## calculate projection height
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
-                self.ray_cast_results.append((depth, projection_height, hit_cell, offset))
+                self.ray_cast_results.append((depth, projection_height, hit_cell, offset, texture_index))
 
 #endregion

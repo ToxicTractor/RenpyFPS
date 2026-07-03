@@ -4,7 +4,8 @@ init python:
             super().__init__(coordinate)
 
             self.type = "wall"
-            self.image = image
+            self.images = [image]
+            self.image_ratios = [1]
         
         def blocks_movement(self, x, y, radius):
             return True

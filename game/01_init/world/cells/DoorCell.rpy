@@ -1,17 +1,22 @@
 init python:
     class DoorCell(CellBase):
-        def __init__(self, coordinate, image, offset=0.5, orientation="horizontal"):
+        def __init__(self, coordinate, image, slim_side_image, offset=0.5, orientation="horizontal"):
             super().__init__(coordinate)
 
             self.type = "door"
-            self.image = image
+            self.images = [image, slim_side_image]
+            self.image_ratios = [1, 0.125]
             self.offset = offset
             self.orientation = orientation
-            self.open_amount = 0.5
-            self.thickness = 0.1
+            self.open_amount = 0.0
+            self.thickness = 0.125
             self.speed = 2.5
             self.is_open_state = False
+
+            self.open_audio = "audio/fps/map/doors/door_open.ogg"
+            self.close_audio = "audio/fps/map/doors/door_close.ogg"
         
+
         def intersect(self, player_x, player_y, ray_dx, ray_dy):
             
             min_x, max_x, min_y, max_y = self.get_aabb()
@@ -35,15 +40,27 @@ init python:
             else:
                 face = "bottom"
             
-            visible_width = 1.0 - self.open_amount
-            if (face == "left" or face == "right"):
-                door_left = self.coord_y + self.open_amount
-                offset = hit_y - door_left
-            else:
-                door_left = self.coord_x + self.open_amount
-                offset = hit_x - door_left
+            texture_index = 0
 
-            return depth, offset
+            if self.orientation == "horizontal":
+                if face in ("top", "bottom"):
+                    # Large faces
+                    offset = hit_x - (self.coord_x + self.open_amount)
+                else:
+                    # Thin ends
+                    offset = (hit_y - min_y) / self.thickness
+                    texture_index = 1
+
+            else:
+                if face in ("left", "right"):
+                    # Large faces
+                    offset = hit_y - (self.coord_y + self.open_amount)
+                else:
+                    # Thin ends
+                    offset = (hit_x - min_x) / self.thickness
+                    texture_index = 1
+
+            return depth, offset, texture_index
         
 
         @property
@@ -55,6 +72,12 @@ init python:
 
 
         def interact(self):
+
+            if (not self.is_open_state and self.open_audio is not None):
+                renpy.play(self.open_audio)
+
+            if (self.is_open_state and self.close_audio is not None):
+                renpy.play(self.close_audio)
 
             self.is_open_state = not self.is_open_state
 
@@ -142,5 +165,6 @@ init python:
 
 define FPS_DOOR_TEXTURES = {
     0: Image("images/fps/textures/doors/metal_door.png", oversample=0.25),
-    1: Image("images/fps/textures/doors/blue_door.png", oversample=0.25)
+    1: Image("images/fps/textures/doors/blue_door.png", oversample=0.25),
+    1000: Image("images/fps/textures/doors/door_slim_side.png", oversample=0.25)
 }

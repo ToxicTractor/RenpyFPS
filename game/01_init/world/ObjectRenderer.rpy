@@ -17,14 +17,15 @@ init python:
             self.objects_to_render = []
 
             for i, values in enumerate(self.player.raycaster.ray_cast_results):
-                depth, projection_height, cell, offset = values
+                depth, projection_height, cell, offset, texture_index = values
                 
                 if (cell.type == "empty"):
                     continue
 
-                texture = cell.image
+                texture = cell.images[texture_index]
+                texture_size_ratio = cell.image_ratios[texture_index]
 
-                crop_x = int(offset * (FpsSettings.TEXTURE_SIZE - 1))
+                crop_x = int(offset * (FpsSettings.TEXTURE_SIZE * texture_size_ratio - 1))
 
                 wall_pos = (i * FpsSettings.PROJECTION_SCALE, FpsSettings.HALF_SCREEN_HEIGHT - projection_height // 2)
             

@@ -160,16 +160,22 @@ init python:
 
         def _on_use_down(self):
             
-            coord_x, coord_y = self.coordinate
+            cell = self.raycaster.center_raycast(self.interact_range)
 
-            for x in [max(0, coord_x - 1), coord_x, min(self.map.width - 1, coord_x + 1)]:
-                for y in [max(0, coord_y - 1), coord_y, min(self.map.height - 1, coord_y + 1)]:
+            if (cell is not None and cell.interactable):
+
+                cell.interact()
+
+            # coord_x, coord_y = self.coordinate
+
+            # for x in [max(0, coord_x - 1), coord_x, min(self.map.width - 1, coord_x + 1)]:
+            #     for y in [max(0, coord_y - 1), coord_y, min(self.map.height - 1, coord_y + 1)]:
                     
-                    cell = self.map.world_map[(x, y)]
+            #         cell = self.map.world_map[(x, y)]
 
-                    if (cell.interactable):
+            #         if (cell.interactable):
 
-                        cell.interact()
+            #             cell.interact()
 
 #endregion
 
