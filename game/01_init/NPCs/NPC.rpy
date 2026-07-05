@@ -30,6 +30,9 @@ init -1 python:
             self.alive = True
             self.hurt = False
             self.attack = False
+            self.stunned = False
+            self.stunned_duraiton = 0.5
+            self.stunned_timer = 0
 
             self.return_to_start_pos = True
             self.start_coord = self.coordinate
@@ -60,9 +63,17 @@ init -1 python:
 
                 if (self.hurt):
                     self.change_animation(self.hurt_anim, audio=self.hurt_audio)
+                
+                elif(self.stunned):
+
+                    if (self.stunned_timer < self.stunned_duraiton):
+                        self.stunned_timer += delta_time
+                    else:
+                        self.stunned_timer = 0
+                        self.stunned = False
 
                 elif (self.attack):
-                    self.change_animation(self.attack_anim, audio=self.attack_audio)
+                    self.change_animation(self.attack_anim, on_change=self.on_attack)
 
                 elif (self.has_los_to_player):
                     
@@ -91,16 +102,30 @@ init -1 python:
                 self.change_animation(self.death_anim, audio=self.death_audio)
 
 
-        def change_animation(self, animation, audio=None, override_same=False):
+        def change_animation(self, animation, audio=None, on_change=None, override_same=False):
 
             if (self.sprite_anim == animation and not override_same):
                 return
             
+            if (on_change is not None):
+                on_change()
+
             if (audio is not None):
                 renpy.play(audio)
 
             self.sprite_anim = animation
             self.at = 0
+        
+
+        def on_attack(self):
+            if (self.attack_audio is not None):
+                renpy.play(self.attack_audio)
+
+            hit_roll = renpy.random.randint(0, 99)
+
+            if (hit_roll < self.accuracy):
+                ## trigger player take damage effect
+                self.game.trigger_screen_effect("#f005", 0.1)
 
 
         def pathfind_to_start_pos(self, delta_time):
@@ -211,6 +236,8 @@ init -1 python:
             if (animation == self.hurt_anim):
 
                 self.hurt = False
+                self.stunned = True
+                self.stunned_timer = 0
                 self.sprite_anim = self.idle_anim
                 self.at = 0
 

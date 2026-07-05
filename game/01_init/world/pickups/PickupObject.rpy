@@ -39,8 +39,6 @@ init -1 python:
             if (self in self.game.sprite_objects):
                 self.game.sprite_objects.remove(self)   
 
-            del self
-
 
         @abstractmethod
         def _effect(self):

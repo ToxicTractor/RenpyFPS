@@ -4,7 +4,7 @@ init -2 python:
             self.game = game
             self.player = game.player
             self.sprite_anim = sprite_anim
-            self.position = pos
+            self.pos_x, self.pos_y = pos
             self.scale = scale
             self.height_shift = height_shift
 
@@ -23,12 +23,8 @@ init -2 python:
             self.at = 0
 
         @property
-        def pos_x(self):
-            return self.position[0]
-        
-        @property
-        def pos_y(self):
-            return self.position[1]
+        def position(self):
+            return (self.pos_x, self.pos_y)
 
         def update(self, delta_time):
             if (self.sprite_anim.duration > 0):

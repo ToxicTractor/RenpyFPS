@@ -24,18 +24,20 @@ init python:
             self.sprite_objects.append(HealthPickup(self, (2.5, 14.5)))
 
             self.npcs = [
-                # ZombieNPC(self, pos=(2.5, 5.5)),
-                # ZombieNPC(self, pos=(13.5, 6.5)),
-                # ZombieNPC(self, pos=(8.5, 23.5)),
-                # ZombieNPC(self, pos=(9.5, 26.5)),
-                # ZombieNPC(self, pos=(16.5, 22.5)),
-                # ZombieNPC(self, pos=(21.5, 28.5)),
-                # ZombieNPC(self, pos=(28.5, 22.5)),
-                # ZombieNPC(self, pos=(27.5, 14.5)),
-                # ZombieNPC(self, pos=(17.5, 8.5)),
-                # ZombieNPC(self, pos=(26.5, 4.5)),
-                # ZombieNPC(self, pos=(27.5, 4.5))
+                ZombieNPC(self, pos=(2.5, 5.5)),
+                ZombieNPC(self, pos=(13.5, 6.5)),
+                ZombieNPC(self, pos=(8.5, 23.5)),
+                ZombieNPC(self, pos=(9.5, 26.5)),
+                ZombieNPC(self, pos=(16.5, 22.5)),
+                ZombieNPC(self, pos=(21.5, 28.5)),
+                ZombieNPC(self, pos=(28.5, 22.5)),
+                ZombieNPC(self, pos=(27.5, 14.5)),
+                ZombieNPC(self, pos=(17.5, 8.5)),
+                ZombieNPC(self, pos=(26.5, 4.5)),
+                ZombieNPC(self, pos=(27.5, 4.5))
             ]
+
+            self.screen_effect = ScreenEffect()
 
             self.modify_renpy_keymaps()
             self.jukebox.play()
@@ -70,6 +72,8 @@ init python:
             # self.player.draw_2d(canvas)
             # for npc in self.npcs:
             #     npc.draw_2d(canvas)
+            
+            self.screen_effect.draw(r)
 
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
@@ -85,12 +89,14 @@ init python:
             self.map.update(self.delta_time)
 
             self.object_renderer.update()
-
+            
             for obj in self.sprite_objects:
                 obj.update(self.delta_time)
 
             for npc in self.npcs:
                 npc.update(self.delta_time)
+
+            self.screen_effect.update(self.delta_time)
 
 
         def event(self, ev, x, y, st): ## use this for reacting to events
@@ -118,7 +124,10 @@ init python:
             if (self.delta_time <= 0):
                 return 0
             else:
-                return 1.0 // self.delta_time            
+                return 1.0 // self.delta_time
+
+        def trigger_screen_effect(self, color, duration):
+            self.screen_effect.trigger(color, duration) 
 
 
 screen FpsScreen():

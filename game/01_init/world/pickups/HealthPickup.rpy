@@ -15,7 +15,6 @@ init python:
 
         def _effect(self):
 
-            print(f"Health pack picked up. Healed player for {self.healing_amount} HP.")
+            self.game.trigger_screen_effect("#0f05", 0.1)
 
-            
-            
+            print(f"Health pack picked up. Healed player for {self.healing_amount} HP.")

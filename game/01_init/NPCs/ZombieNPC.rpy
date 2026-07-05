@@ -5,9 +5,8 @@ define zombie_hurt_anim = AnimationData("zombie_hurt", 0.4)
 define zombie_death_anim = AnimationData("zombie_death", 0.5)
 
 image zombie_attack = Animation(
-    "zombie_shoot_01", 0.1,
     "zombie_shoot_02", 0.1,
-    "zombie_shoot_03", 0.3
+    "zombie_shoot_03", 0.4
 ) # 0.5 seconds
 
 image zombie_idle:
@@ -61,4 +60,4 @@ init python:
             self.size = .15
             self.health = 100
             self.attack_damage = 10
-            self.accuracy = 0.15
+            self.accuracy = 15
