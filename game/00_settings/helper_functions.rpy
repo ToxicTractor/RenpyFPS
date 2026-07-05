@@ -16,6 +16,7 @@ init -100 python:
     def clamp01(value):
         return clamp(value, 0, 1)
 
+
     def lerp(a, b, t, clamp_value = True):
         ## Linear interpolation between a and b by a factor t, by default clamps the result between a and b
         result = (t * b) + ((1 - t) * a)
@@ -53,3 +54,8 @@ init -100 python:
         dot = x ** 2 + y ** 2
         inv_length = isqrt(dot)
         return (x * inv_length, y * inv_length)
+
+
+    ## returns the squared distance between two points
+    def sqr_dist(p, q):
+        return sum((a - b) ** 2 for a, b in zip(p, q))

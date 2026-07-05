@@ -16,10 +16,13 @@ init python:
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.object_renderer = ObjectRenderer(self.player, self.map)
+            self.sprite_objects = []
 
-            self.sprite_obj1 = SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27)
-            self.sprite_obj2 = SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05)
+            self.sprite_objects.append(SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27))
+            self.sprite_objects.append(SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05))
             
+            self.sprite_objects.append(HealthPickup(self, (2.5, 14.5)))
+
             self.npcs = [
                 # ZombieNPC(self, pos=(2.5, 5.5)),
                 # ZombieNPC(self, pos=(13.5, 6.5)),
@@ -83,9 +86,9 @@ init python:
 
             self.object_renderer.update()
 
-            self.sprite_obj1.update(self.delta_time)
-            self.sprite_obj2.update(self.delta_time)
-  
+            for obj in self.sprite_objects:
+                obj.update(self.delta_time)
+
             for npc in self.npcs:
                 npc.update(self.delta_time)
 
