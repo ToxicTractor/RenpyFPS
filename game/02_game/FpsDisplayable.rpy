@@ -9,7 +9,6 @@ init python:
             self.delta_time = 0
             self.framerate = 0
             self.scale = scale
-            self.ui = FpsUI()
 
             self.map = Map01(scale)
             self.map.world_map[(7,8)] = DoorCell((7,8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation="horizontal")
@@ -45,6 +44,8 @@ init python:
 
             self.modify_renpy_keymaps()
             self.jukebox.play()
+
+            self.ui = FpsUI(self)
 
         @staticmethod
         def modify_renpy_keymaps():
@@ -104,6 +105,7 @@ init python:
 
             self.screen_effect.update(self.delta_time)
 
+            self.ui.update(self.delta_time)
 
         def event(self, ev, x, y, st): ## use this for reacting to events
             key_pressed = pygame.key.get_pressed()

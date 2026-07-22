@@ -43,6 +43,12 @@ init python:
             self.equipped_weapon_index = 0
             self.is_attacking = False
 
+            self.health = 100
+            self.max_health = 100
+
+            self.hurt_event = GameEvent()
+            self.attack_event = GameEvent()
+
 
 #region Properties
 
@@ -152,6 +158,18 @@ init python:
                 self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
 
             self.raycaster.update()
+
+        
+        def modify_health(self, amount):
+
+            self.health = clamp(self.health + amount, 0 , self.max_health)
+
+            if (amount > 0): ## healing
+                pass
+            else:
+                self.game.trigger_screen_effect("#f005", 0.1)
+                self.hurt_event.invoke()
+
 
 #endregion
 

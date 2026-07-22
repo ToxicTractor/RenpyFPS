@@ -124,9 +124,8 @@ init -1 python:
             hit_roll = renpy.random.randint(0, 99)
 
             if (hit_roll < self.accuracy):
-                ## trigger player take damage effect
-                self.game.trigger_screen_effect("#f005", 0.1)
-
+                self.game.player.modify_health(-self.attack_damage)
+                
 
         def pathfind_to_start_pos(self, delta_time):
 

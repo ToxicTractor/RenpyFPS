@@ -145,3 +145,4 @@ init -1 python:
             self.casing_spawned = False
             self.current_animation = self.attack_anim
             self.player.is_attacking = True
+            self.player.attack_event.invoke()
