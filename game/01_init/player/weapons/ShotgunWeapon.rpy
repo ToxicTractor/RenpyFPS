@@ -24,7 +24,7 @@ image shotgun_shell = Animation(
 init python:
     class ShotgunWeapon(Weapon):
         def __init__(self, player):
-            super().__init__(player, scale=4.0)
+            super().__init__(player, scale=2.0)
             
         def initialize(self):
 
@@ -41,7 +41,7 @@ init python:
                     shotgun_shell_anim, 
                     (FpsSettings.HALF_SCREEN_WIDTH - 40, FpsSettings.SCREEN_HEIGHT - 80), 
                     lifetime=0.3, 
-                    scale=4.0),
+                    scale=2.0),
                 2)
             self.casing_spawn_delay = 0.3
             

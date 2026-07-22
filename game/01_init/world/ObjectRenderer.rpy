@@ -42,12 +42,12 @@ init python:
 
 
         def draw(self, screen, st):
-            sway_offset = self.player.sway_offset
+            offset = elementwise_add_tuple(self.player.sway_offset, (FpsSettings.X_OFFSET, FpsSettings.Y_OFFSET))
 
-            self._draw_sky(screen, sway_offset)
-            self._draw_floor(screen, sway_offset)
+            self._draw_sky(screen, offset)
+            self._draw_floor(screen, offset)
 
-            self._draw_objects(screen, sway_offset, st)
+            self._draw_objects(screen, offset, st)
 
 #endregion
 

@@ -59,3 +59,7 @@ init -100 python:
     ## returns the squared distance between two points
     def sqr_dist(p, q):
         return sum((a - b) ** 2 for a, b in zip(p, q))
+
+
+    def elementwise_add_tuple(a, b):
+        return tuple(map(sum, zip(a, b)))

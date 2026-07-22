@@ -94,7 +94,7 @@ init -1 python:
         def draw_weapon(self, screen, st):
 
             ## calculate the x and y offsets due to sway from movement
-            offset_x, offset_y = self.player.sway_offset
+            offset_x, offset_y = elementwise_add_tuple(self.player.sway_offset, (FpsSettings.X_OFFSET, FpsSettings.Y_OFFSET))
 
             ## get the weapon image, scaled if appropriate
             weapon_image = self.current_animation.image if self.scale == 1.0 else Transform(self.current_animation.image, size=(self.scaled_width, self.scaled_height))

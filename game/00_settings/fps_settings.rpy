@@ -4,7 +4,9 @@ init -100 python:
     class FpsSettings():
         
         ## Screen settings
-        SCREEN_SIZE = config.screen_width, config.screen_height
+        Y_OFFSET = -10
+        X_OFFSET = -10
+        SCREEN_SIZE = config.screen_width + abs(X_OFFSET) * 2, (config.screen_height + abs(Y_OFFSET) * 2) - 274 ## 274 is the height of the UI bar at the buttom of the screen
         SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE
         HALF_SCREEN_WIDTH = SCREEN_WIDTH // 2
         HALF_SCREEN_HEIGHT = SCREEN_HEIGHT // 2

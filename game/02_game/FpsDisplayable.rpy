@@ -9,6 +9,7 @@ init python:
             self.delta_time = 0
             self.framerate = 0
             self.scale = scale
+            self.ui = FpsUI()
 
             self.map = Map01(scale)
             self.map.world_map[(7,8)] = DoorCell((7,8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation="horizontal")
@@ -77,6 +78,8 @@ init python:
             #     npc.draw_2d(canvas)
             
             self.screen_effect.draw(r)
+
+            self.ui.draw(r, st, at)
 
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
