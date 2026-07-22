@@ -48,20 +48,19 @@ init python:
                     depth = side_distance_x
                     side_distance_x += delta_distance_x
                     cell_x += step_x
+                    cell_side = "east" if step_x < 0 else "west"
                 else:
                     depth = side_distance_y
                     side_distance_y += delta_distance_y
                     cell_y += step_y
+                    cell_side = "south" if step_y < 0 else "north"
 
                 cell = self.world_map[(cell_x, cell_y)]
+                
+                if (cell.type != "empty"):
+                    return cell, cell_side
 
-                if (cell.type == "wall"):
-                    return None
-
-                if (cell.type == "door"):
-                    return cell
-
-            return None
+            return None, None
 
 #endregion
 
@@ -99,6 +98,7 @@ init python:
                 ## defaults
                 texture_index = 0
                 hit_cell = None
+                hit_direction = None
 
                 ## get starting coord
                 cell_x, cell_y = player_coord
@@ -143,7 +143,7 @@ init python:
 
                     cell = self.world_map[(cell_x, cell_y)]
 
-                    if (cell.type == "wall"):
+                    if (cell.type in ("wall", "button")):
                         hit_cell = cell
                         break
 
@@ -166,9 +166,11 @@ init python:
                 if (side == 0):
                     depth = (cell_x - player_x + (1 - step_x) / 2) / ray_direction_x 
                     offset = player_y + depth * ray_direction_y
+                    hit_direction = "east" if step_x < 0 else "west"
                 elif (side == 1):
                     depth = (cell_y - player_y + (1 - step_y) / 2) / ray_direction_y
                     offset = player_x + depth * ray_direction_x
+                    hit_direction = "south" if step_y < 0 else "north"
 
                 offset -= math.floor(offset)
 
@@ -178,6 +180,6 @@ init python:
                 ## calculate projection height
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
-                self.ray_cast_results.append((depth, projection_height, hit_cell, offset, texture_index))
+                self.ray_cast_results.append((depth, projection_height, hit_cell, offset, texture_index, hit_direction))
 
 #endregion

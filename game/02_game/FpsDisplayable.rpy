@@ -13,6 +13,9 @@ init python:
             self.map = Map01(scale)
             self.map.world_map[(7,8)] = DoorCell((7,8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation="horizontal")
             self.map.world_map[(7,14)] = DoorCell((7,14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation="vertical")
+            self.map.world_map[(7,14)].is_locked = True
+            self.map.world_map[(7,13)] = ButtonCell((7,13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=["east", "west"])
+            self.map.world_map[(7,13)].button_event.add_listener(self.map.world_map[7,14].interact)
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.object_renderer = ObjectRenderer(self.player, self.map)

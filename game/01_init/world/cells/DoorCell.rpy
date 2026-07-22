@@ -12,6 +12,7 @@ init python:
             self.thickness = 0.125
             self.speed = 2.5
             self.is_open_state = False
+            self.is_locked = False
 
             self.open_audio = "audio/fps/map/doors/door_open.ogg"
             self.close_audio = "audio/fps/map/doors/door_close.ogg"
@@ -63,8 +64,10 @@ init python:
             return depth, offset, texture_index
         
 
-        @property
-        def interactable(self):
+        def is_interactable(self, side):
+
+            if (self.is_locked):
+                return False
 
             ## door is only interactable when it is fully open or closed
             return ((self.open_amount == 1.0 and self.is_open_state) or

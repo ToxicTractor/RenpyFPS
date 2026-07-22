@@ -17,7 +17,7 @@ init python:
             self.objects_to_render = []
 
             for i, values in enumerate(self.player.raycaster.ray_cast_results):
-                depth, projection_height, cell, offset, texture_index = values
+                depth, projection_height, cell, offset, texture_index, hit_direction = values
                 
                 if (cell.type == "empty"):
                     continue
@@ -35,7 +35,9 @@ init python:
                     (crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),
                     (FpsSettings.PROJECTION_SCALE, int(projection_height)),
                     wall_pos,
-                    0)
+                    0,
+                    cell,
+                    hit_direction)
                 )
 
 
@@ -60,7 +62,7 @@ init python:
             ## sort the list by depth to make sure we draw element in the correct order
             self.objects_to_render = sorted(self.objects_to_render, reverse=True)
             
-            for depth, texture, crop, projection_size, pos, at in self.objects_to_render:
+            for depth, texture, crop, projection_size, pos, at, cell, hit_direction in self.objects_to_render:
                 
                 wall_slice = Transform(
                     texture,
@@ -72,6 +74,21 @@ init python:
                 wall_render = renpy.render(wall_slice, FpsSettings.PROJECTION_SCALE, int(projection_size[1]), st, at)
 
                 screen.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
+
+                if (cell is not None and 
+                    cell.type == "button" and
+                    cell.is_button_side(hit_direction)):
+
+                    wall_slice = Transform(
+                        cell.overlay_image,
+                        crop=crop,
+                        size=projection_size,
+                        matrixcolor=BrightnessMatrix(-(depth / FpsSettings.MAX_DEPTH))
+                    )
+                    
+                    wall_render = renpy.render(wall_slice, FpsSettings.PROJECTION_SCALE, int(projection_size[1]), st, at)
+
+                    screen.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
 
 
         def _draw_floor(self, screen, offset):

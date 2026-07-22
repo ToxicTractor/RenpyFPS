@@ -1,4 +1,4 @@
-init python:
+init -1 python:
     class CellBase(ABC):
         def __init__(self, coordinate):
             self.type = None
@@ -12,8 +12,7 @@ init python:
         def coord_y(self):
             return self.coordinate[1]
 
-        @property
-        def interactable(self):
+        def is_interactable(self, side):
             return False
         
         @abstractmethod

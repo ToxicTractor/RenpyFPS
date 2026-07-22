@@ -60,7 +60,9 @@ init -2 python:
                 (0, 0, self.sprite_width, self.sprite_height), 
                 (proj_width, proj_height), 
                 pos,
-                min(self.sprite_anim.duration - 0.0001, self.at))
+                min(self.sprite_anim.duration - 0.0001, self.at),
+                None,
+                None)
             )
 
 
