@@ -47,8 +47,8 @@ init python:
             self.max_health = 100
 
             self.hurt_event = GameEvent()
+            self.heal_event = GameEvent()
             self.attack_event = GameEvent()
-
 
 #region Properties
 
@@ -164,10 +164,9 @@ init python:
 
             self.health = clamp(self.health + amount, 0 , self.max_health)
 
-            if (amount > 0): ## healing
-                pass
+            if (amount > 0): ## values above 0 is healing            
+                self.heal_event.invoke()
             else:
-                self.game.trigger_screen_effect("#f005", 0.1)
                 self.hurt_event.invoke()
 
 

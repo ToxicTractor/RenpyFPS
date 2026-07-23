@@ -253,6 +253,11 @@ init -1 python:
                 
                 ## we should probably also check weapon range here
                 if (FpsSettings.HALF_SCREEN_WIDTH - self.sprite_half_width < self.screen_x < FpsSettings.HALF_SCREEN_WIDTH + self.sprite_half_width):
+                    
+                    ## we are out of range for the attack
+                    if (self.game.player.equipped_weapon.range > 0 and 
+                        sqr_dist(self.position, self.game.player.pos) > self.game.player.equipped_weapon.range ** 2):
+                        return False
 
                     self.game.player.is_attacking = False ## if weapon is piercing we dont do this
                     self.hurt = True     

@@ -15,6 +15,9 @@ init python:
 
         def _effect(self):
 
-            self.game.trigger_screen_effect("#0f05", 0.1)
+            self.game.player.modify_health(self.healing_amount)
 
-            print(f"Health pack picked up. Healed player for {self.healing_amount} HP.")
+        def _can_pick_up(self):
+            
+            return self.game.player.health < self.game.player.max_health
+

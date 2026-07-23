@@ -47,6 +47,9 @@ init python:
 
             self.ui = FpsUI(self)
 
+            self.player.hurt_event.add_listener(lambda: self.trigger_screen_effect("#f005", 0.1))
+            self.player.heal_event.add_listener(lambda: self.trigger_screen_effect("#0f05", 0.1))
+
         @staticmethod
         def modify_renpy_keymaps():
             

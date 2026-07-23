@@ -24,6 +24,9 @@ init -1 python:
             if (sqr_dist_to_player > self._sqr_pickup_distance):
                 return
 
+            if (not self._can_pick_up()):
+                return
+
             self._pickup()
 
 
@@ -40,6 +43,11 @@ init -1 python:
                 self.game.sprite_objects.remove(self)   
 
 
+        def _can_pick_up(self):
+            True
+
+
         @abstractmethod
         def _effect(self):
             pass
+
