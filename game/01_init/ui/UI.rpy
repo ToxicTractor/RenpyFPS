@@ -7,6 +7,7 @@ init python:
             self.ingame_base_ui = Image("images/fps/ui/UI.png")
 
             self.face = PlayerFace(game.player)
+            self.health_text = UIText("<dynamic>%", (207, 902), 50, "#800", dynamic_text_source=lambda: game.player.health)
 
         def draw(self, screen, st, at):
 
@@ -14,8 +15,8 @@ init python:
             screen.blit(ui_render, (0, 807))
 
             self.face.draw(screen)
+            self.health_text.draw(screen)
 
         def update(self, delta_time):
 
             self.face.update(delta_time)
-
