@@ -16,7 +16,17 @@ init python:
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
-            self.input_use = InputKeyHandler(pygame.K_e, on_key_down=self._on_use_down)
+
+            self.input_move_forward = InputKeyHandler(pygame.K_w, on_key=lambda: self._on_vertical_move_input(+1))
+            self.input_move_backward = InputKeyHandler(pygame.K_s, on_key=lambda: self._on_vertical_move_input(-1))
+            self.input_move_right = InputKeyHandler(pygame.K_d, on_key=lambda: self._on_horizontal_move_input(+1))
+            self.input_move_left = InputKeyHandler(pygame.K_a, on_key=lambda: self._on_horizontal_move_input(-1))
+
+            self.input_look_right = InputKeyHandler(pygame.K_RIGHT, on_key=lambda: self._on_angle_input(+1))
+            self.input_look_left = InputKeyHandler(pygame.K_LEFT, on_key=lambda: self._on_angle_input(-1))
+
+            self.input_use = InputKeyHandler(pygame.K_e, on_key_down=self._on_use_key_down)
+            self.input_attack = InputKeyHandler(pygame.K_SPACE, on_key=self._on_attack_key)
 
             self.sway_offset = (0, 0)
             self.sway_enabled = True
@@ -43,12 +53,15 @@ init python:
             self.equipped_weapon_index = 0
             self.is_attacking = False
 
+            self.is_dead = False
+
             self.health = 100
             self.max_health = 100
 
             self.hurt_event = GameEvent()
             self.heal_event = GameEvent()
             self.attack_event = GameEvent()
+            self.death_event = GameEvent()
 
 #region Properties
 
@@ -113,29 +126,17 @@ init python:
             self.input_angle = 0
             self.is_attacking = False
 
-            ## find horizontal and vertical movement axis values
-            if (key_pressed[pygame.K_w]):
-                self.input_vertical += 1
-            if (key_pressed[pygame.K_s]):
-                self.input_vertical -= 1    
-            if (key_pressed[pygame.K_a]):
-                self.input_horizontal -= 1
-            if (key_pressed[pygame.K_d]):
-                self.input_horizontal += 1
-            
-            ## find angle input axis values
-            if (key_pressed[pygame.K_LEFT]):
-                self.input_angle -= 1
-            if (key_pressed[pygame.K_RIGHT]):
-                self.input_angle += 1
+            ## then process inputs
+            self.input_move_forward.handle_input(key_pressed)
+            self.input_move_backward.handle_input(key_pressed)
+            self.input_move_right.handle_input(key_pressed)
+            self.input_move_left.handle_input(key_pressed)
 
-            ## register use key pressed
+            self.input_look_right.handle_input(key_pressed)
+            self.input_look_left.handle_input(key_pressed)
+
             self.input_use.handle_input(key_pressed)
-
-            ## trigger an attack with the currently equipped weapon if we have one
-            if (key_pressed[pygame.K_SPACE]):
-                if (self.equipped_weapon is not None):
-                    self.equipped_weapon.attack()
+            self.input_attack.handle_input(key_pressed)
 
 
         def update(self, delta_time, st):
@@ -161,8 +162,18 @@ init python:
 
         
         def modify_health(self, amount):
+            
+            ## if the player is dead, do nothing
+            if (self.is_dead):
+                return
 
             self.health = clamp(self.health + amount, 0 , self.max_health)
+
+            ## if the player reaches 0 hp and is not dead yet
+            if (self.health <= 0 and not self.is_dead):
+                self.is_dead = True
+                self.death_event.invoke()
+                return
 
             if (amount > 0): ## values above 0 is healing            
                 self.heal_event.invoke()
@@ -175,7 +186,7 @@ init python:
 
 #region Event handlers
 
-        def _on_use_down(self):
+        def _on_use_key_down(self):
             
             cell, cell_side = self.raycaster.center_raycast(self.interact_range)
 
@@ -185,6 +196,27 @@ init python:
             if (cell.is_interactable(cell_side)):
 
                 cell.interact()
+
+
+        def _on_attack_key(self):
+            
+            if (self.equipped_weapon is not None and
+                self.equipped_weapon.can_attack()):
+
+                self.equipped_weapon.attack()
+
+                self.is_attacking = True
+                self.attack_event.invoke()
+
+        def _on_horizontal_move_input(self, value):
+            self.input_horizontal += value
+
+        def _on_vertical_move_input(self, value):
+            self.input_vertical += value
+
+        def _on_angle_input(self, value):
+            self.input_angle += value
+
 
 #endregion
 

@@ -251,7 +251,7 @@ init -1 python:
 
             if (self.has_los_to_player and self.game.player.is_attacking):
                 
-                ## we should probably also check weapon range here
+                ## check if player is looking at us
                 if (FpsSettings.HALF_SCREEN_WIDTH - self.sprite_half_width < self.screen_x < FpsSettings.HALF_SCREEN_WIDTH + self.sprite_half_width):
                     
                     ## we are out of range for the attack

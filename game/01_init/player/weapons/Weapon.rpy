@@ -131,11 +131,12 @@ init -1 python:
             self.casing_pool.release(casing)
 
 
-        def attack(self):
+        def can_attack(self):
+            ## returns whether the weapon is ready to attack or not
+            return self.current_animation == self.idle_anim
 
-            ## ignore attack input if we are not ready toattackt
-            if (self.current_animation != self.idle_anim):
-                return
+
+        def attack(self):
             
             if (self.attack_audio is not None):
                 renpy.play(self.attack_audio)
@@ -144,5 +145,3 @@ init -1 python:
             self.at = 0
             self.casing_spawned = False
             self.current_animation = self.attack_anim
-            self.player.is_attacking = True
-            self.player.attack_event.invoke()
