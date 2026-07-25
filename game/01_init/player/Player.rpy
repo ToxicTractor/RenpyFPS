@@ -180,7 +180,6 @@ init python:
             else:
                 self.hurt_event.invoke()
 
-
 #endregion
 
 
@@ -188,14 +187,12 @@ init python:
 
         def _on_use_key_down(self):
             
-            cell, cell_side = self.raycaster.center_raycast(self.interact_range)
+            cell, cell_side = self.raycaster.interact_raycast(self.pos, self.angle, self.interact_range)
 
-            if (cell is None):
+            if (cell is None or cell_side is None):
                 return
 
-            if (cell.is_interactable(cell_side)):
-
-                cell.interact()
+            cell.interact()
 
 
         def _on_attack_key(self):
@@ -208,15 +205,17 @@ init python:
                 self.is_attacking = True
                 self.attack_event.invoke()
 
+
         def _on_horizontal_move_input(self, value):
             self.input_horizontal += value
+
 
         def _on_vertical_move_input(self, value):
             self.input_vertical += value
 
+
         def _on_angle_input(self, value):
             self.input_angle += value
-
 
 #endregion
 

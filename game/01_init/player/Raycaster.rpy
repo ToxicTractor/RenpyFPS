@@ -12,14 +12,23 @@ init python:
             self._cast_rays_dda()
 
         
-        def center_raycast(self, max_distance):
+        def trace_cells(self, pos, *, angle=None, ray_dir=None, distance=FpsSettings.MAX_DEPTH):
+            ## Returns a list of all traversed cells. Continues until we reach distance or we leave the bounds of the map. Either angle or ray_dir must be given. 
+            cells = []
 
-            player_x, player_y = self.player.pos
-            angle = self.player.angle
-            cell_x, cell_y = self.player.coordinate
+            ## split position into components
+            pos_x, pos_y = pos
 
-            ray_direction_x = math.cos(angle)
-            ray_direction_y = math.sin(angle)
+            ## get starting cell coord
+            cell_x = int(pos[0])
+            cell_y = int(pos[1])
+
+            ## calculate ray direction if not already given
+            if (ray_dir is None):
+                ray_direction_x = math.cos(angle)
+                ray_direction_y = math.sin(angle)
+            else:
+                ray_direction_x, ray_direction_y = ray_dir
 
             ## calculate delta distance
             delta_distance_x = float('inf') if ray_direction_x == 0 else abs(1 / ray_direction_x)
@@ -31,19 +40,20 @@ init python:
 
             ## calculate initial side distances
             if (ray_direction_x < 0):
-                side_distance_x = (player_x - cell_x) * delta_distance_x
+                side_distance_x = (pos_x - cell_x) * delta_distance_x
             else:
-                side_distance_x = (cell_x + 1 - player_x) * delta_distance_x
+                side_distance_x = (cell_x + 1 - pos_x) * delta_distance_x
 
             if (ray_direction_y < 0):
-                side_distance_y = (player_y - cell_y) * delta_distance_y
+                side_distance_y = (pos_y - cell_y) * delta_distance_y
             else:
-                side_distance_y = (cell_y + 1 - player_y) * delta_distance_y
+                side_distance_y = (cell_y + 1 - pos_y) * delta_distance_y
             
             depth = 0
 
-            while depth < max_distance:
+            while depth < distance:
 
+                ## figure out which side of the cell we hit
                 if (side_distance_x < side_distance_y):
                     depth = side_distance_x
                     side_distance_x += delta_distance_x
@@ -55,13 +65,32 @@ init python:
                     cell_y += step_y
                     cell_side = "south" if step_y < 0 else "north"
 
-                cell = self.world_map[(cell_x, cell_y)]
+                ## try to get the cell
+                cell = self.world_map.get((cell_x, cell_y))
                 
-                if (cell.type != "empty"):
+                ## if the cell doesn't exist, we have left the map so we break the loop
+                if (cell is None):
+                    break
+
+                cells.append((cell, depth, cell_side))
+
+            return cells
+        
+
+        def interact_raycast(self, pos, angle, interact_distance):
+
+            traversed_cells = self.trace_cells(pos, angle=angle, distance=interact_distance)
+
+            if (traversed_cells is None):
+                return None, None
+
+            for cell, _, cell_side in traversed_cells:
+
+                if (cell.is_interactable(cell_side)):
+
                     return cell, cell_side
-
+            
             return None, None
-
 #endregion
 
 #region Private methods
@@ -98,57 +127,22 @@ init python:
                 ## defaults
                 texture_index = 0
                 hit_cell = None
-                hit_direction = None
-
-                ## get starting coord
-                cell_x, cell_y = player_coord
-
+                hit_side = None
+                
                 ## calculate sin and cos using our precomputed offsets
                 ray_direction_x = cos_player_angle * cos_offset - sin_player_angle * sin_offset
                 ray_direction_y = sin_player_angle * cos_offset + cos_player_angle * sin_offset
 
-                ## calculate delta distance
-                delta_distance_x = float('inf') if ray_direction_x == 0 else abs(1 / ray_direction_x)
-                delta_distance_y = float('inf') if ray_direction_y == 0 else abs(1 / ray_direction_y)
+                ## get all traversed cells
+                traversed_cells = self.trace_cells(self.player.pos, ray_dir=(ray_direction_x, ray_direction_y))
 
-                ## determine step direction
-                step_x = -1 if ray_direction_x < 0 else 1
-                step_y = -1 if ray_direction_y < 0 else 1
-
-                ## calculate initial side distances
-                if (ray_direction_x < 0):
-                    side_distance_x = (player_x - cell_x) * delta_distance_x
-                else:
-                    side_distance_x = (cell_x + 1 - player_x) * delta_distance_x
-
-                if (ray_direction_y < 0):
-                    side_distance_y = (player_y - cell_y) * delta_distance_y
-                else:
-                    side_distance_y = (cell_y + 1 - player_y) * delta_distance_y
-
-                ## only loop for a max number of steps to avoid an infinite loop 
-                for _ in range(FpsSettings.MAX_DEPTH):
-                    if (side_distance_x < side_distance_y):
-
-                        side_distance_x += delta_distance_x
-                        cell_x += step_x
-                        side = 0
+                ## figure out where we hit something
+                for cell, depth, cell_side in traversed_cells:
                     
-                    else:
-
-                        side_distance_y += delta_distance_y
-                        cell_y += step_y
-                        side = 1
-
-
-                    cell = self.world_map[(cell_x, cell_y)]
-
-                    if (cell.type in ("wall", "button")):
-                        hit_cell = cell
-                        break
+                    if (cell.type == "empty"):
+                        continue
 
                     if (cell.type == "door"):
-
                         hit = cell.intersect(player_x, player_y, ray_direction_x, ray_direction_y)
                         
                         if (hit is None):
@@ -156,21 +150,19 @@ init python:
                         
                         depth, offset, texture_index = hit
                         hit_cell = cell
-                        side = None
-
+                        hit_side = cell_side
                         break
 
-                if (hit_cell is None):
-                    continue
-                    
-                if (side == 0):
-                    depth = (cell_x - player_x + (1 - step_x) / 2) / ray_direction_x 
-                    offset = player_y + depth * ray_direction_y
-                    hit_direction = "east" if step_x < 0 else "west"
-                elif (side == 1):
-                    depth = (cell_y - player_y + (1 - step_y) / 2) / ray_direction_y
-                    offset = player_x + depth * ray_direction_x
-                    hit_direction = "south" if step_y < 0 else "north"
+                    if (cell.type in ("wall", "button")):
+                        hit_cell = cell
+                        hit_side = cell_side
+
+                        if (hit_side in ("east", "west")):
+                            offset = player_y + depth * ray_direction_y
+                        elif (hit_side in ("north", "south")):
+                            offset = player_x + depth * ray_direction_x
+
+                        break
 
                 offset -= math.floor(offset)
 
@@ -180,6 +172,6 @@ init python:
                 ## calculate projection height
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
-                self.ray_cast_results.append((depth, projection_height, hit_cell, offset, texture_index, hit_direction))
+                self.ray_cast_results.append((depth, projection_height, hit_cell, offset, texture_index, hit_side))
 
 #endregion
