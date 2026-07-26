@@ -121,11 +121,14 @@ init python:
             ## if we are outside we draw a scrolling texture that repeat to simulate the sky
             else:
 
-                self.sky_offset = (self.player.angle / (2 * math.pi) * FpsSettings.SCREEN_WIDTH) % FpsSettings.SCREEN_WIDTH
+                sky_render = renpy.render(self.sky_image, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, 0, 0)
                 
-                sky_render = renpy.render(self.sky_image, FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT, 0, 0)
-                
-                for i in range(-1, 4):
-                    screen.blit(sky_render, ((i * FpsSettings.HALF_SCREEN_WIDTH - self.sky_offset) + offset_x, 0 + offset_y))  
+                tile_width = FpsSettings.SCREEN_WIDTH
+                sky_offset = (self.player.angle / (2 * math.pi) * tile_width) % tile_width
+
+                x = -sky_offset + offset_x
+
+                screen.blit(sky_render, (x, offset_y))
+                screen.blit(sky_render, (x + tile_width, offset_y))
 
 #endregion

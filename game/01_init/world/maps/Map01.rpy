@@ -9,7 +9,7 @@ init python:
             self.floor_image = Solid("#333")
             self.sky_image = self.sky_image = Transform(
                 Image("images/fps/textures/skies/sky_sunset.png"), 
-                size=(FpsSettings.HALF_SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT)
+                size=(FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT)
             )
 
             self.music_tracks = [
