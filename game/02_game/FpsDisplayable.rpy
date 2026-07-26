@@ -51,6 +51,9 @@ init python:
             self.player.hurt_event.add_listener(lambda: self.trigger_screen_effect("#f005", 0.1))
             self.player.heal_event.add_listener(lambda: self.trigger_screen_effect("#0f05", 0.1))
 
+            self.fade_to_black_event = GameEvent()
+            self.fade_to_clear_event = GameEvent()
+
         @staticmethod
         def modify_renpy_keymaps():
             
@@ -147,7 +150,10 @@ screen FpsScreen():
     modal True
 
     default fps = FpsDisplayable(scale=30)
+    default fps_fader = FpsFadeOverlay(fps)
 
     add fps
 
     label f"Framerate: {fps.framerate}"
+
+    add fps_fader
