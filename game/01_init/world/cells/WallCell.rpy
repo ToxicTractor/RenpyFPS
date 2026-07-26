@@ -1,7 +1,7 @@
 init python:
     class WallCell(CellBase):
-        def __init__(self, coordinate, image):
-            super().__init__(coordinate)
+        def __init__(self, coord, image):
+            super().__init__(coord)
 
             self.type = "wall"
             self.images = [image]

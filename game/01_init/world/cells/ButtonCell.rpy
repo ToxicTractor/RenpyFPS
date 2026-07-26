@@ -1,7 +1,7 @@
 init python:
     class ButtonCell(CellBase):
-        def __init__(self, coordinate, wall_image, on_image, off_image, sides=[], is_on=False):
-            super().__init__(coordinate)
+        def __init__(self, coord, wall_image, on_image, off_image, sides=[], is_on=False):
+            super().__init__(coord)
 
             self.type = "button"
             self.images = [wall_image]

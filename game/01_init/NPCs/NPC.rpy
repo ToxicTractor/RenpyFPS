@@ -35,7 +35,7 @@ init -1 python:
             self.stunned_timer = 0
 
             self.return_to_start_pos = True
-            self.start_coord = self.coordinate
+            self.start_coord = self.coord
 
             self.pathfinding = Pathfinding(game.map.nav_map)
             self.path = None
@@ -48,7 +48,7 @@ init -1 python:
 
 
         @property
-        def coordinate(self):
+        def coord(self):
             return int(self.pos_x), int(self.pos_y)
 
 
@@ -56,7 +56,7 @@ init -1 python:
             super().update(delta_time)
             
             if self.alive:
-                player_coord = self.game.player.coordinate
+                player_coord = self.game.player.coord
                 player_coord_x, player_coord_y = player_coord
                 self.has_los_to_player = self.is_player_in_sight()
                 self.check_was_hit()
@@ -130,7 +130,7 @@ init -1 python:
         def pathfind_to_start_pos(self, delta_time):
 
             if (self.path is None):
-                self.path = self.pathfinding.find_path(self.coordinate, self.start_coord)
+                self.path = self.pathfinding.find_path(self.coord, self.start_coord)
             
             ## if there is no path or we have arrived, return self.lost_player to False
             if (not self.pathfind_along_current_path(delta_time)):
@@ -141,7 +141,7 @@ init -1 python:
 
             ## update the path if we dont have one or if the players position changed and we are still within the LOS grace period
             if (self.los_grace_timer < self.los_grace_period and (self.path is None or self.last_player_coord != player_coord)):
-                self.path = self.pathfinding.find_path(self.coordinate, player_coord)
+                self.path = self.pathfinding.find_path(self.coord, player_coord)
             
             self.last_player_coord = player_coord
 
@@ -256,7 +256,7 @@ init -1 python:
                     
                     ## we are out of range for the attack
                     if (self.game.player.equipped_weapon.range > 0 and 
-                        sqr_dist(self.position, self.game.player.pos) > self.game.player.equipped_weapon.range ** 2):
+                        sqr_dist(self.pos, self.game.player.pos) > self.game.player.equipped_weapon.range ** 2):
                         return False
 
                     self.game.player.is_attacking = False ## if weapon is piercing we dont do this
@@ -277,17 +277,17 @@ init -1 python:
             world_map = self.game.map.world_map
 
             ## if we are in the same cell as an enemy, return true
-            if (self.game.player.coordinate == self.coordinate):
+            if (self.game.player.coord == self.coord):
                 return True
 
             ## get starting coord
-            cell_x, cell_y = self.coordinate
+            cell_x, cell_y = self.coord
 
             ## calculate sin and cos
             ray_direction_x = -math.cos(self.theta)
             ray_direction_y = -math.sin(self.theta)
 
-            traced_cells = self.game.raycaster.trace_cells(self.position, ray_dir=(ray_direction_x, ray_direction_y))
+            traced_cells = self.game.raycaster.trace_cells(self.pos, ray_dir=(ray_direction_x, ray_direction_y))
 
             for cell, _, _ in traced_cells:
                 
@@ -295,7 +295,7 @@ init -1 python:
                     (cell.type == "door" and cell.open_amount < 1.0)):
                     return False
 
-                if (cell.coordinate == self.game.player.coordinate):
+                if (cell.coord == self.game.player.coord):
                     return True
             
             return False

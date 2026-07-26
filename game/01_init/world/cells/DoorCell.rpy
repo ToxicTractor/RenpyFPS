@@ -1,7 +1,7 @@
 init python:
     class DoorCell(CellBase):
-        def __init__(self, coordinate, image, slim_side_image, offset=0.5, orientation="horizontal"):
-            super().__init__(coordinate)
+        def __init__(self, coord, image, slim_side_image, offset=0.5, orientation="horizontal"):
+            super().__init__(coord)
 
             self.type = "door"
             self.images = [image, slim_side_image]
@@ -97,7 +97,7 @@ init python:
 
         def get_aabb(self):
 
-            cell_x, cell_y = self.coordinate
+            cell_x, cell_y = self.coord
 
             if (self.orientation == "horizontal"):
                 min_x = cell_x + self.open_amount

@@ -83,9 +83,9 @@ init python:
             return self.pos_x, self.pos_y
 
         @property
-        def coordinate(self):
+        def coord(self):
             """
-            A tuple representing the players current map coordinate.
+            A tuple representing the players current map coord.
             """
             return int(self.pos_x), int(self.pos_y)
 

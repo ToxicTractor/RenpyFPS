@@ -32,9 +32,9 @@ init python:
             """
             Draws a 2D representation of the map to the screen. Intended for debugging only.
             """
-            for coordinate, cell in self.world_map.items():
+            for coord, cell in self.world_map.items():
                 
-                x, y = coordinate
+                x, y = coord
 
                 if (cell.type == "empty"):
                     continue

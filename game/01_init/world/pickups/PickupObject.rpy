@@ -19,7 +19,7 @@ init -1 python:
         def update(self, delta_time):
             super().update(delta_time)
 
-            sqr_dist_to_player = sqr_dist(self.position, self._player.pos)
+            sqr_dist_to_player = sqr_dist(self.pos, self._player.pos)
 
             if (sqr_dist_to_player > self._sqr_pickup_distance):
                 return

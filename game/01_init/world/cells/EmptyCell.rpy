@@ -1,7 +1,7 @@
 init python:
     class EmptyCell(CellBase):
-        def __init__(self, coordinate):
-            super().__init__(coordinate)
+        def __init__(self, coord):
+            super().__init__(coord)
             
             self.type = "empty"
 

@@ -23,7 +23,7 @@ init -2 python:
             self.at = 0
 
         @property
-        def position(self):
+        def pos(self):
             return (self.pos_x, self.pos_y)
 
         def update(self, delta_time):

@@ -1,16 +1,16 @@
 init -1 python:
     class CellBase(ABC):
-        def __init__(self, coordinate):
+        def __init__(self, coord):
             self.type = None
-            self.coordinate = coordinate
+            self.coord = coord
         
         @property
         def coord_x(self):
-            return self.coordinate[0]
+            return self.coord[0]
 
         @property
         def coord_y(self):
-            return self.coordinate[1]
+            return self.coord[1]
 
         def is_interactable(self, side):
             return False
