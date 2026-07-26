@@ -23,6 +23,7 @@ init -1 python:
             self.damage = 0
             self.magazine_size = 0
             self.range = 0 ## 0 means no range limit
+            self.penetration = 0
 
             self.initialize()
             #endregion

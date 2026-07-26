@@ -47,3 +47,4 @@ init python:
             
             ## stats
             self.damage = 25
+            self.penetration = 1

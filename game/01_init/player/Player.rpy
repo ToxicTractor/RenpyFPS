@@ -49,9 +49,9 @@ init python:
                 ShotgunWeapon(self)
                 ]
             self.equipped_weapon_index = 0
-            self.is_attacking = False
+            self.center_cell_trace = []
 
-            self.is_dead = False
+            self.is_alive = True
 
             self.health = 100
             self.max_health = 100
@@ -122,7 +122,6 @@ init python:
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
-            self.is_attacking = False
 
             ## then process inputs
             self.input_move_forward.handle_input(key_pressed)
@@ -144,6 +143,8 @@ init python:
             self._calculate_sway_offset(st)
             self._footsteps(st)
 
+            self.center_cell_trace = self.game.raycaster.trace_cells(self.pos, angle=self.angle)
+
             if (self.equipped_weapon is not None):
                 self.equipped_weapon.update(delta_time)
 
@@ -160,14 +161,14 @@ init python:
         def modify_health(self, amount):
             
             ## if the player is dead, do nothing
-            if (self.is_dead):
+            if (not self.is_alive):
                 return
 
             self.health = clamp(self.health + amount, 0 , self.max_health)
 
             ## if the player reaches 0 hp and is not dead yet
-            if (self.health <= 0 and not self.is_dead):
-                self.is_dead = True
+            if (self.health <= 0 and self.is_alive):
+                self.is_alive = False
                 self.death_event.invoke()
                 return
 
@@ -205,8 +206,44 @@ init python:
 
                 self.equipped_weapon.attack()
 
-                self.is_attacking = True
                 self.attack_event.invoke()
+
+                pen_count = 0
+                weapon_pen = self.equipped_weapon.penetration
+
+                for cell, _, _ in self.center_cell_trace:
+                    
+                    ## if we hit a cell that is not empty or an open door, we stop
+                    if (cell.type != "empty" or 
+                        (cell.type == "door" and cell.open_amount < 1.0)):
+                        break
+
+                    ## see if any npcs are in the traversed cell
+                    for npc in self.game.npcs:
+                        
+                        ## if npc is already dead, continue to next npc
+                        if (not npc.is_alive):
+                            continue
+
+                        ## if npc was not in the current cell, continue to next npc
+                        if (npc.coord != cell.coord):
+                            continue
+
+                        ## check if we are hitting npc
+                        if (FpsSettings.HALF_SCREEN_WIDTH - npc.sprite_half_width < npc.screen_x < FpsSettings.HALF_SCREEN_WIDTH + npc.sprite_half_width):
+                            
+                            ## damage the npc
+                            npc.modify_health(-self.equipped_weapon.damage)
+
+                            ## if our weapon has no pen, return after the first enemy was hit
+                            if (weapon_pen <= 0):
+                                return
+                            
+                            ## if our weapon has pen, count up one pen and continue to the next npc
+                            if (pen_count < weapon_pen):
+                                pen_count += 1
+                            else:
+                                return
 
 
         def _on_horizontal_move_input(self, value):

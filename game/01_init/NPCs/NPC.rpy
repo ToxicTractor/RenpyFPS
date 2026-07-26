@@ -27,7 +27,7 @@ init -1 python:
             self.accuracy = 0
             #endregion
 
-            self.alive = True
+            self.is_alive = True
             self.hurt = False
             self.attack = False
             self.stunned = False
@@ -46,6 +46,9 @@ init -1 python:
             self.last_player_coord = None
             self.lost_player = False
 
+            self.hurt_event = GameEvent()
+            self.death_event = GameEvent()
+
 
         @property
         def coord(self):
@@ -55,11 +58,10 @@ init -1 python:
         def update(self, delta_time):
             super().update(delta_time)
             
-            if self.alive:
+            if self.is_alive:
                 player_coord = self.game.player.coord
                 player_coord_x, player_coord_y = player_coord
                 self.has_los_to_player = self.is_player_in_sight()
-                self.check_was_hit()
 
                 if (self.hurt):
                     self.change_animation(self.hurt_anim, audio=self.hurt_audio)
@@ -247,29 +249,23 @@ init -1 python:
                 self.at = 0
 
 
-        def check_was_hit(self):
+        def modify_health(self, amount):
 
-            if (self.has_los_to_player and self.game.player.is_attacking):
-                
-                ## check if player is looking at us
-                if (FpsSettings.HALF_SCREEN_WIDTH - self.sprite_half_width < self.screen_x < FpsSettings.HALF_SCREEN_WIDTH + self.sprite_half_width):
-                    
-                    ## we are out of range for the attack
-                    if (self.game.player.equipped_weapon.range > 0 and 
-                        sqr_dist(self.pos, self.game.player.pos) > self.game.player.equipped_weapon.range ** 2):
-                        return False
+            ## if we are not alive, just return
+            if (not self.is_alive):
+                return
 
-                    self.game.player.is_attacking = False ## if weapon is piercing we dont do this
-                    self.hurt = True     
-                    
-                    self.take_damage(self.game.player.equipped_weapon.damage)            
+            self.health += amount
+            
+            ## if we are alive and reach 0 health, invoke the death event
+            if (self.health <= 0 and self.is_alive):
+                self.is_alive = False
+                self.death_event.invoke()
+                return
 
-
-        def take_damage(self, amount):
-            self.health -= amount
-
-            if (self.health <= 0 and self.alive):
-                self.alive = False
+            if (amount < 0):
+                self.hurt = True
+                self.hurt_event.invoke()
 
 
         def is_player_in_sight(self):
@@ -305,7 +301,7 @@ init -1 python:
         def draw_2d(self, canvas):
             canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
 
-            if (not self.alive or not self.is_player_in_sight()):
+            if (not self.is_alive or not self.is_player_in_sight()):
                 return
 
             canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 
