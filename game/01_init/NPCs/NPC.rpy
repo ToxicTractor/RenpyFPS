@@ -287,49 +287,17 @@ init -1 python:
             ray_direction_x = -math.cos(self.theta)
             ray_direction_y = -math.sin(self.theta)
 
-            ## calculate delta distance
-            delta_distance_x = float('inf') if ray_direction_x == 0 else abs(1 / ray_direction_x)
-            delta_distance_y = float('inf') if ray_direction_y == 0 else abs(1 / ray_direction_y)
+            traced_cells = self.game.raycaster.trace_cells(self.position, ray_dir=(ray_direction_x, ray_direction_y))
 
-            ## determine step direction
-            step_x = -1 if ray_direction_x < 0 else 1
-            step_y = -1 if ray_direction_y < 0 else 1
-
-            ## calculate initial side distances
-            if (ray_direction_x < 0):
-                side_distance_x = (self.pos_x - cell_x) * delta_distance_x
-            else:
-                side_distance_x = (cell_x + 1 - self.pos_x) * delta_distance_x
-
-            if (ray_direction_y < 0):
-                side_distance_y = (self.pos_y - cell_y) * delta_distance_y
-            else:
-                side_distance_y = (cell_y + 1 - self.pos_y) * delta_distance_y
-
-            ## only loop for a max number of steps to avoid an infinite loop 
-            for _ in range(FpsSettings.MAX_DEPTH):
-                if (side_distance_x < side_distance_y):
-
-                    side_distance_x += delta_distance_x
-                    cell_x += step_x
-                    side = 0
+            for cell, _, _ in traced_cells:
                 
-                else:
-
-                    side_distance_y += delta_distance_y
-                    cell_y += step_y
-                    side = 1
-
-                cell = world_map[(cell_x, cell_y)]
-
-                ## we reached the enemy, thus we have line of sight
-                if cell.coordinate == self.game.player.coordinate:
-                    return True
-
-                ## we are blocked by a wall closed door
-                if cell.type == "wall" or (cell.type == "door" and cell.open_amount < 1.0):
+                if (cell.type == "wall" or 
+                    (cell.type == "door" and cell.open_amount < 1.0)):
                     return False
 
+                if (cell.coordinate == self.game.player.coordinate):
+                    return True
+            
             return False
 
         

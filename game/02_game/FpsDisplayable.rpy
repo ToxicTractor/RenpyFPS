@@ -18,7 +18,8 @@ init python:
             self.map.world_map[(7,13)].button_event.add_listener(self.map.world_map[7,14].interact)
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
-            self.object_renderer = ObjectRenderer(self.player, self.map)
+            self.raycaster = Raycaster(self.player, self.map)
+            self.object_renderer = ObjectRenderer(self, self.player, self.map)
             self.sprite_objects = []
 
             self.sprite_objects.append(SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27))

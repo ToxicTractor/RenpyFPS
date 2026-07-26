@@ -11,8 +11,6 @@ init python:
             self.size = .33
             self.interact_range = 0.8
 
-            self.raycaster = Raycaster(self, self.map)
-
             self.input_horizontal = 0
             self.input_vertical = 0
             self.input_angle = 0
@@ -158,8 +156,6 @@ init python:
 
                 self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
 
-            self.raycaster.update()
-
         
         def modify_health(self, amount):
             
@@ -187,12 +183,19 @@ init python:
 
         def _on_use_key_down(self):
             
-            cell, cell_side = self.raycaster.interact_raycast(self.pos, self.angle, self.interact_range)
-
-            if (cell is None or cell_side is None):
+            traced_cells = self.game.raycaster.trace_cells(self.pos, angle=self.angle, distance=self.interact_range)
+            
+            ## if we didnt get any cells back just return
+            if (traced_cells is None or len(traced_cells) == 0):
                 return
+            
+            ## for each cell, starting with the closest, we check if we can interact
+            for cell, _, cell_side in traced_cells:
 
-            cell.interact()
+                ## if interaction is possible we trigger interact and then return to avoid triggering anything behind the first thing
+                if (cell.is_interactable(cell_side)):
+                    cell.interact()
+                    return
 
 
         def _on_attack_key(self):

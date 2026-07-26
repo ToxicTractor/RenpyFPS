@@ -1,7 +1,7 @@
 init python:
     class ObjectRenderer():
-        def __init__(self, player, map):
-
+        def __init__(self, game, player, map):
+            self.game = game
             self.player = player
 
             self.is_inside = map.is_inside
@@ -16,7 +16,9 @@ init python:
         def update(self):
             self.objects_to_render = []
 
-            for i, values in enumerate(self.player.raycaster.ray_cast_results):
+            raycast_results = self.game.raycaster.cast_rays_dda()
+
+            for i, values in enumerate(raycast_results):
                 depth, projection_height, cell, offset, texture_index, hit_direction = values
                 
                 if (cell.type == "empty"):
