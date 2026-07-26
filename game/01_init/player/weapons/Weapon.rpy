@@ -10,6 +10,9 @@ init -1 python:
             self.idle_anim = None
             self.attack_anim = None
             self.reload_anim = None
+            self.equip_duration = 0.25
+            self.equip_time = 0.0
+            self.equip_offset = 256
 
             ## audio
             self.attack_audio = None
@@ -51,6 +54,9 @@ init -1 python:
         #region Update and Draw methods
 
         def update(self, delta_time):
+
+            if (self.equip_time < self.equip_duration):
+                self.equip_time += delta_time
 
             ## update anmiation time if our current animation has a duration
             if (self.current_animation.duration > 0):
@@ -97,6 +103,8 @@ init -1 python:
             ## calculate the x and y offsets due to sway from movement
             offset_x, offset_y = elementwise_add_tuple(self.player.sway_offset, (FpsSettings.X_OFFSET, FpsSettings.Y_OFFSET))
 
+            offset_y += lerp(self.equip_offset, 0, self.equip_time / self.equip_duration)
+            
             ## get the weapon image, scaled if appropriate
             weapon_image = self.current_animation.image if self.scale == 1.0 else Transform(self.current_animation.image, size=(self.scaled_width, self.scaled_height))
 
@@ -135,6 +143,10 @@ init -1 python:
         def can_attack(self):
             ## returns whether the weapon is ready to attack or not
             return self.current_animation == self.idle_anim
+        
+        
+        def get_attack_anim(self):
+            return self.attack_anim
 
 
         def attack(self):
@@ -145,4 +157,23 @@ init -1 python:
             ## set variables to allow animations to play correctly
             self.at = 0
             self.casing_spawned = False
-            self.current_animation = self.attack_anim
+            self.current_animation = self.get_attack_anim()
+
+
+        def is_ready(self):
+            
+            if (self.equip_time < self.equip_duration):
+                return False
+            
+            if (self.current_animation != self.idle_anim):
+                return False
+
+            return True
+
+        def trigger_on_hit_sound_effect(self):
+            return
+
+
+        def equip(self):
+
+            self.equip_time = 0

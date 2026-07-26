@@ -25,6 +25,17 @@ init python:
 
             self.input_use = InputKeyHandler(pygame.K_e, on_key_down=self._on_use_key_down)
             self.input_attack = InputKeyHandler(pygame.K_SPACE, on_key=self._on_attack_key)
+            
+            self.input_weapon_1 = InputKeyHandler(pygame.K_1, on_key_down=lambda: self._on_change_weapon_key_down(1))
+            self.input_weapon_2 = InputKeyHandler(pygame.K_2, on_key_down=lambda: self._on_change_weapon_key_down(2))
+            self.input_weapon_3 = InputKeyHandler(pygame.K_3, on_key_down=lambda: self._on_change_weapon_key_down(3))
+            self.input_weapon_4 = InputKeyHandler(pygame.K_4, on_key_down=lambda: self._on_change_weapon_key_down(4))
+            self.input_weapon_5 = InputKeyHandler(pygame.K_5, on_key_down=lambda: self._on_change_weapon_key_down(5))
+            self.input_weapon_6 = InputKeyHandler(pygame.K_6, on_key_down=lambda: self._on_change_weapon_key_down(6))
+            self.input_weapon_7 = InputKeyHandler(pygame.K_7, on_key_down=lambda: self._on_change_weapon_key_down(7))
+            self.input_weapon_8 = InputKeyHandler(pygame.K_8, on_key_down=lambda: self._on_change_weapon_key_down(8))
+            self.input_weapon_9 = InputKeyHandler(pygame.K_9, on_key_down=lambda: self._on_change_weapon_key_down(9))
+            self.input_weapon_0 = InputKeyHandler(pygame.K_0, on_key_down=lambda: self._on_change_weapon_key_down(0))
 
             self.sway_offset = (0, 0)
             self.sway_enabled = True
@@ -46,6 +57,7 @@ init python:
             ]
 
             self.weapons = [
+                FistsWeapon(self),
                 ShotgunWeapon(self)
                 ]
             self.equipped_weapon_index = 0
@@ -135,6 +147,17 @@ init python:
             self.input_use.handle_input(key_pressed)
             self.input_attack.handle_input(key_pressed)
 
+            self.input_weapon_1.handle_input(key_pressed)
+            self.input_weapon_2.handle_input(key_pressed)
+            self.input_weapon_3.handle_input(key_pressed)
+            self.input_weapon_4.handle_input(key_pressed)
+            self.input_weapon_5.handle_input(key_pressed)
+            self.input_weapon_6.handle_input(key_pressed)
+            self.input_weapon_7.handle_input(key_pressed)
+            self.input_weapon_8.handle_input(key_pressed)
+            self.input_weapon_9.handle_input(key_pressed)
+            self.input_weapon_0.handle_input(key_pressed)
+
 
         def update(self, delta_time, st):
 
@@ -182,6 +205,26 @@ init python:
 
 #region Event handlers
 
+        def _on_change_weapon_key_down(self, weapon_key):
+            
+            if weapon_key == 0:
+                weapon_key = 10
+            
+            index = weapon_key - 1
+
+            ## only change weapon if the index is lower than the number of weapons
+            if (len(self.weapons) > index):
+
+                if (self.equipped_weapon_index == index):
+                    return
+
+                if (not self.equipped_weapon.is_ready()):
+                    return
+
+                self.equipped_weapon_index = index
+                self.equipped_weapon.equip()
+
+
         def _on_use_key_down(self):
             
             traced_cells = self.game.raycaster.trace_cells(self.pos, angle=self.angle, distance=self.interact_range)
@@ -202,7 +245,7 @@ init python:
         def _on_attack_key(self):
             
             if (self.equipped_weapon is not None and
-                self.equipped_weapon.can_attack()):
+                self.equipped_weapon.is_ready()):
 
                 self.equipped_weapon.attack()
 
@@ -210,8 +253,10 @@ init python:
 
                 pen_count = 0
                 weapon_pen = self.equipped_weapon.penetration
+                weapon_range = self.equipped_weapon.range
+                weapon_hit_sfx_played = False
 
-                for cell, _, _ in self.center_cell_trace:
+                for cell, depth, _ in self.center_cell_trace:
                     
                     ## if we hit a cell that is not empty or an open door, we stop
                     if (cell.type != "empty" or 
@@ -229,11 +274,19 @@ init python:
                         if (npc.coord != cell.coord):
                             continue
 
+                        ## check the range to the npc
+                        if (weapon_range > 0 and depth > weapon_range):
+                            continue
+
                         ## check if we are hitting npc
                         if (FpsSettings.HALF_SCREEN_WIDTH - npc.sprite_half_width < npc.screen_x < FpsSettings.HALF_SCREEN_WIDTH + npc.sprite_half_width):
                             
                             ## damage the npc
                             npc.modify_health(-self.equipped_weapon.damage)
+
+                            if (not weapon_hit_sfx_played):
+                                self.equipped_weapon.trigger_on_hit_sound_effect()
+                                weapon_hit_sfx_played = True
 
                             ## if our weapon has no pen, return after the first enemy was hit
                             if (weapon_pen <= 0):
