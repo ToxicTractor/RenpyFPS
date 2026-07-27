@@ -46,8 +46,6 @@ init python:
             self.modify_renpy_keymaps()
             self.jukebox.play()
 
-            self.ui = FpsUI(self)
-
             self.player.hurt_event.add_listener(lambda: self.trigger_screen_effect("#f005", 0.1))
             self.player.heal_event.add_listener(lambda: self.trigger_screen_effect("#0f05", 0.1))
 
@@ -87,8 +85,6 @@ init python:
             
             self.screen_effect.draw(r)
 
-            self.ui.draw(r, st, at)
-
             ## redraw for the next frame and return the render
             renpy.redraw(self, 0)
             return r
@@ -112,7 +108,6 @@ init python:
 
             self.screen_effect.update(self.delta_time)
 
-            self.ui.update(self.delta_time)
 
         def event(self, ev, x, y, st): ## use this for reacting to events
             key_pressed = pygame.key.get_pressed()
@@ -151,8 +146,10 @@ screen FpsScreen():
 
     default fps = FpsDisplayable(scale=30)
     default fps_fader = FpsFadeOverlay(fps)
+    default fps_ui = FpsUIOverlay(fps)
 
     add fps
+    add fps_ui
 
     label f"Framerate: {fps.framerate}"
 
