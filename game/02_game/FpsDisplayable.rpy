@@ -151,6 +151,52 @@ screen FpsScreen():
     add fps
     add fps_ui
 
+    fixed: ## UI BLOCK 1
+        pos 6, 818
+        xysize 814, 256
+        # add Solid("#0ff")
+        # text "BLOCK 1":
+        #     font "images/fps/ui/fonts/fps_font.ttf"
+        #     color "000"
+        #     align 0.5, 0.5
+
+        fixed: ## HEALTH
+            align 0.5, 0.5
+            xysize 200, 100
+            # add Solid("#0ff")
+
+            text f"{fps.player.health}%":
+                font "images/fps/ui/fonts/fps_font.ttf"
+                size 80
+                align 0.5, 0.0
+                text_align 0.5
+                color "#800"
+                outlines [(2, "fff", 0, 0)]
+            text "HEALTH":
+                font "images/fps/ui/fonts/fps_font.ttf"
+                size 40
+                align 0.5, 1.0
+                color "#999"
+
+    fixed: ## UI FACE BLOCK
+        pos 832, 818
+        xysize 256, 256
+        # add Solid("#f0f")
+        # text "FACE":
+        #     font "images/fps/ui/fonts/fps_font.ttf"
+        #     color "fff"
+        #     align 0.5, 0.5
+
+    fixed: ## UI BLOCK 2
+        pos 1100, 818
+        xysize 814, 256
+        # add Solid("#ff0")
+        # text "BLOCK 2":
+        #     font "images/fps/ui/fonts/fps_font.ttf"
+        #     color "000"
+        #     align 0.5, 0.5
+        
+
     label f"Framerate: {fps.framerate}"
 
     add fps_fader

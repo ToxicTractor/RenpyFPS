@@ -8,8 +8,6 @@ init python:
 
             self.base_ui_image = Image("images/fps/ui/UI.png")
 
-            self.health_text = UIText("<dynamic>%", (207, 902), 50, "#800", dynamic_text_source=lambda: game.player.health)
-
             self.face = PlayerFace(game.player)
 
 
@@ -35,9 +33,6 @@ init python:
             ## draw UI background
             ui_render = renpy.render(self.base_ui_image, config.screen_width, config.screen_height, st, at)
             screen.blit(ui_render, (0, 807))
-
-            ## draw current health
-            self.health_text.draw(screen)
 
             ## draw player face
             self.face.draw(screen)
