@@ -41,7 +41,7 @@ init python:
             
             ## stats
             self.damage = 75
-            self.range = 1
+            self.range = 1.5
             self.penetration = 0
 
 

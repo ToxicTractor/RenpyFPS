@@ -22,6 +22,7 @@ init -1 python:
             self.attack_range = 0
             self.speed = 0
             self.size = 0
+            self.hit_size = 0
             self.health = 0
             self.attack_damage = 0
             self.accuracy = 0
@@ -306,3 +307,10 @@ init -1 python:
 
             canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 
                 (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 2)
+
+
+        def blocks_movement(self, x, y, radius):
+            if (not self.is_alive):
+                return False
+
+            return super().blocks_movement(x, y, radius)

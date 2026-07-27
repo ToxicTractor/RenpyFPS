@@ -25,7 +25,7 @@ init -1 python:
             ## stats
             self.damage = 0
             self.magazine_size = 0
-            self.range = 0 ## 0 means no range limit
+            self.range = None ## None means unlimited
             self.penetration = 0
 
             self.initialize()

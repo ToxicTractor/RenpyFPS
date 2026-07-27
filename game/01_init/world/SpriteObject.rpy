@@ -26,6 +26,18 @@ init -2 python:
         def pos(self):
             return (self.pos_x, self.pos_y)
 
+        @property
+        def coord(self):
+            return (int(self.pos_x), int(self.pos_y))
+
+        @property
+        def coord_x(self):
+            return int(self.pos_x)
+
+        @property
+        def coord_y(self):
+            return int(self.pos_y)
+
         def update(self, delta_time):
             if (self.sprite_anim.duration > 0):
                 self.animation_just_ended = False
@@ -84,3 +96,11 @@ init -2 python:
 
             if (-self.half_image_width < self.screen_x < (FpsSettings.SCREEN_WIDTH + self.half_image_width) and self.norm_dist > 0.5):
                 self.get_sprite_projection()
+
+
+        def blocks_movement(self, x, y, radius):
+            
+            if (self.size == 0):
+                return False
+
+            return (x - self.pos_x) ** 2 + (y - self.pos_y) ** 2 < radius + self.size ** 2

@@ -101,6 +101,14 @@ init python:
             """
             return int(self.pos_x), int(self.pos_y)
 
+        @property
+        def coord_x(self):
+            return int(self.pos_x)
+
+        @property
+        def coord_y(self):
+            return int(self.pos_y)
+
 #endregion
 
 #region Public methods
@@ -256,47 +264,61 @@ init python:
                 weapon_range = self.equipped_weapon.range
                 weapon_hit_sfx_played = False
 
+                block_distance = 0
+
                 for cell, depth, _ in self.center_cell_trace:
                     
                     ## if we hit a cell that is not empty or an open door, we stop
                     if (cell.type != "empty" or 
                         (cell.type == "door" and cell.open_amount < 1.0)):
+                        block_distance = depth
                         break
 
-                    ## see if any npcs are in the traversed cell
-                    for npc in self.game.npcs:
+                dx = math.cos(self.angle)
+                dy = math.sin(self.angle)
+
+                ## see if any npcs are in the traversed cell
+                for npc in self.game.npcs:
+                    
+                    ## if npc is already dead, continue to next npc
+                    if (not npc.is_alive):
+                        continue
+
+                    vx = npc.pos_x - self.pos_x
+                    vy = npc.pos_y - self.pos_y
+
+                    t = vx * dx + vy * dy
+
+                    ## if behind us, we continue
+                    if t < 0:
+                        continue
+
+                    if weapon_range and t > weapon_range:
+                        continue
+
+                    closest_x = self.pos_x + dx * t
+                    closest_y = self.pos_y + dy * t
+
+                    dist_sq = (npc.pos_x - closest_x)**2 + (npc.pos_y - closest_y)**2
+
+                    if (dist_sq <= npc.hit_size**2):
+
+                        ## damage the npc
+                        npc.modify_health(-self.equipped_weapon.damage)
+
+                        if (not weapon_hit_sfx_played):
+                            self.equipped_weapon.trigger_on_hit_sound_effect()
+                            weapon_hit_sfx_played = True
+
+                        ## if our weapon has no pen, return after the first enemy was hit
+                        if (weapon_pen <= 0):
+                            return
                         
-                        ## if npc is already dead, continue to next npc
-                        if (not npc.is_alive):
-                            continue
-
-                        ## if npc was not in the current cell, continue to next npc
-                        if (npc.coord != cell.coord):
-                            continue
-
-                        ## check the range to the npc
-                        if (weapon_range > 0 and depth > weapon_range):
-                            continue
-
-                        ## check if we are hitting npc
-                        if (FpsSettings.HALF_SCREEN_WIDTH - npc.sprite_half_width < npc.screen_x < FpsSettings.HALF_SCREEN_WIDTH + npc.sprite_half_width):
-                            
-                            ## damage the npc
-                            npc.modify_health(-self.equipped_weapon.damage)
-
-                            if (not weapon_hit_sfx_played):
-                                self.equipped_weapon.trigger_on_hit_sound_effect()
-                                weapon_hit_sfx_played = True
-
-                            ## if our weapon has no pen, return after the first enemy was hit
-                            if (weapon_pen <= 0):
-                                return
-                            
-                            ## if our weapon has pen, count up one pen and continue to the next npc
-                            if (pen_count < weapon_pen):
-                                pen_count += 1
-                            else:
-                                return
+                        ## if our weapon has pen, count up one pen and continue to the next npc
+                        if (pen_count < weapon_pen):
+                            pen_count += 1
+                        else:
+                            return
 
 
         def _on_horizontal_move_input(self, value):
@@ -354,6 +376,17 @@ init python:
             """
             Checks whether or not a given position is blocked.
             """
+
+            ## find nearby enemies
+            for npc in self.game.npcs:
+                if (npc.coord_x >= self.coord_x - 1 and
+                    npc.coord_x <= self.coord_x + 1 and
+                    npc.coord_y >= self.coord_y - 1 and
+                    npc.coord_y <= self.coord_y + 1):
+                    
+                    if (npc.blocks_movement(x, y, self.size)):
+                        return True
+
             return (
                 self.map.is_blocking(x + self.size, y + self.size, self.size) or
                 self.map.is_blocking(x - self.size, y + self.size, self.size) or

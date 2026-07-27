@@ -162,9 +162,6 @@ init python:
 
             return dx ** 2 + dy ** 2 < radius ** 2
 
-            return (min_x <= x <= max_x and
-                    min_y <= y <= max_y)
-
 
 define FPS_DOOR_TEXTURES = {
     0: Image("images/fps/textures/doors/metal_door.png", oversample=0.25),
