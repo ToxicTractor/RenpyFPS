@@ -7,7 +7,11 @@ init python:
             
             self.old_st = None
             self.delta_time = 0
+            self.show_framerate = True
             self.framerate = 0
+            self.framerate_avg = 0
+            self.framerate_buffer = []
+            self.framerate_avg_time = 5
             self.scale = scale
 
             self.map = Map01(scale)
@@ -95,6 +99,10 @@ init python:
             ## update delta time
             self.update_delta_time(st)
 
+            ## stop the game if the player dies
+            if (not self.player.is_alive):
+                return
+
             self.player.update(self.delta_time, st)
             self.map.update(self.delta_time)
 
@@ -127,76 +135,22 @@ init python:
                 self.delta_time = st - self.old_st
                 self.old_st = st
 
-            self.framerate = self.calculate_framerate()
+            if (self.show_framerate):
+                self.calculate_framerate(st)
 
 
-        def calculate_framerate(self):
-            if (self.delta_time <= 0):
-                return 0
-            else:
-                return 1.0 // self.delta_time
+        def calculate_framerate(self, st):
+            
+            self.framerate = 0 if self.delta_time <= 0 else int(1 // self.delta_time)
+
+            self.framerate_buffer.append((st, self.framerate))
+
+            ## remove too old entries
+            self.framerate_buffer = [item for item in self.framerate_buffer if st - item[0] < self.framerate_avg_time]
+
+            ## find avg framerate
+            self.framerate_avg = int(sum([item[1] for item in self.framerate_buffer]) // len(self.framerate_buffer))
+
 
         def trigger_screen_effect(self, color, duration):
             self.screen_effect.trigger(color, duration) 
-
-
-screen FpsScreen():
-
-    modal True
-
-    default fps = FpsDisplayable(scale=30)
-    default fps_fader = FpsFadeOverlay(fps)
-    default fps_ui = FpsUIOverlay(fps)
-
-    add fps
-    add fps_ui
-
-    fixed: ## UI BLOCK 1
-        pos 6, 818
-        xysize 814, 256
-        # add Solid("#0ff")
-        # text "BLOCK 1":
-        #     font "images/fps/ui/fonts/fps_font.ttf"
-        #     color "000"
-        #     align 0.5, 0.5
-
-        fixed: ## HEALTH
-            align 0.5, 0.5
-            xysize 200, 100
-            # add Solid("#0ff")
-
-            text f"{fps.player.health}%":
-                font "images/fps/ui/fonts/fps_font.ttf"
-                size 80
-                align 0.5, 0.0
-                text_align 0.5
-                color "#800"
-                outlines [(2, "fff", 0, 0)]
-            text "HEALTH":
-                font "images/fps/ui/fonts/fps_font.ttf"
-                size 40
-                align 0.5, 1.0
-                color "#999"
-
-    fixed: ## UI FACE BLOCK
-        pos 832, 818
-        xysize 256, 256
-        # add Solid("#f0f")
-        # text "FACE":
-        #     font "images/fps/ui/fonts/fps_font.ttf"
-        #     color "fff"
-        #     align 0.5, 0.5
-
-    fixed: ## UI BLOCK 2
-        pos 1100, 818
-        xysize 814, 256
-        # add Solid("#ff0")
-        # text "BLOCK 2":
-        #     font "images/fps/ui/fonts/fps_font.ttf"
-        #     color "000"
-        #     align 0.5, 0.5
-        
-
-    label f"Framerate: {fps.framerate}"
-
-    add fps_fader
