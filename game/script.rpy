@@ -1,7 +1,7 @@
 ﻿label start:
 
     $ quick_menu = False
-    show screen FpsScreen
+    show screen fps_screen
     
     pause
 

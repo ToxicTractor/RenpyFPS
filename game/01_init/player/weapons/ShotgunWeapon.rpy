@@ -34,6 +34,7 @@ init python:
 
             ## audio
             self.attack_audio = "audio/fps/weapons/shotgun_shoot.ogg"
+            self.equip_audio = "audio/fps/weapons/shotgun_equip.ogg"
 
             ## casings
             self.casing_pool = ObjectPool(
@@ -48,3 +49,6 @@ init python:
             ## stats
             self.damage = 25
             self.penetration = 1
+
+            ## ui
+            self.icon = "shotgun_icon"

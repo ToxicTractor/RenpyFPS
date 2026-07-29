@@ -17,6 +17,7 @@ init -1 python:
             ## audio
             self.attack_audio = None
             self.reload_audio = None
+            self.equip_audio = None
 
             ## casings
             self.casing_pool = None
@@ -27,6 +28,9 @@ init -1 python:
             self.magazine_size = 0
             self.range = None ## None means unlimited
             self.penetration = 0
+
+            ## ui
+            self.icon = None
 
             self.initialize()
             #endregion
@@ -177,3 +181,6 @@ init -1 python:
         def equip(self):
 
             self.equip_time = 0
+
+            if (self.equip_audio):
+                renpy.play(self.equip_audio)

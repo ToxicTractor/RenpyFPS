@@ -39,5 +39,8 @@ init python:
 
 
         def update(self, delta_time):
+            
+            if (not self.game.player.is_alive):
+                return
 
             self.face.update(delta_time)

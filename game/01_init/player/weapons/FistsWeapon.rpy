@@ -38,11 +38,15 @@ init python:
 
             ## audio
             self.attack_audio = "audio/fps/weapons/punch_swing_01.ogg"
+            self.equip_audio = "audio/fps/weapons/punch_swing_01.ogg"
             
             ## stats
             self.damage = 75
             self.range = 1.5
             self.penetration = 0
+
+            ## ui
+            self.icon = "fist_icon"
 
 
         def get_attack_anim(self):

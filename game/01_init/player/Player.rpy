@@ -67,9 +67,12 @@ init python:
 
             self.health = 100
             self.max_health = 100
+            self.armor = 0
+            self.max_armor = 100
 
             self.hurt_event = GameEvent()
             self.heal_event = GameEvent()
+            self.gain_armor_event = GameEvent()
             self.attack_event = GameEvent()
             self.death_event = GameEvent()
 
@@ -207,6 +210,18 @@ init python:
                 self.heal_event.invoke()
             else:
                 self.hurt_event.invoke()
+
+
+        def modify_armor(self, amount):
+
+            if (not self.is_alive):
+                return
+
+            self.armor = clamp(self.armor + amount, 0, self.max_armor)
+
+            if amount > 0:
+                self.gain_armor_event.invoke()
+
 
 #endregion
 

@@ -9,13 +9,14 @@ init python:
 
 
         def initialize(self):
-            self.pickup_distance = 0.25
+            self.pickup_distance = 0.4
             self.pickup_audio = "audio/fps/pickups/health_pickup.ogg"
 
 
         def _effect(self):
 
             self.game.player.modify_health(self.healing_amount)
+
 
         def _can_pick_up(self):
             

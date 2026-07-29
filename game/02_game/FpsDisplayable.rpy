@@ -30,6 +30,7 @@ init python:
             self.sprite_objects.append(SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05))
             
             self.sprite_objects.append(HealthPickup(self, (2.5, 14.5)))
+            self.sprite_objects.append(ArmorPickup(self, (3.5, 14.5)))
 
             self.npcs = [
                 ZombieNPC(self, pos=(2.5, 5.5)),
@@ -52,6 +53,7 @@ init python:
 
             self.player.hurt_event.add_listener(lambda: self.trigger_screen_effect("#f005", 0.1))
             self.player.heal_event.add_listener(lambda: self.trigger_screen_effect("#0f05", 0.1))
+            self.player.gain_armor_event.add_listener(lambda: self.trigger_screen_effect("#00f5", 0.1))
 
             self.fade_to_black_event = GameEvent()
             self.fade_to_clear_event = GameEvent()
