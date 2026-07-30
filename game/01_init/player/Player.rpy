@@ -58,7 +58,7 @@ init python:
 
             self.weapons = [
                 FistsWeapon(self),
-                ShotgunWeapon(self)
+                ShotgunWeapon(self),
                 ]
             self.equipped_weapon_index = 0
             self.center_cell_trace = []
@@ -179,7 +179,10 @@ init python:
 
             self.center_cell_trace = self.game.raycaster.trace_cells(self.pos, angle=self.angle)
 
-            if (self.equipped_weapon is not None):
+            for weapon in self.weapons:
+                weapon.update_attack_timer(delta_time)
+
+            if (self.equipped_weapon):
                 self.equipped_weapon.update(delta_time)
 
             if (self.sway_enabled):
@@ -191,36 +194,74 @@ init python:
 
                 self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
 
-        
-        def modify_health(self, amount):
+
+        def apply_damage(self, amount, ignore_no_damage=True):
             
-            ## if the player is dead, do nothing
+            ## do nothing if we are dead
             if (not self.is_alive):
                 return
 
-            self.health = clamp(self.health + amount, 0 , self.max_health)
+            ## if nothing is added, just return
+            if (ignore_no_damage and amount <= 0):
+                return
+            
+            ## keep track of damage individually
+            health_damage = 0
+            armor_damage = 0
 
-            ## if the player reaches 0 hp and is not dead yet
+            ## if we have more armor than the damage that was dealth, we deal only armor damage
+            if (self.armor >= amount):
+                health_damage = 0
+                armor_damage = amount
+            ## if we deal more damage than we have armor, we deal all our armor damage and the rest as health damage
+            else:
+                armor_damage = self.armor
+                health_damage = amount - self.armor
+            
+            ## apply armor damage if any
+            if (armor_damage > 0):
+                self.armor -= armor_damage
+            ## apply health damage if any
+            if (health_damage > 0):
+                self.health = max(self.health - health_damage, 0)
+            
+            ## if health is 0 or lower and we have not yet died, invoke death event
             if (self.health <= 0 and self.is_alive):
                 self.is_alive = False
                 self.death_event.invoke()
-                return
-
-            if (amount > 0): ## values above 0 is healing            
-                self.heal_event.invoke()
+            ## if health is greater than 0, invoke hurt event
             else:
                 self.hurt_event.invoke()
 
 
-        def modify_armor(self, amount):
+        def apply_heal(self, amount):
 
+            ## do nothing if we are dead
             if (not self.is_alive):
                 return
 
-            self.armor = clamp(self.armor + amount, 0, self.max_armor)
+            ## if nothing is added, just return
+            if (amount <= 0):
+                return
 
-            if amount > 0:
-                self.gain_armor_event.invoke()
+            self.health = min(self.health + amount, self.max_health)
+
+            self.heal_event.invoke()
+
+
+        def apply_armor(self, amount):
+            
+            ## do nothing if we are dead
+            if (not self.is_alive):
+                return
+
+            ## if nothing is added, just return
+            if (amount <= 0):
+                return
+
+            self.armor = min(self.armor + amount, self.max_armor)
+
+            self.gain_armor_event.invoke()
 
 
 #endregion
@@ -241,9 +282,9 @@ init python:
                 if (self.equipped_weapon_index == index):
                     return
 
-                if (not self.equipped_weapon.is_ready()):
-                    return
-
+                # if (not self.equipped_weapon.is_ready()):
+                #     return
+                self.equipped_weapon.unequip()
                 self.equipped_weapon_index = index
                 self.equipped_weapon.equip()
 
@@ -306,6 +347,10 @@ init python:
 
                     ## if behind us, we continue
                     if t < 0:
+                        continue
+
+                    ## the shot was blocked by a wall
+                    if t > block_distance:
                         continue
 
                     if weapon_range and t > weapon_range:

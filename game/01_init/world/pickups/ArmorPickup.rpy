@@ -15,7 +15,7 @@ init python:
 
         def _effect(self):
 
-            self.game.player.modify_armor(self.armor_amount)
+            self.game.player.apply_armor(self.armor_amount)
 
 
         def _can_pick_up(self):

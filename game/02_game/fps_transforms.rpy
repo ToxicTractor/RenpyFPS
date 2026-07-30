@@ -4,3 +4,6 @@ transform t_fps_fade_from_clear(amount, duration):
 
 transform t_fps_tint(color):
     matrixcolor TintMatrix(color)
+
+transform t_fps_rotate(angle):
+    rotate angle

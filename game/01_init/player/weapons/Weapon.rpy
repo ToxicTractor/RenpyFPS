@@ -25,11 +25,18 @@ init -1 python:
             
             ## stats
             self.damage = 0
+            self.attack_delay = 0.5
+            self.current_ammo = 0
+            self.magazine_ammo = 0
             self.magazine_size = 0
+            self.max_ammo = 999
+            self.show_current_ammo = True
+            self.show_magazine_ammo = True
             self.range = None ## None means unlimited
             self.penetration = 0
 
             ## ui
+            self.name = "Unnamed weapon"
             self.icon = None
 
             self.initialize()
@@ -47,9 +54,15 @@ init -1 python:
             self.at = 0
             self.current_animation = self.idle_anim
 
+            self.attack_timer = 0
+
             self.casing_spawned = False
             self.casings = []
 
+
+        @property
+        def formatted_ammo(self):
+            return f"{self.magazine_ammo}/{self.current_ammo}"
 
         @abstractmethod
         def initialize(self):
@@ -63,7 +76,7 @@ init -1 python:
                 self.equip_time += delta_time
 
             ## update anmiation time if our current animation has a duration
-            if (self.current_animation.duration > 0):
+            if (self.current_animation.duration):
 
                 if (self.at >= self.current_animation.duration):
                     self.at = 0
@@ -86,6 +99,13 @@ init -1 python:
                     continue
 
                 casing.update(delta_time)
+
+
+        ## seperate update method called from the players update for all weapons, not just the equipped one
+        def update_attack_timer(self, delta_time):
+                        
+            if (self.attack_timer < self.attack_delay):
+                self.attack_timer += delta_time
 
 
         def draw(self, screen, st):
@@ -113,7 +133,7 @@ init -1 python:
             weapon_image = self.current_animation.image if self.scale == 1.0 else Transform(self.current_animation.image, size=(self.scaled_width, self.scaled_height))
 
             ## create a render for the weapon image
-            weapon_render = renpy.render(weapon_image, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, min(self.current_animation.duration - 0.0001, self.at)) ## make sure dont overshoot duration to avoid wrapping back to start
+            weapon_render = renpy.render(weapon_image, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, min(self.current_animation.duration - 0.0001, self.at) if self.current_animation.duration else self.at) ## make sure dont overshoot duration to avoid wrapping back to start
 
             ## draw weapon render to the screen
             screen.blit(weapon_render, (self.pos_x + offset_x, self.pos_y + offset_y))
@@ -143,11 +163,6 @@ init -1 python:
             ## release the casing back to the pool
             self.casing_pool.release(casing)
 
-
-        def can_attack(self):
-            ## returns whether the weapon is ready to attack or not
-            return self.current_animation == self.idle_anim
-        
         
         def get_attack_anim(self):
             return self.attack_anim
@@ -157,6 +172,8 @@ init -1 python:
             
             if (self.attack_audio is not None):
                 renpy.play(self.attack_audio)
+
+            self.attack_timer = 0
 
             ## set variables to allow animations to play correctly
             self.at = 0
@@ -169,10 +186,11 @@ init -1 python:
             if (self.equip_time < self.equip_duration):
                 return False
             
-            if (self.current_animation != self.idle_anim):
+            if (self.attack_timer < self.attack_delay):
                 return False
 
             return True
+
 
         def trigger_on_hit_sound_effect(self):
             return
@@ -184,3 +202,12 @@ init -1 python:
 
             if (self.equip_audio):
                 renpy.play(self.equip_audio)
+
+
+        def unequip(self):
+            
+            self.at = 0
+            self.current_animation = self.idle_anim
+
+            for casing in self.casings:
+                self.despawn_casing(casing)

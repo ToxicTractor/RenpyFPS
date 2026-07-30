@@ -1,4 +1,4 @@
-define fists_idle_anim = AnimationData("fists_idle", 0)
+define fists_idle_anim = AnimationData("fists_idle", None)
 define fists_attack_r_anim = AnimationData("fists_attack_left", 0.4)
 define fists_attack_l_anim = AnimationData("fists_attack_right", 0.4)
 
@@ -44,10 +44,15 @@ init python:
             self.damage = 75
             self.range = 1.5
             self.penetration = 0
+            self.max_ammo = 0
 
             ## ui
+            self.name = "fists"
             self.icon = "fist_icon"
 
+        @property
+        def formatted_ammo(self):
+            return "n/a"
 
         def get_attack_anim(self):
 

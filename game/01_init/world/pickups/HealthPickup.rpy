@@ -15,7 +15,7 @@ init python:
 
         def _effect(self):
 
-            self.game.player.modify_health(self.healing_amount)
+            self.game.player.apply_heal(self.healing_amount)
 
 
         def _can_pick_up(self):

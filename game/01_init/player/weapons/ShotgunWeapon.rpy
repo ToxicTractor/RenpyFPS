@@ -1,4 +1,4 @@
-define shotgun_idle_anim = AnimationData("shotgun_idle", 0)
+define shotgun_idle_anim = AnimationData("shotgun_idle", None)
 define shotgun_shoot_anim = AnimationData("shotgun_shoot", 0.8)
 define shotgun_shell_anim = AnimationData("shotgun_shell", 0.3)
 
@@ -48,7 +48,13 @@ init python:
             
             ## stats
             self.damage = 25
+            self.attack_delay = 1.0
             self.penetration = 1
 
             ## ui
+            self.name = "12-gauge shotgun"
             self.icon = "shotgun_icon"
+
+        @property
+        def formatted_ammo(self):
+            return f"{self.current_ammo}"
