@@ -44,7 +44,6 @@ init python:
             self.damage = 75
             self.range = 1.5
             self.penetration = 0
-            self.max_ammo = 0
 
             ## ui
             self.name = "fists"

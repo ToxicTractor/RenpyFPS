@@ -35,6 +35,7 @@ init python:
             ## audio
             self.attack_audio = "audio/fps/weapons/shotgun_shoot.ogg"
             self.equip_audio = "audio/fps/weapons/shotgun_equip.ogg"
+            self.no_ammo_audio = "audio/fps/weapons/no_ammo_click.ogg"
 
             ## casings
             self.casing_pool = ObjectPool(
@@ -50,6 +51,7 @@ init python:
             self.damage = 25
             self.attack_delay = 1.0
             self.penetration = 1
+            self.ammo_type = "shotgun"
 
             ## ui
             self.name = "12-gauge shotgun"

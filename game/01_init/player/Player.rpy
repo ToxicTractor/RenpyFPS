@@ -63,6 +63,10 @@ init python:
             self.equipped_weapon_index = 0
             self.center_cell_trace = []
 
+            self.ammo = {
+                "shotgun": AmmoCount()
+            }
+
             self.is_alive = True
 
             self.health = 100
@@ -305,15 +309,22 @@ init python:
                     cell.interact()
                     return
 
+            ## lastly check our current cell as a fallback
+            if (self.map.world_map[self.coord].is_interactable(None)):
+                self.map.world_map[self.coord].interact()
+
 
         def _on_attack_key(self):
             
-            if (self.equipped_weapon is not None and
+            if (self.equipped_weapon and
                 self.equipped_weapon.is_ready()):
 
                 self.equipped_weapon.attack()
 
-                self.attack_event.invoke()
+                if (self.equipped_weapon.has_ammo()):
+                    self.attack_event.invoke()
+                else:
+                    return
 
                 pen_count = 0
                 weapon_pen = self.equipped_weapon.penetration
@@ -325,8 +336,8 @@ init python:
                 for cell, depth, _ in self.center_cell_trace:
                     
                     ## if we hit a cell that is not empty or an open door, we stop
-                    if (cell.type != "empty" or 
-                        (cell.type == "door" and cell.open_amount < 1.0)):
+                    if (cell.type != "empty" and 
+                        not (cell.type == "door" and cell.open_amount >= 1.0)):
                         block_distance = depth
                         break
 
@@ -349,7 +360,7 @@ init python:
                     if t < 0:
                         continue
 
-                    ## the shot was blocked by a wall
+                    ## the shot was blocked by a wall or a closed door
                     if t > block_distance:
                         continue
 

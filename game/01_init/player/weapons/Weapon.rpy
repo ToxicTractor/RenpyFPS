@@ -18,6 +18,7 @@ init -1 python:
             self.attack_audio = None
             self.reload_audio = None
             self.equip_audio = None
+            self.no_ammo_audio = None
 
             ## casings
             self.casing_pool = None
@@ -26,12 +27,10 @@ init -1 python:
             ## stats
             self.damage = 0
             self.attack_delay = 0.5
-            self.current_ammo = 0
             self.magazine_ammo = 0
             self.magazine_size = 0
             self.max_ammo = 999
-            self.show_current_ammo = True
-            self.show_magazine_ammo = True
+            self.ammo_type = None
             self.range = None ## None means unlimited
             self.penetration = 0
 
@@ -63,6 +62,15 @@ init -1 python:
         @property
         def formatted_ammo(self):
             return f"{self.magazine_ammo}/{self.current_ammo}"
+
+
+        @property
+        def current_ammo(self):
+            if (not self.ammo_type):
+                return None
+
+            return self.magazine_ammo if self.magazine_size > 0 else self.player.ammo[self.ammo_type].current
+
 
         @abstractmethod
         def initialize(self):
@@ -166,14 +174,33 @@ init -1 python:
         
         def get_attack_anim(self):
             return self.attack_anim
+        
+
+        def has_ammo(self):
+            return not self.ammo_type or self.current_ammo > 0
 
 
         def attack(self):
             
-            if (self.attack_audio is not None):
+            if (not self.has_ammo()):
+                
+                if (self.no_ammo_audio):
+                    renpy.play(self.no_ammo_audio)
+
+                self.attack_timer = 0.5
+                return
+
+            if (self.attack_audio):
                 renpy.play(self.attack_audio)
 
             self.attack_timer = 0
+
+            ## subtract ammo if we have an ammo type
+            if (self.ammo_type):
+                if (self.magazine_size > 0):
+                    self.magazine_ammo = max(magazine_ammo - 1, 0)
+                else:
+                    self.player.ammo[self.ammo_type].remove()
 
             ## set variables to allow animations to play correctly
             self.at = 0
