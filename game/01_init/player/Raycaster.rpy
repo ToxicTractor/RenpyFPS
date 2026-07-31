@@ -26,16 +26,17 @@ init python:
                 texture_index = 0
                 hit_cell = None
                 hit_side = None
-                
+                offset = 0
+
                 ## calculate sin and cos using our precomputed offsets
                 ray_direction_x = cos_player_angle * cos_offset - sin_player_angle * sin_offset
                 ray_direction_y = sin_player_angle * cos_offset + cos_player_angle * sin_offset
 
                 ## get all traversed cells
-                traversed_cells = self.trace_cells(self.player.pos, ray_dir=(ray_direction_x, ray_direction_y))
+                traced_cells = self.trace_cells(self.player.pos, ray_dir=(ray_direction_x, ray_direction_y))
 
                 ## figure out where we hit something
-                for cell, depth, cell_side in traversed_cells:
+                for cell, depth, cell_side in traced_cells:
                     
                     if (cell.type == "empty"):
                         continue
@@ -85,6 +86,9 @@ init python:
             ## get starting cell coord
             cell_x = int(pos[0])
             cell_y = int(pos[1])
+
+            ## we always want to append the starting cell
+            cells.append((self.world_map[(cell_x, cell_y)], 0, "inside"))
 
             ## calculate ray direction if not already given
             if (ray_dir is None):

@@ -63,3 +63,11 @@ init -100 python:
 
     def elementwise_add_tuple(a, b):
         return tuple(map(sum, zip(a, b)))
+    
+
+    def rad_to_deg(r):
+        return r * 57.2957795
+
+
+    def deg_to_rad(d):
+        return d * 0.0174533

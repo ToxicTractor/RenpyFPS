@@ -5,7 +5,7 @@ init python:
             self.game = game
             self.map = game.map
             self.pos_x, self.pos_y = pos
-            self.angle = angle * 0.0174532925 # convert angle to radians
+            self.angle = deg_to_rad(angle)
             self.speed = 5
             self.angular_speed = 2
             self.size = .33
@@ -308,10 +308,6 @@ init python:
                 if (cell.is_interactable(cell_side)):
                     cell.interact()
                     return
-
-            ## lastly check our current cell as a fallback
-            if (self.map.world_map[self.coord].is_interactable(None)):
-                self.map.world_map[self.coord].interact()
 
 
         def _on_attack_key(self):
