@@ -432,121 +432,12 @@ init python:
             self.pos_y = new_y
 
             ## correct the players position by doing a collision pass
-            self.pos_x, self.pos_y = self._collision_pass()
+            self.pos_x, self.pos_y = CollisionSystem.collision_pass(self.game, self)
 
             delta_angle = self.input_angle * self.angular_speed * delta_time
 
             self.angle += delta_angle
             self.angle %= math.tau
-
-
-        #region Collisions
-
-        def _collision_pass(self):
-            correction_pass_count = 3
-            x, y = self.pos
-
-            ## run correction passes
-            for _ in range(correction_pass_count):
-
-                object_correction, x, y = self._resolve_object_collisions(x, y, self.radius)
-                cell_correction, x, y = self._resolve_cell_collisions(x, y, self.radius)
-
-                ## if neither had any corrections, we are at a valid position
-                if (not (object_correction or cell_correction)):
-                    break
-
-            ## return corrected values
-            return x, y
-        
-        
-        def _resolve_object_collisions(self, x, y, radius):
-            changed = False
-
-            ## TODO: implement collisions for all SpriteObjects, currently only NPCs have collisions
-            for npc in self.game.npcs:
-                
-                ## if the npc is dead just skip it
-                if not npc.is_alive:
-                    continue
-
-                npc_check_distance = self.radius + npc.radius
-                
-                dx = x - npc.pos_x
-                dy = y - npc.pos_y
-
-                distance_sqrd = sqr_dist(npc.pos, (x, y))
-                ## if distance is larger than check distance, no correction is needed
-                if (distance_sqrd >= npc_check_distance ** 2):
-                    continue
-
-                ## correct x and y
-                distance = math.sqrt(distance_sqrd)
-                
-                if (distance == 0):
-                    dx = 1
-                    dy = 0
-                    distance = 1
-                
-                penetration = npc_check_distance - distance
-                
-                x += dx / distance * penetration
-                y += dy / distance * penetration
-
-                changed = True
-
-            return changed, x, y
-        
-
-        def _resolve_cell_collisions(self, x, y, radius):
-            changed = False
-
-            ## find the cells we need to check collisions for
-            min_coord_x = int(x - radius - 1)
-            max_coord_x = int(x + radius + 1)
-            min_coord_y = int(y - radius - 1)
-            max_coord_y = int(y + radius + 1)
-
-            for cell_y in range(min_coord_y, max_coord_y + 1):
-                for cell_x in range(min_coord_x, max_coord_x + 1):
-                    cell = self.map.world_map[(cell_x, cell_y)]
-                
-                    ## check if we collide with the cell                    
-                    collides, dx, dy, distance, penetration = cell.check_collision(x, y, radius)
-
-                    ## if we dont collide, just continue to the next cell
-                    if (not collides):
-                        continue
-
-                    ## correct x and y
-                    if (distance == 0):
-                        cell_min_x, cell_min_y, cell_max_x, cell_max_y = cell.get_aabb()
-
-                        left = x - cell_min_x
-                        right = cell_max_x - x
-                        top = y - cell_min_y
-                        bottom = cell_max_y - y
-
-                        minimum = min(left, right, top, bottom)
-
-                        if minimum == left:
-                            x -= radius + left
-                        elif minimum == right:
-                            x += radius + right
-                        elif minimum == top:
-                            y -= radius + top
-                        else:
-                            y += radius + bottom
-                            
-                    else:
-                        x += dx / distance * penetration
-                        y += dy / distance * penetration
-                    
-                    changed = True
-
-            return changed, x, y
-        
-        #endregion
 
 
         def _calculate_sway_offset(self, st):
