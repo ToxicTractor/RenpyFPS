@@ -78,7 +78,8 @@ init python:
 
         def trace_cells(self, pos, *, angle=None, ray_dir=None, distance=FpsSettings.MAX_DEPTH):
             ## Returns a list of all traversed cells. Continues until we reach distance or we leave the bounds of the map. Either angle or ray_dir must be given. 
-            cells = []
+            entries = []
+            first_hit_distance = None
 
             ## split position into components
             pos_x, pos_y = pos
@@ -88,7 +89,10 @@ init python:
             cell_y = int(pos[1])
 
             ## we always want to append the starting cell
-            cells.append(CellTraceEntry(self.world_map[(cell_x, cell_y)], 0, "inside"))
+            entries.append(CellTraceEntry(self.world_map[(cell_x, cell_y)], 0, "inside"))
+            ## if we are inside of a cell that is not "empty", set first_hit_distance
+            if (entries[0].cell.type != "empty"):
+                first_hit_distance = 0
 
             ## calculate ray direction if not already given
             if (ray_dir is None):
@@ -117,7 +121,7 @@ init python:
                 side_distance_y = (cell_y + 1 - pos_y) * delta_distance_y
             
             depth = 0
-            first_hit_distance = None
+
 
             while depth < distance:
 
@@ -143,9 +147,9 @@ init python:
                 if (cell.type != "empty" and first_hit_distance is None):
                     first_hit_distance = depth
 
-                cells.append(CellTraceEntry(cell, depth, cell_side))
+                entries.append(CellTraceEntry(cell, depth, cell_side))
 
-            return cells, (first_hit_distance if first_hit_distance else 0)
+            return entries, (first_hit_distance if first_hit_distance else 0)
         
         
 #endregion

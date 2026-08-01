@@ -341,7 +341,7 @@ init python:
                     ## if we hit a cell that is not empty or an open door, we stop
                     if (cell.type != "empty" and 
                         not (cell.type == "door" and cell.open_amount >= 1.0)):
-                        block_distance = depth ## we overwrite this since we could be stopped by a closed door
+                        block_distance = depth ## we overwrite this since the first hit could have been an open door
                         break
 
                 dx = math.cos(self.angle)

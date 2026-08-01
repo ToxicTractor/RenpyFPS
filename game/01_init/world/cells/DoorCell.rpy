@@ -9,7 +9,7 @@ init python:
             self.offset = offset
             self.orientation = orientation
             self.open_amount = 0.0
-            self.thickness = 0.5
+            self.thickness = 0.125
             self.speed = 2.5
             self.is_open_state = False
             self.is_locked = False
