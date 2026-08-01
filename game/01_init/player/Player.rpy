@@ -1,5 +1,4 @@
 init python:
-    import math
     class Player():
         def __init__(self, game, pos=(0, 0), angle=0.0):
             self.game = game

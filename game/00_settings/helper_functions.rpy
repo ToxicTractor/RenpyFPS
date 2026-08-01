@@ -1,5 +1,4 @@
 init -100 python:
-    import struct                
 
     def get_image_size(image):
         r = renpy.render(image, 0, 0, 0, 0)
@@ -48,6 +47,7 @@ init -100 python:
         
         y = y * (threehalfs - (x2 * y * y))
         return y
+
     
     ## normalize vector using inverse sqrt approximation
     def normalize(x, y):

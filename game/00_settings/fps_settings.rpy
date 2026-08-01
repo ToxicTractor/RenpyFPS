@@ -1,6 +1,4 @@
 init -100 python:
-    import math
-
     class FpsSettings():
         
         ## Screen settings

@@ -1,5 +1,4 @@
 init python:
-    from copy import deepcopy
     class Casing():
 
         def __init__(self, animation, start_position, lifetime=None, scale=1.0):

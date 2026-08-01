@@ -1,5 +1,4 @@
 init python:
-    import pygame
     class FpsDisplayable(renpy.Displayable):
         def __init__(self, scale=1):
             super().__init__()

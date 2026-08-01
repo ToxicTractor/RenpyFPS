@@ -1,5 +1,4 @@
 init -1 python:
-    from abc import ABC, abstractmethod
     class Weapon(ABC): ## abstract class to enforce inheritance for weapon types
         def __init__(self, 
             player,

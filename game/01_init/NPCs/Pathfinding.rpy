@@ -1,5 +1,4 @@
 init python:
-    import heapq
     ## A* pathfinding
     class Pathfinding():
 
