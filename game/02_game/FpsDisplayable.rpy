@@ -30,6 +30,7 @@ init python:
             self.sprite_objects.append(HealthPickup(self, (2.5, 14.5)))
             self.sprite_objects.append(ArmorPickup(self, (3.5, 14.5)))
             self.sprite_objects.append(ShotgunAmmoPickup(self, (2.5, 15.5)))
+            self.sprite_objects.append(RevolverPickup(self, (7.5, 4.5)))
 
             self.npcs = [
                 ZombieNPC(self, pos=(2.5, 5.5)),

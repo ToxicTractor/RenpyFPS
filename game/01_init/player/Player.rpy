@@ -1,5 +1,6 @@
 init python:
     class Player():
+        MAX_WEAPONS = 10
         def __init__(self, game, pos=(0, 0), angle=0.0):
             self.game = game
             self.map = game.map
@@ -63,7 +64,7 @@ init python:
             self._cached_center_cell_trace = None
 
             self.ammo = {
-                "shotgun": AmmoCount()
+                "shotgun": AmmoCount(),
             }
 
             self.is_alive = True
@@ -275,6 +276,38 @@ init python:
 
             self.gain_armor_event.invoke()
 
+
+        def has_weapon(self, weapon_name):
+            return any(weapon.name == weapon_name for weapon in self.weapons)
+
+        def add_weapon(self, weapon, ammo=0, equip=True):
+            weapon_count = len(self.weapons)
+
+            ## ignore the weapon if we already have the max number of weapons
+            if (len(self.weapons) >= Player.MAX_WEAPONS):
+                return
+
+            self.weapons.append(weapon)
+
+            if (equip):
+                self.equipped_weapon.unequip()
+                self.equipped_weapon_index = weapon_count
+                self.equipped_weapon.equip()
+            
+            self.add_ammo(weapon.ammo_type, ammo)
+        
+        def has_ammo_type(self, ammo_type):
+            return ammo_type.name in self.ammo
+
+        def is_ammo_full(self, ammo_type):
+            return self.ammo[ammo_type.name].full()
+
+        def add_ammo(self, ammo_type, amount):
+            if (ammo_type.name not in self.ammo):
+                self.ammo[ammo_type.name] = AmmoCount(amount, ammo_type.max)
+            else:
+                self.ammo[ammo_type.name].add(amount)
+        
 
 #endregion
 

@@ -3,7 +3,7 @@ init -1 python:
         def __init__(self, game, sprite_anim, pos, scale=1.0, height_shift=0.0):
             super().__init__(game, sprite_anim, pos, scale, height_shift)
             
-            self.pickup_distance = 0
+            self.pickup_distance = 0.4
             self.pickup_audio = None
 
             self.initialize()

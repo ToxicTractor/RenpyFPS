@@ -1,4 +1,4 @@
-define armor_pickup_anim = AnimationData("armor", 0)
+define armor_pickup_anim = AnimationData("armor", None)
 
 init python:
     class ArmorPickup(PickupObject):
@@ -9,7 +9,6 @@ init python:
 
 
         def initialize(self):
-            self.pickup_distance = 0.4
             self.pickup_audio = "audio/fps/pickups/armor_pickup.ogg"
 
 

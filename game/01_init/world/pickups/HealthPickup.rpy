@@ -1,4 +1,4 @@
-define health_pickup_anim = AnimationData("health_pack", 0)
+define health_pickup_anim = AnimationData("health_pack", None)
 
 init python:
     class HealthPickup(PickupObject):
@@ -9,7 +9,6 @@ init python:
 
 
         def initialize(self):
-            self.pickup_distance = 0.4
             self.pickup_audio = "audio/fps/pickups/health_pickup.ogg"
 
 

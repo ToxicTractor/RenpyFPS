@@ -1,7 +1,7 @@
 init python:
     class AmmoCount():
         def __init__(self, current=0, max=999):
-            self.current = current
+            self.current = min(current, max)
             self.max = max
 
         def full(self):

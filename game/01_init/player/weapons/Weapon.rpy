@@ -65,10 +65,10 @@ init -1 python:
 
         @property
         def current_ammo(self):
-            if (not self.ammo_type):
+            if (self.ammo_type is None):
                 return None
 
-            return self.magazine_ammo if self.magazine_size > 0 else self.player.ammo[self.ammo_type].current
+            return self.magazine_ammo if self.magazine_size > 0 else self.player.ammo[self.ammo_type.name].current
 
 
         @abstractmethod
@@ -197,9 +197,9 @@ init -1 python:
             ## subtract ammo if we have an ammo type
             if (self.ammo_type):
                 if (self.magazine_size > 0):
-                    self.magazine_ammo = max(magazine_ammo - 1, 0)
+                    self.magazine_ammo = max(self.magazine_ammo - 1, 0)
                 else:
-                    self.player.ammo[self.ammo_type].remove()
+                    self.player.ammo[self.ammo_type.name].remove()
 
             ## set variables to allow animations to play correctly
             self.at = 0

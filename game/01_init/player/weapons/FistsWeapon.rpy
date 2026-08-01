@@ -19,6 +19,7 @@ image fists_attack_right = Animation(
 
 init python:
     class FistsWeapon(Weapon):
+        NAME = "fists"
         def __init__(self, player):
             super().__init__(player)
 
@@ -46,7 +47,7 @@ init python:
             self.penetration = 0
 
             ## ui
-            self.name = "fists"
+            self.name = FistsWeapon.NAME
             self.icon = "fist_icon"
 
         @property

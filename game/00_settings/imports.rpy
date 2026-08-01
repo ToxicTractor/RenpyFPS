@@ -7,3 +7,4 @@ init -1000 python:
     from abc import ABC, abstractmethod
     from copy import deepcopy ## used for ObjectPool
     from collections import namedtuple
+    from dataclasses import dataclass ## used for AmmoTypes

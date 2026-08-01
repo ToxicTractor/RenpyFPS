@@ -39,7 +39,7 @@ init -2 python:
             return int(self.pos_y)
 
         def update(self, delta_time):
-            if (self.sprite_anim.duration > 0):
+            if (self.sprite_anim.duration and self.sprite_anim.duration > 0):
                 self.animation_just_ended = False
 
                 if (self.at >= self.sprite_anim.duration):
@@ -72,7 +72,7 @@ init -2 python:
                 (0, 0, self.sprite_width, self.sprite_height), 
                 (proj_width, proj_height), 
                 pos,
-                min(self.sprite_anim.duration - 0.0001, self.at),
+                min(self.sprite_anim.duration - 0.0001 if self.sprite_anim.duration else 0, self.at),
                 None,
                 None)
             )

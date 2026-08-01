@@ -23,6 +23,7 @@ image shotgun_shell = Animation(
 
 init python:
     class ShotgunWeapon(Weapon):
+        NAME = "12-gauge shotgun"
         def __init__(self, player):
             super().__init__(player, scale=2.0)
             
@@ -51,10 +52,10 @@ init python:
             self.damage = 25
             self.attack_delay = 1.0
             self.penetration = 1
-            self.ammo_type = "shotgun"
+            self.ammo_type = ShotgunAmmoType()
 
             ## ui
-            self.name = "12-gauge shotgun"
+            self.name = ShotgunWeapon.NAME
             self.icon = "shotgun_icon"
 
         @property
