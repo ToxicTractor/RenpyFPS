@@ -8,7 +8,7 @@ init python:
             self.speed = 5
             self.angular_speed = 2
             self.radius = .25
-            self.interact_range = 0.8
+            self.interact_range = 1.0
 
             self.input_horizontal = 0
             self.input_vertical = 0
@@ -60,7 +60,7 @@ init python:
                 ShotgunWeapon(self),
                 ]
             self.equipped_weapon_index = 0
-            self.center_cell_trace = []
+            self._cached_center_cell_trace = None
 
             self.ammo = {
                 "shotgun": AmmoCount()
@@ -114,6 +114,14 @@ init python:
         @property
         def coord_y(self):
             return int(self.pos_y)
+        
+        @property
+        def center_cell_trace(self):
+            if (self._cached_center_cell_trace):
+                return self._cached_center_cell_trace
+            
+            self._cached_center_cell_trace = self.game.raycaster.trace_cells(self.pos, angle=self.angle)
+            return self._cached_center_cell_trace
 
 #endregion
 
@@ -180,8 +188,6 @@ init python:
             self._calculate_sway_offset(st)
             self._footsteps(st)
 
-            self.center_cell_trace = self.game.raycaster.trace_cells(self.pos, angle=self.angle)
-
             for weapon in self.weapons:
                 weapon.update_attack_timer(delta_time)
 
@@ -196,6 +202,9 @@ init python:
                     self.sway_moved_for_duration = clamp(self.sway_moved_for_duration - delta_time, 0, self.sway_change_duration)
 
                 self.sway_amount = inverse_lerp(0, self.sway_change_duration, self.sway_moved_for_duration)
+            
+            ## clear cached cell trace to force a new one next time we use it
+            self._cached_center_cell_trace = None
 
 
         def apply_damage(self, amount, ignore_no_damage=True):
@@ -294,18 +303,17 @@ init python:
 
         def _on_use_key_down(self):
             
-            traced_cells = self.game.raycaster.trace_cells(self.pos, angle=self.angle, distance=self.interact_range)
-            
-            ## if we didnt get any cells back just return
-            if (traced_cells is None or len(traced_cells) == 0):
+            cells, first_hit_distance = self.center_cell_trace
+
+            if (first_hit_distance > self.interact_range):
                 return
-            
+
             ## for each cell, starting with the closest, we check if we can interact
-            for cell, _, cell_side in traced_cells:
+            for trace in cells:
 
                 ## if interaction is possible we trigger interact and then return to avoid triggering anything behind the first thing
-                if (cell.is_interactable(cell_side)):
-                    cell.interact()
+                if (trace.cell.is_interactable(trace.cell_side)):
+                    trace.cell.interact()
                     return
 
 
@@ -326,14 +334,14 @@ init python:
                 weapon_range = self.equipped_weapon.range
                 weapon_hit_sfx_played = False
 
-                block_distance = 0
+                cells, block_distance = self.center_cell_trace
 
-                for cell, depth, _ in self.center_cell_trace:
+                for cell, depth, _ in cells:
                     
                     ## if we hit a cell that is not empty or an open door, we stop
                     if (cell.type != "empty" and 
                         not (cell.type == "door" and cell.open_amount >= 1.0)):
-                        block_distance = depth
+                        block_distance = depth ## we overwrite this since we could be stopped by a closed door
                         break
 
                 dx = math.cos(self.angle)

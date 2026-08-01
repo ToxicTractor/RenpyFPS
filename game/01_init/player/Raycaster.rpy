@@ -33,7 +33,7 @@ init python:
                 ray_direction_y = sin_player_angle * cos_offset + cos_player_angle * sin_offset
 
                 ## get all traversed cells
-                traced_cells = self.trace_cells(self.player.pos, ray_dir=(ray_direction_x, ray_direction_y))
+                traced_cells, _ = self.trace_cells(self.player.pos, ray_dir=(ray_direction_x, ray_direction_y))
 
                 ## figure out where we hit something
                 for cell, depth, cell_side in traced_cells:
@@ -88,7 +88,7 @@ init python:
             cell_y = int(pos[1])
 
             ## we always want to append the starting cell
-            cells.append((self.world_map[(cell_x, cell_y)], 0, "inside"))
+            cells.append(CellTraceEntry(self.world_map[(cell_x, cell_y)], 0, "inside"))
 
             ## calculate ray direction if not already given
             if (ray_dir is None):
@@ -117,6 +117,7 @@ init python:
                 side_distance_y = (cell_y + 1 - pos_y) * delta_distance_y
             
             depth = 0
+            first_hit_distance = None
 
             while depth < distance:
 
@@ -139,9 +140,12 @@ init python:
                 if (cell is None):
                     break
 
-                cells.append((cell, depth, cell_side))
+                if (cell.type != "empty" and first_hit_distance is None):
+                    first_hit_distance = depth
 
-            return cells
+                cells.append(CellTraceEntry(cell, depth, cell_side))
+
+            return cells, (first_hit_distance if first_hit_distance else 0)
         
         
 #endregion

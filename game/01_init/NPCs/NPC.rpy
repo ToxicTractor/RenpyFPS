@@ -272,15 +272,15 @@ init -1 python:
             ray_direction_x = -math.cos(self.theta)
             ray_direction_y = -math.sin(self.theta)
 
-            traced_cells = self.game.raycaster.trace_cells(self.pos, ray_dir=(ray_direction_x, ray_direction_y))
+            traced_cells, _ = self.game.raycaster.trace_cells(self.pos, ray_dir=(ray_direction_x, ray_direction_y))
 
-            for cell, _, _ in traced_cells:
+            for trace in traced_cells:
                 
-                if (cell.type == "wall" or 
-                    (cell.type == "door" and cell.open_amount < 1.0)):
+                if (trace.cell.type == "wall" or 
+                    (trace.cell.type == "door" and trace.cell.open_amount < 1.0)):
                     return False
 
-                if (cell.coord == self.game.player.coord):
+                if (trace.cell.coord == self.game.player.coord):
                     return True
             
             return False
