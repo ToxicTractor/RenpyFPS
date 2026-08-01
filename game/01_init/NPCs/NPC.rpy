@@ -21,7 +21,7 @@ init -1 python:
             ## stats
             self.attack_range = 0
             self.speed = 0
-            self.size = 0
+            self.radius = 0
             self.hit_size = 0
             self.health = 0
             self.attack_damage = 0
@@ -224,13 +224,8 @@ init -1 python:
 
 
         def _collision(self, x, y):
-            map = self.game.map
-            return (
-                map.is_blocking(x + self.size, y + self.size, self.size) or
-                map.is_blocking(x - self.size, y + self.size, self.size) or
-                map.is_blocking(x + self.size, y - self.size, self.size) or
-                map.is_blocking(x - self.size, y - self.size, self.size)
-            )
+            
+            return False ## TODO: Needs to be reworked to use AABB
 
 
         def on_animation_end(self, animation):
@@ -300,17 +295,10 @@ init -1 python:
         
         ## this method exists purely for 2d debugging
         def draw_2d(self, canvas):
-            canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.size * self.game.scale)
+            canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.radius * self.game.scale)
 
             if (not self.is_alive or not self.is_player_in_sight()):
                 return
 
             canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 
                 (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 2)
-
-
-        def blocks_movement(self, x, y, radius):
-            if (not self.is_alive):
-                return False
-
-            return super().blocks_movement(x, y, radius)

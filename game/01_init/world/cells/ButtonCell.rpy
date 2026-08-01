@@ -15,12 +15,11 @@ init python:
             self.on_audio = "audio/fps/map/buttons/turn_on_switch.ogg"
             self.off_audio = "audio/fps/map/buttons/turn_off_switch.ogg"
 
-        def blocks_movement(self, x, y, radius):
-            return True
-        
+
         @property
         def overlay_image(self):
             return self.on_image if self.is_on else self.off_image
+
 
         def is_interactable(self, side):
 
@@ -28,6 +27,7 @@ init python:
                 return False
 
             return side in self.sides
+
 
         def interact(self):
 

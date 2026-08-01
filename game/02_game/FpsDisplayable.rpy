@@ -1,7 +1,6 @@
 init python:
     import pygame
     class FpsDisplayable(renpy.Displayable):
-
         def __init__(self, scale=1):
             super().__init__()
             
@@ -41,7 +40,7 @@ init python:
                 ZombieNPC(self, pos=(16.5, 22.5)),
                 ZombieNPC(self, pos=(21.5, 28.5)),
                 ZombieNPC(self, pos=(28.5, 22.5)),
-                ZombieNPC(self, pos=(27.5, 14.5)),
+                #ZombieNPC(self, pos=(27.5, 14.5)),
                 ZombieNPC(self, pos=(17.5, 8.5)),
                 ZombieNPC(self, pos=(26.5, 4.5)),
                 ZombieNPC(self, pos=(27.5, 4.5))
@@ -59,6 +58,7 @@ init python:
             self.fade_to_black_event = GameEvent()
             self.fade_to_clear_event = GameEvent()
 
+
         @staticmethod
         def modify_renpy_keymaps():
             
@@ -67,12 +67,14 @@ init python:
 
             renpy.clear_keymap_cache()
 
+
         @staticmethod
         def restore_keymaps():
             config.keymap["screenshot"] = ['alt_K_s', 'alt_shift_K_s', 'noshift_K_s']
             config.keymap["director"] = ['noshift_K_d']
 
             renpy.clear_keymap_cache()
+
 
         def render(self, width, height, st, at):
 

@@ -57,7 +57,7 @@ init python:
             ## stats
             self.attack_range = 5
             self.speed = 2
-            self.size = .15
+            self.radius = .15
             self.hit_size = .3
             self.health = 100
             self.attack_damage = 10

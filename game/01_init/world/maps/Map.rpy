@@ -40,17 +40,19 @@ init python:
                     continue
                 
                 if (cell.type == "wall"):
-                    canvas.rect("#444", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
+                    canvas.rect("#fff8", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
+
+                if (cell.type == "button"):
+                    canvas.rect("#0f0" if cell.is_on else "#f00", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
 
                 if (cell.type == "door"):
-                    canvas.rect("#0f0" if cell.open_amount >= 1.0 else "#f00", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
+                    min_x, min_y, max_x, max_y = cell.get_aabb()
+                    x = min_x * self.debug_scale
+                    y = min_y * self.debug_scale
+                    width = (max_x - min_x) * self.debug_scale
+                    height = (max_y - min_y) * self.debug_scale
+                    canvas.rect("#0f0" if not cell.is_locked else "#f00", (x, y, width, height), 2)
 
-
-        def is_blocking(self, x, y, radius):
-
-            cell = self.world_map[(int(x), int(y))]
-
-            return cell.blocks_movement(x, y, radius)
 
 #endregion
 

@@ -42,7 +42,7 @@ init python:
                         continue
 
                     if (cell.type == "door"):
-                        hit = cell.intersect(player_x, player_y, ray_direction_x, ray_direction_y)
+                        hit = cell.ray_intersect(player_x, player_y, ray_direction_x, ray_direction_y)
                         
                         if (hit is None):
                             continue

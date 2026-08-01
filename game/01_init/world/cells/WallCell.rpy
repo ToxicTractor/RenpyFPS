@@ -6,9 +6,6 @@ init python:
             self.type = "wall"
             self.images = [image]
             self.image_ratios = [1]
-        
-        def blocks_movement(self, x, y, radius):
-            return True
 
 
 define FPS_WALL_TEXTURES = {

@@ -5,5 +5,5 @@ init python:
             
             self.type = "empty"
 
-        def blocks_movement(self, x, y, radius):
-            return False
+        def check_collision(self, x, y, radius):
+            return False, None, None, None, None

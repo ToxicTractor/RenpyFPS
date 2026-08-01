@@ -2,7 +2,7 @@ screen fps_screen():
     modal True
     style_prefix "fps"
 
-    default fps = FpsDisplayable(scale=30)
+    default fps = FpsDisplayable(scale=25)
     default fps_fader = FpsFadeOverlay(fps)
     default fps_ui = FpsUIOverlay(fps)
 

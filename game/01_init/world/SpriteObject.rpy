@@ -94,13 +94,6 @@ init -2 python:
             self.dist = math.hypot(delta_x, delta_y)
             self.norm_dist = self.dist * math.cos(delta)
 
-            if (-self.half_image_width < self.screen_x < (FpsSettings.SCREEN_WIDTH + self.half_image_width) and self.norm_dist > 0.5):
+            if (-self.half_image_width < self.screen_x < (FpsSettings.SCREEN_WIDTH + self.half_image_width) and self.norm_dist > 0.1):
                 self.get_sprite_projection()
-
-
-        def blocks_movement(self, x, y, radius):
             
-            if (self.size == 0):
-                return False
-
-            return (x - self.pos_x) ** 2 + (y - self.pos_y) ** 2 < radius + self.size ** 2
