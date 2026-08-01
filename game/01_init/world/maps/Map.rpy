@@ -4,8 +4,7 @@ init python:
             self.debug_scale = debug_scale
 
             self.world_map = {}
-            self.nav_map = []
-            
+
             self.is_inside = False
             self.sky_image = None
             self.floor_image = None
@@ -53,7 +52,6 @@ init python:
                     height = (max_y - min_y) * self.debug_scale
                     canvas.rect("#0f0" if not cell.is_locked else "#f00", (x, y, width, height), 2)
 
-
 #endregion
 
 #region Private methods
@@ -62,9 +60,6 @@ init python:
             """
             Creates the map based on the map_data provided.
             """
-
-            ## Create 2D array of the same size as the map that we use for navigation
-            self.nav_map = [[0 for _ in range(len(map_data[0]))] for _ in range(len(map_data))]
 
             for y, row in enumerate(map_data):
                 for x, value in enumerate(row):
@@ -76,8 +71,6 @@ init python:
                     else:
                         self.world_map[(x, y)] = EmptyCell((x, y))
                     
-                    ## add the walls to the navigation map
-                    self.nav_map[y][x] = 0 if value < 1 else 1
 
 
         def _load_map(self, map_path):

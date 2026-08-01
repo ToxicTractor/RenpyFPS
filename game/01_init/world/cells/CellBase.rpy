@@ -16,6 +16,11 @@ init -1 python:
             return self.coord[1]
 
 
+        @property
+        def is_npc_walkable(self):
+            return False
+        
+
         def is_interactable(self, side):
             return False
         

@@ -9,23 +9,20 @@ init python:
                 (0, -1),
             )
 
-        ## 0 - walkable
-        ## 1 - not-walkable
-        def __init__(self, grid):
-            self.grid = grid
-            self.height = len(grid)
-            self.width = len(grid[0]) if self.height else 0
+
+        def __init__(self, actor):
+            self.actor = actor
 
 
-        def in_bounds(self, x, y):
-            return (
-                0 <= x < self.width and
-                0 <= y < self.height
-            )
+        @property
+        def world_map(self):
+            return self.actor.game.map.world_map
 
 
         def is_walkable(self, x, y):
-            return self.grid[y][x] == 0
+            cell = self.world_map.get((x, y))
+
+            return cell is not None and cell.is_npc_walkable
 
 
         def heuristic(self, a, b):
@@ -41,7 +38,7 @@ init python:
                 nx = x + dx
                 ny = y + dy
 
-                if self.in_bounds(nx, ny) and self.is_walkable(nx, ny):
+                if (self.is_walkable(nx, ny)):
                     neighbors.append((nx, ny))
 
             return neighbors

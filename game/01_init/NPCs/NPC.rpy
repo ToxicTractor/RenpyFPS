@@ -36,7 +36,7 @@ init -1 python:
             self.return_to_start_pos = True
             self.start_coord = self.coord
 
-            self.pathfinding = Pathfinding(game.map.nav_map)
+            self.pathfinding = Pathfinding(self)
             self.path = None
             self.los_grace_period = 2.0
             self.los_grace_timer = 0

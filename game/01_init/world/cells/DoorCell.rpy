@@ -18,6 +18,11 @@ init python:
             self.close_audio = "audio/fps/map/doors/door_close.ogg"
         
 
+        @property
+        def is_npc_walkable(self):
+            return self.open_amount >= 1.0
+
+
         def ray_intersect(self, origin_x, origin_y, ray_dx, ray_dy):
             
             aabb = self.get_aabb()
