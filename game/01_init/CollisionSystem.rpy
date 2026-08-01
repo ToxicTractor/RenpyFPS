@@ -6,12 +6,13 @@ init -100 python:
         def collision_pass(game, actor, override_pass_count=None):
             collision_pass_count = override_pass_count if override_pass_count else CollisionSystem.COLLISION_PASS_COUNT
             x, y = actor.pos
+            radius = actor.radius
 
             ## run correction passes
             for _ in range(collision_pass_count):
 
-                object_correction, x, y = CollisionSystem._resolve_object_collisions(game, actor)
-                cell_correction, x, y = CollisionSystem._resolve_cell_collisions(game, actor)
+                object_correction, x, y = CollisionSystem._resolve_object_collisions(game, x, y, actor)
+                cell_correction, x, y = CollisionSystem._resolve_cell_collisions(game, x, y, radius)
 
                 ## if neither had any corrections, we are at a valid position
                 if (not (object_correction or cell_correction)):
@@ -22,18 +23,22 @@ init -100 python:
         
 
         @staticmethod
-        def _resolve_object_collisions(game, actor):
+        def _resolve_object_collisions(game, x, y, actor):
             changed = False
-            x, y = actor.pos
+            radius = actor.radius
 
             ## TODO: implement collisions for all SpriteObjects, currently only NPCs have collisions
             for npc in game.npcs:
                 
+                ## we don't collide with ourselves
+                if npc == actor:
+                    continue
+
                 ## if the npc is dead just skip it
                 if not npc.is_alive:
                     continue
 
-                npc_check_distance = actor.radius + npc.radius
+                npc_check_distance = radius + npc.radius
                 
                 dx = x - npc.pos_x
                 dy = y - npc.pos_y
@@ -62,23 +67,22 @@ init -100 python:
         
 
         @staticmethod
-        def _resolve_cell_collisions(game, actor):
+        def _resolve_cell_collisions(game, x, y, radius):
             changed = False
-            x, y = actor.pos
             world_map = game.map.world_map
 
             ## find the cells we need to check collisions for
-            min_coord_x = int(x - actor.radius - 1)
-            max_coord_x = int(x + actor.radius + 1)
-            min_coord_y = int(y - actor.radius - 1)
-            max_coord_y = int(y + actor.radius + 1)
+            min_coord_x = int(x - radius - 1)
+            max_coord_x = int(x + radius + 1)
+            min_coord_y = int(y - radius - 1)
+            max_coord_y = int(y + radius + 1)
 
             for cell_y in range(min_coord_y, max_coord_y + 1):
                 for cell_x in range(min_coord_x, max_coord_x + 1):
                     cell = world_map[(cell_x, cell_y)]
                 
                     ## check if we collide with the cell                    
-                    collides, dx, dy, distance, penetration = cell.check_collision(x, y, actor.radius)
+                    collides, dx, dy, distance, penetration = cell.check_collision(x, y, radius)
 
                     ## if we dont collide, just continue to the next cell
                     if (not collides):
@@ -96,13 +100,13 @@ init -100 python:
                         minimum = min(left, right, top, bottom)
 
                         if minimum == left:
-                            x -= actor.radius + left
+                            x -= radius + left
                         elif minimum == right:
-                            x += actor.radius + right
+                            x += radius + right
                         elif minimum == top:
-                            y -= actor.radius + top
+                            y -= radius + top
                         else:
-                            y += actor.radius + bottom
+                            y += radius + bottom
                             
                     else:
                         x += dx / distance * penetration

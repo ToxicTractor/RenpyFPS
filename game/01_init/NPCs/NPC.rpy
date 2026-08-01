@@ -1,6 +1,5 @@
 init -1 python:
     class NPC(SpriteObject, ABC): ## abstract class to enforce inheritance for enemy types
-
         def __init__(self, game, pos, sprite_anim=None, scale=1.0, height_shift=0.0):
             super().__init__(game, sprite_anim, pos=pos, scale=scale, height_shift=height_shift)
 
@@ -216,15 +215,10 @@ init -1 python:
             new_x = self.pos_x + delta_x
             new_y = self.pos_y + delta_y
 
-            if (not self._collision(new_x, self.pos_y)):
-                self.pos_x = new_x
-            if (not self._collision(self.pos_x, new_y)):
-                self.pos_y = new_y
+            self.pos_x = new_x
+            self.pos_y = new_y
 
-
-        def _collision(self, x, y):
-            
-            return False ## TODO: Needs to be reworked to use AABB
+            self.pos_x, self.pos_y = CollisionSystem.collision_pass(self.game, self)
 
 
         def on_animation_end(self, animation):
