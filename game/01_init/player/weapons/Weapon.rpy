@@ -1,5 +1,6 @@
 init -1 python:
     class Weapon(ABC): ## abstract class to enforce inheritance for weapon types
+        AUTO_RELOAD_ON_EMPTY = True
         def __init__(self, 
             player,
             scale=1.0):
@@ -10,7 +11,7 @@ init -1 python:
             self.attack_anim = None
             self.reload_anim = None
             self.equip_duration = 0.25
-            self.equip_time = 0.0
+            self.equip_timer = None
             self.equip_offset = 256
 
             ## audio
@@ -26,12 +27,13 @@ init -1 python:
             ## stats
             self.damage = 0
             self.attack_delay = 0.5
-            self.magazine_ammo = 0
-            self.magazine_size = 0
-            self.max_ammo = 999
+            self.magazine_size = None
+            self.magazine_ammo = None
             self.ammo_type = None
+            self.dump_remainding_ammo_on_reload = False
             self.range = None ## None means unlimited
             self.penetration = 0
+            self.reload_duration = None
 
             ## ui
             self.name = "Unnamed weapon"
@@ -52,23 +54,26 @@ init -1 python:
             self.at = 0
             self.current_animation = self.idle_anim
 
-            self.attack_timer = 0
+            self.attack_timer = None
+            self.reload_timer = None
 
             self.casing_spawned = False
             self.casings = []
 
+            self.reload_begin_event = GameEvent()
+            self.reload_end_event = GameEvent()
 
         @property
         def formatted_ammo(self):
-            return f"{self.magazine_ammo}/{self.current_ammo}"
+            return f"{self.magazine_ammo}/{self.spare_ammo}"
 
 
         @property
-        def current_ammo(self):
+        def spare_ammo(self):
             if (self.ammo_type is None):
                 return None
 
-            return self.magazine_ammo if self.magazine_size > 0 else self.player.ammo[self.ammo_type.name].current
+            return self.player.ammo[self.ammo_type.name].current
 
 
         @abstractmethod
@@ -78,9 +83,21 @@ init -1 python:
         #region Update and Draw methods
 
         def update(self, delta_time):
+            
+            ## update and invoke events for reloading
+            if (self.reload_timer):
+                if (self.reload_timer > 0):
+                    self.reload_timer -= delta_time
+                else:
+                    self.reload_timer = None
+                    self.end_reload()
 
-            if (self.equip_time < self.equip_duration):
-                self.equip_time += delta_time
+            ## update equip timer
+            if (self.equip_timer):
+                if (self.equip_timer > 0):
+                    self.equip_timer -= delta_time
+                else:
+                    self.equip_timer = None
 
             ## update anmiation time if our current animation has a duration
             if (self.current_animation.duration):
@@ -110,9 +127,12 @@ init -1 python:
 
         ## seperate update method called from the players update for all weapons, not just the equipped one
         def update_attack_timer(self, delta_time):
-                        
-            if (self.attack_timer < self.attack_delay):
-                self.attack_timer += delta_time
+            
+            if (self.attack_timer):
+                if (self.attack_timer > 0):
+                    self.attack_timer -= delta_time
+                else:
+                    self.attack_timer = None
 
 
         def draw(self, screen, st):
@@ -134,7 +154,8 @@ init -1 python:
             ## calculate the x and y offsets due to sway from movement
             offset_x, offset_y = elementwise_add_tuple(self.player.sway_offset, (FpsSettings.X_OFFSET, FpsSettings.Y_OFFSET))
 
-            offset_y += lerp(self.equip_offset, 0, self.equip_time / self.equip_duration)
+            if (self.equip_timer and self.equip_duration > 0):
+                offset_y += lerp(0, self.equip_offset, self.equip_timer / self.equip_duration)
             
             ## get the weapon image, scaled if appropriate
             weapon_image = self.current_animation.image if self.scale == 1.0 else Transform(self.current_animation.image, size=(self.scaled_width, self.scaled_height))
@@ -175,14 +196,42 @@ init -1 python:
             return self.attack_anim
         
 
-        def has_ammo(self):
-            return not self.ammo_type or self.current_ammo > 0
+        def has_ammo_in_magazine(self):
+            ## if we dont use ammo, we always retun True
+            if (not self.ammo_type):
+                return True
+
+            if (self.magazine_size):
+                return self.magazine_ammo > 0
+            else:
+                return self.spare_ammo > 0
+
+
+        def can_be_reloaded(self):
+            ## if we dont use ammo, magazine size or reload duration, we always return False
+            if (not self.ammo_type or
+                not self.magazine_size or
+                not self.reload_duration):
+                return False
+
+            ## if weapon is not ready, return False
+            if (not self.is_ready()):
+                return False
+
+            return self.magazine_ammo < self.magazine_size
 
 
         def attack(self):
             
-            if (not self.has_ammo()):
+            if (not self.has_ammo_in_magazine()):
                 
+                if (Weapon.AUTO_RELOAD_ON_EMPTY and 
+                    self.player.get_ammo_count(self.ammo_type) > 0 and 
+                    self.can_be_reloaded()):
+                    
+                    self.start_reload()
+                    return                    
+
                 if (self.no_ammo_audio):
                     renpy.play(self.no_ammo_audio)
 
@@ -192,11 +241,11 @@ init -1 python:
             if (self.attack_audio):
                 renpy.play(self.attack_audio)
 
-            self.attack_timer = 0
+            self.attack_timer = self.attack_delay
 
             ## subtract ammo if we have an ammo type
             if (self.ammo_type):
-                if (self.magazine_size > 0):
+                if (self.magazine_size and self.magazine_size > 0):
                     self.magazine_ammo = max(self.magazine_ammo - 1, 0)
                 else:
                     self.player.ammo[self.ammo_type.name].remove()
@@ -207,12 +256,46 @@ init -1 python:
             self.current_animation = self.get_attack_anim()
 
 
+        def start_reload(self):
+
+            self.reload_timer = self.reload_duration
+            
+            if (self.reload_audio):
+                renpy.play(self.reload_audio)
+
+            self.at = 0
+            self.current_animation = self.reload_anim
+
+            self.reload_begin_event.invoke()
+
+        
+        def end_reload(self):
+            
+            available_ammo = min(self.magazine_size, self.player.get_ammo_count(self.ammo_type))
+            reloaded_ammo = available_ammo
+
+            if (self.dump_remainding_ammo_on_reload):
+                ammo_after_reload = reloaded_ammo
+            else:
+                reloadable_ammo = self.magazine_size - self.magazine_ammo
+                reloaded_ammo = min(available_ammo, reloadable_ammo)
+                ammo_after_reload = self.magazine_ammo + reloaded_ammo
+
+            self.magazine_ammo = ammo_after_reload
+            self.player.remove_ammo(self.ammo_type, reloaded_ammo)
+
+            self.reload_end_event.invoke()
+
+
         def is_ready(self):
             
-            if (self.equip_time < self.equip_duration):
+            if (self.equip_timer):
                 return False
             
-            if (self.attack_timer < self.attack_delay):
+            if (self.attack_timer):
+                return False
+
+            if (self.reload_timer):
                 return False
 
             return True
@@ -224,7 +307,7 @@ init -1 python:
 
         def equip(self):
 
-            self.equip_time = 0
+            self.equip_timer = self.equip_duration
 
             if (self.equip_audio):
                 renpy.play(self.equip_audio)
@@ -234,6 +317,7 @@ init -1 python:
             
             self.at = 0
             self.current_animation = self.idle_anim
+            self.reload_timer = None
 
             for casing in self.casings:
                 self.despawn_casing(casing)

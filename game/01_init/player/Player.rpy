@@ -25,7 +25,8 @@ init python:
 
             self.input_use = InputKeyHandler(pygame.K_e, on_key_down=self._on_use_key_down)
             self.input_attack = InputKeyHandler(pygame.K_SPACE, on_key=self._on_attack_key)
-            
+            self.input_reload = InputKeyHandler(pygame.K_r, on_key_down=self._on_reload_key_down)
+
             self.input_weapon_1 = InputKeyHandler(pygame.K_1, on_key_down=lambda: self._on_change_weapon_key_down(1))
             self.input_weapon_2 = InputKeyHandler(pygame.K_2, on_key_down=lambda: self._on_change_weapon_key_down(2))
             self.input_weapon_3 = InputKeyHandler(pygame.K_3, on_key_down=lambda: self._on_change_weapon_key_down(3))
@@ -169,6 +170,7 @@ init python:
 
             self.input_use.handle_input(key_pressed)
             self.input_attack.handle_input(key_pressed)
+            self.input_reload.handle_input(key_pressed)
 
             self.input_weapon_1.handle_input(key_pressed)
             self.input_weapon_2.handle_input(key_pressed)
@@ -296,6 +298,11 @@ init python:
             
             self.add_ammo(weapon.ammo_type, ammo)
         
+        def get_ammo_count(self, ammo_type):
+            if (not self.has_ammo_type(ammo_type)):
+                return 0
+            return self.ammo[ammo_type.name].current
+
         def has_ammo_type(self, ammo_type):
             return ammo_type.name in self.ammo
 
@@ -307,6 +314,10 @@ init python:
                 self.ammo[ammo_type.name] = AmmoCount(amount, ammo_type.max)
             else:
                 self.ammo[ammo_type.name].add(amount)
+
+        def remove_ammo(self, ammo_type, amount=1):
+            self.ammo[ammo_type.name].remove(amount)
+
         
 
 #endregion
@@ -357,7 +368,7 @@ init python:
 
                 self.equipped_weapon.attack()
 
-                if (self.equipped_weapon.has_ammo()):
+                if (self.equipped_weapon.has_ammo_in_magazine()):
                     self.attack_event.invoke()
                 else:
                     return
@@ -426,6 +437,23 @@ init python:
                             pen_count += 1
                         else:
                             return
+
+        
+        def _on_reload_key_down(self):
+            weapon = self.equipped_weapon
+            ammo_type = weapon.ammo_type
+
+            ## if our current weapon cannot reload, just return
+            if (not weapon.can_be_reloaded()):
+                return
+
+            if (self.get_ammo_count(ammo_type) > 0):
+                ## trigger reload
+                weapon.start_reload()
+            else:
+                
+                ## TODO: trigger text message on screen saying out of ammo
+                pass
 
 
         def _on_horizontal_move_input(self, value):

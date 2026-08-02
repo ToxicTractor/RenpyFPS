@@ -60,4 +60,4 @@ init python:
 
         @property
         def formatted_ammo(self):
-            return f"{self.current_ammo}"
+            return f"{self.spare_ammo}"
