@@ -1,7 +1,7 @@
 init -1 python:
     class CellBase(ABC):
         def __init__(self, coord):
-            self.type = None
+            self.type = ECellType.Empty
             self.coord = coord
             self._cached_aabb = None
         

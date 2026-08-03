@@ -8,3 +8,4 @@ init -1000 python:
     from copy import deepcopy ## used for ObjectPool
     from collections import namedtuple
     from dataclasses import dataclass ## used for AmmoTypes
+    from enum import Enum

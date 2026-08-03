@@ -383,8 +383,8 @@ init python:
                 for cell, depth, _ in cells:
                     
                     ## if we hit a cell that is not empty or an open door, we stop
-                    if (cell.type != "empty" and 
-                        not (cell.type == "door" and cell.open_amount >= 1.0)):
+                    if (cell.type != ECellType.Empty and 
+                        not (cell.type == ECellType.Door and cell.open_amount >= 1.0)):
                         block_distance = depth ## we overwrite this since the first hit could have been an open door
                         break
 

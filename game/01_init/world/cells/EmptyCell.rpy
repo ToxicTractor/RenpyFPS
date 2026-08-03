@@ -3,7 +3,7 @@ init python:
         def __init__(self, coord):
             super().__init__(coord)
             
-            self.type = "empty"
+            self.type = ECellType.Empty
 
 
         @property

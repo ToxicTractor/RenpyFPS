@@ -3,7 +3,7 @@ init python:
         def __init__(self, coord, wall_image, on_image, off_image, sides=[], is_on=False):
             super().__init__(coord)
 
-            self.type = "button"
+            self.type = ECellType.Button
             self.images = [wall_image]
             self.image_ratios = [1]
             self.off_image = off_image
