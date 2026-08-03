@@ -5,3 +5,4 @@ init -100 python:
     
     ## used by the raycaster
     CellTraceEntry = namedtuple("CellTraceEntry", ["cell", "depth", "cell_side"])
+    RaycastHitDDA = namedtuple("RaycastHitDDA", ["depth", "projection_height", "cell", "offset", "side"])

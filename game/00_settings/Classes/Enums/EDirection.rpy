@@ -1,4 +1,4 @@
-init -1 python:
+init -100 python:
     class EDirection(Enum):
         NONE = 0
         North = 1

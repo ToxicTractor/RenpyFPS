@@ -16,30 +16,28 @@ init python:
         def update(self):
             self.objects_to_render = []
 
-            raycast_results = self.game.raycaster.cast_rays_dda()
+            raycast_hits = self.game.raycaster.cast_rays_dda()
 
-            for i, values in enumerate(raycast_results):
-                depth, projection_height, cell, offset, texture_index, hit_direction = values
-                
-                if (cell.type == ECellType.Empty):
+            for i, hit in enumerate(raycast_hits):
+
+                if (hit.cell.type == ECellType.Empty):
                     continue
+                
+                texture, texture_size_ratio = hit.cell.get_texture(hit.side)
 
-                texture = cell.images[texture_index]
-                texture_size_ratio = cell.image_ratios[texture_index]
+                crop_x = int(hit.offset * (FpsSettings.TEXTURE_SIZE * texture_size_ratio - 1))
 
-                crop_x = int(offset * (FpsSettings.TEXTURE_SIZE * texture_size_ratio - 1))
-
-                wall_pos = (i * FpsSettings.PROJECTION_SCALE, FpsSettings.HALF_SCREEN_HEIGHT - projection_height // 2)
+                wall_pos = (i * FpsSettings.PROJECTION_SCALE, FpsSettings.HALF_SCREEN_HEIGHT - hit.projection_height // 2)
             
                 self.objects_to_render.append(
-                    (depth,
+                    (hit.depth,
                     texture,
                     (crop_x, 0, 1, FpsSettings.TEXTURE_SIZE),
-                    (FpsSettings.PROJECTION_SCALE, int(projection_height)),
+                    (FpsSettings.PROJECTION_SCALE, int(hit.projection_height)),
                     wall_pos,
                     0,
-                    cell,
-                    hit_direction)
+                    hit.cell,
+                    hit.side)
                 )
 
 
@@ -76,21 +74,6 @@ init python:
                 wall_render = renpy.render(wall_slice, FpsSettings.PROJECTION_SCALE, int(projection_size[1]), st, at)
 
                 screen.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
-
-                if (cell is not None and 
-                    cell.type == ECellType.Button and
-                    cell.is_button_side(hit_direction)):
-
-                    wall_slice = Transform(
-                        cell.overlay_image,
-                        crop=crop,
-                        size=projection_size,
-                        matrixcolor=BrightnessMatrix(-(depth / FpsSettings.MAX_DEPTH))
-                    )
-                    
-                    wall_render = renpy.render(wall_slice, FpsSettings.PROJECTION_SCALE, int(projection_size[1]), st, at)
-
-                    screen.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
 
 
         def _draw_floor(self, screen, offset):

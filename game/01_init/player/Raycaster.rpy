@@ -23,7 +23,6 @@ init python:
 
             for sin_offset, cos_offset in self._ray_data:
                 ## defaults
-                texture_index = 0
                 hit_cell = None
                 hit_side = None
                 offset = 0
@@ -47,9 +46,8 @@ init python:
                         if (hit is None):
                             continue
                         
-                        depth, offset, texture_index = hit
+                        depth, offset, hit_side = hit
                         hit_cell = cell
-                        hit_side = cell_side
                         break
 
                     if (cell.type in (ECellType.Wall, ECellType.Button)):
@@ -71,7 +69,7 @@ init python:
                 ## calculate projection height
                 projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
 
-                raycast_results.append((depth, projection_height, hit_cell, offset, texture_index, hit_side))
+                raycast_results.append(RaycastHitDDA(depth, projection_height, hit_cell, offset, hit_side))
             
             return raycast_results
 

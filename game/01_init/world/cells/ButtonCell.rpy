@@ -1,13 +1,9 @@
 init python:
     class ButtonCell(CellBase):
-        def __init__(self, coord, wall_image, on_image, off_image, sides=[], is_on=False):
+        def __init__(self, coord, wall_images, on_images, off_images, sides, is_on=False):
             super().__init__(coord)
 
             self.type = ECellType.Button
-            self.images = [wall_image]
-            self.image_ratios = [1]
-            self.off_image = off_image
-            self.on_image = on_image
             self.sides = sides
             self.is_on = is_on
             self.button_event = GameEvent()
@@ -15,10 +11,62 @@ init python:
             self.on_audio = "audio/fps/map/buttons/turn_on_switch.ogg"
             self.off_audio = "audio/fps/map/buttons/turn_off_switch.ogg"
 
+            self._wall_images = self._construct_wall_images_dict(wall_images)
+            self._on_images = self._construct_on_images_dict(on_images)
+            self._off_images = self._construct_off_images_dict(off_images)
 
         @property
         def overlay_image(self):
-            return self.on_image if self.is_on else self.off_image
+            return self._on_image if self.is_on else self._off_image
+        
+
+        def _construct_wall_images_dict(self, wall_images):
+            if (isinstance(wall_images, dict)):
+                return wall_images
+            else:
+                return {key:wall_images for key in (FpsConstants.DIRECTIONS)}
+        
+        def _construct_on_images_dict(self, on_images):
+            if (not isinstance(on_images, dict)):
+                on_images = {key:on_images for key in (FpsConstants.DIRECTIONS)}
+
+            new_dict = {}
+            for side, wall_image in self._wall_images.items():
+
+                if (side not in on_images):
+                    continue
+
+                new_dict[side] = Composite(
+                    (FpsSettings.TEXTURE_SIZE, FpsSettings.TEXTURE_SIZE),
+                    (0, 0), wall_image,
+                    (0, 0), on_images[side])
+
+            return new_dict
+
+        def _construct_off_images_dict(self, off_images):
+            if (not isinstance(off_images, dict)):
+                off_images = {key:off_images for key in (FpsConstants.DIRECTIONS)}
+
+            new_dict = {}
+            for side, wall_image in self._wall_images.items():
+
+                if (side not in off_images):
+                    continue
+
+                new_dict[side] = Composite(
+                    (FpsSettings.TEXTURE_SIZE, FpsSettings.TEXTURE_SIZE),
+                    (0, 0), wall_image,
+                    (0, 0), off_images[side])
+            
+            return new_dict
+
+
+        def get_texture(self, side):
+
+            if (side in self.sides):
+                return (self._on_images.get(side) if self.is_on else self._off_images.get(side)), 1.0
+            else:
+                return self._wall_images.get(side), 1.0
 
 
         def is_interactable(self, side):

@@ -5,21 +5,23 @@ init -1 python:
             self.coord = coord
             self._cached_aabb = None
         
-
         @property
         def coord_x(self):
             return self.coord[0]
-
 
         @property
         def coord_y(self):
             return self.coord[1]
 
-
         @property
         def is_npc_walkable(self):
             return False
         
+
+        @abstractmethod
+        def get_texture(self, side):
+            pass
+
 
         def is_interactable(self, side):
             return False
@@ -59,5 +61,3 @@ init -1 python:
             penetration = radius - distance
 
             return collides, dx, dy, distance, penetration
-            
-

@@ -17,10 +17,24 @@ init python:
             self.open_audio = "audio/fps/map/doors/door_open.ogg"
             self.close_audio = "audio/fps/map/doors/door_close.ogg"
         
-
         @property
         def is_npc_walkable(self):
             return self.open_amount >= 1.0
+
+        
+        def get_texture(self, side):
+            if self.orientation == EOrientation.Horizontal:
+                if side in (EDirection.North, EDirection.South):
+                    return self.images[0], self.image_ratios[0]
+                else:
+                    return self.images[1], self.image_ratios[1]
+            elif self.orientation == EOrientation.Vertical:
+                if side in (EDirection.West, EDirection.East):
+                    return self.images[0], self.image_ratios[0]
+                else:
+                    return self.images[1], self.image_ratios[1]
+
+            return None, 1.0
 
 
         def ray_intersect(self, origin_x, origin_y, ray_dx, ray_dy):
@@ -45,8 +59,6 @@ init python:
             else:
                 face = EDirection.South
             
-            texture_index = 0
-
             if self.orientation == EOrientation.Horizontal:
                 if face in (EDirection.North, EDirection.South):
                     # Large faces
@@ -54,7 +66,6 @@ init python:
                 else:
                     # Thin ends
                     offset = (hit_y - aabb.min_y) / self.thickness
-                    texture_index = 1
 
             elif  self.orientation == EOrientation.Vertical:
                 if face in (EDirection.West, EDirection.East):
@@ -63,9 +74,8 @@ init python:
                 else:
                     # Thin ends
                     offset = (hit_x - aabb.min_x) / self.thickness
-                    texture_index = 1
 
-            return depth, offset, texture_index
+            return depth, offset, face
         
 
         def is_interactable(self, side):

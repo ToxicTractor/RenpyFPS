@@ -18,6 +18,7 @@ init python:
             self.map.world_map[(7,14)].is_locked = True
             self.map.world_map[(7,13)] = ButtonCell((7,13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.East, EDirection.West])
             self.map.world_map[(7,13)].button_event.add_listener(self.map.world_map[7,14].interact)
+            self.map.world_map[(0, 14)]._overlay_images = self.map.world_map[(0, 14)]._construct_overlay_images_dict({ EDirection.East: FPS_WALL_OVERLAY_TEXTURES[0] })
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.raycaster = Raycaster(self.player, self.map)
