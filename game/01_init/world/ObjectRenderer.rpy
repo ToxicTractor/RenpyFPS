@@ -21,7 +21,7 @@ init python:
             for i, values in enumerate(raycast_results):
                 depth, projection_height, cell, offset, texture_index, hit_direction = values
                 
-                if (cell.type == "empty"):
+                if (cell.type == ECellType.Empty):
                     continue
 
                 texture = cell.images[texture_index]
@@ -78,7 +78,7 @@ init python:
                 screen.blit(wall_render, (pos[0] + offset_x, pos[1] + offset_y))
 
                 if (cell is not None and 
-                    cell.type == "button" and
+                    cell.type == ECellType.Button and
                     cell.is_button_side(hit_direction)):
 
                     wall_slice = Transform(

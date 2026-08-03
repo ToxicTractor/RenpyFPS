@@ -3,9 +3,11 @@ init python:
         def __init__(self, coord, image):
             super().__init__(coord)
 
-            self.type = "wall"
+            self.type = ECellType.Wall
             self.images = [image]
             self.image_ratios = [1]
+
+        #def get_image(self, side):
 
 
 define FPS_WALL_TEXTURES = {

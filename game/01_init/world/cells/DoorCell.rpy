@@ -3,7 +3,7 @@ init python:
         def __init__(self, coord, image, slim_side_image, offset=0.0, orientation="horizontal"):
             super().__init__(coord)
 
-            self.type = "door"
+            self.type = ECellType.Door
             self.images = [image, slim_side_image]
             self.image_ratios = [1, 0.125]
             self.offset = offset

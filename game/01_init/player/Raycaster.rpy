@@ -38,10 +38,10 @@ init python:
                 ## figure out where we hit something
                 for cell, depth, cell_side in traced_cells:
                     
-                    if (cell.type == "empty"):
+                    if (cell.type == ECellType.Empty):
                         continue
 
-                    if (cell.type == "door"):
+                    if (cell.type == ECellType.Door):
                         hit = cell.ray_intersect(player_x, player_y, ray_direction_x, ray_direction_y)
                         
                         if (hit is None):
@@ -52,7 +52,7 @@ init python:
                         hit_side = cell_side
                         break
 
-                    if (cell.type in ("wall", "button")):
+                    if (cell.type in (ECellType.Wall, ECellType.Button)):
                         hit_cell = cell
                         hit_side = cell_side
 
@@ -91,7 +91,7 @@ init python:
             ## we always want to append the starting cell
             entries.append(CellTraceEntry(self.world_map[(cell_x, cell_y)], 0, "inside"))
             ## if we are inside of a cell that is not "empty", set first_hit_distance
-            if (entries[0].cell.type != "empty"):
+            if (entries[0].cell.type != ECellType.Empty):
                 first_hit_distance = 0
 
             ## calculate ray direction if not already given
@@ -144,7 +144,7 @@ init python:
                 if (cell is None):
                     break
 
-                if (cell.type != "empty" and first_hit_distance is None):
+                if (cell.type != ECellType.Empty and first_hit_distance is None):
                     first_hit_distance = depth
 
                 entries.append(CellTraceEntry(cell, depth, cell_side))

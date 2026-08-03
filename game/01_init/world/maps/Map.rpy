@@ -23,7 +23,7 @@ init python:
 
             for cell in self.world_map.values():
 
-                if (cell.type == "door"):
+                if (cell.type == ECellType.Door):
                     cell.update(delta_time)
 
 
@@ -35,16 +35,16 @@ init python:
                 
                 x, y = coord
 
-                if (cell.type == "empty"):
+                if (cell.type == ECellType.Empty):
                     continue
                 
-                if (cell.type == "wall"):
+                if (cell.type == ECellType.Wall):
                     canvas.rect("#fff8", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
 
-                if (cell.type == "button"):
+                if (cell.type == ECellType.Button):
                     canvas.rect("#0f0" if cell.is_on else "#f00", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
 
-                if (cell.type == "door"):
+                if (cell.type == ECellType.Door):
                     min_x, min_y, max_x, max_y = cell.get_aabb()
                     x = min_x * self.debug_scale
                     y = min_y * self.debug_scale
