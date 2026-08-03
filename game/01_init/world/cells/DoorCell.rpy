@@ -1,6 +1,6 @@
 init python:
     class DoorCell(CellBase):
-        def __init__(self, coord, image, slim_side_image, offset=0.0, orientation="horizontal"):
+        def __init__(self, coord, image, slim_side_image, offset=0.0, orientation=EOrientation.Horizontal):
             super().__init__(coord)
 
             self.type = ECellType.Door
@@ -37,18 +37,18 @@ init python:
             EPSILON = 1e-6
 
             if abs(hit_x - aabb.min_x) < EPSILON:
-                face = "left"
+                face = EDirection.West
             elif abs(hit_x - aabb.max_x) < EPSILON:
-                face = "right"
+                face = EDirection.East
             elif abs(hit_y - aabb.min_y) < EPSILON:
-                face = "top"
+                face = EDirection.North
             else:
-                face = "bottom"
+                face = EDirection.South
             
             texture_index = 0
 
-            if self.orientation == "horizontal":
-                if face in ("top", "bottom"):
+            if self.orientation == EOrientation.Horizontal:
+                if face in (EDirection.North, EDirection.South):
                     # Large faces
                     offset = hit_x - (self.coord_x + self.open_amount)
                 else:
@@ -56,8 +56,8 @@ init python:
                     offset = (hit_y - aabb.min_y) / self.thickness
                     texture_index = 1
 
-            elif  self.orientation == "vertical":
-                if face in ("left", "right"):
+            elif  self.orientation == EOrientation.Vertical:
+                if face in (EDirection.West, EDirection.East):
                     # Large faces
                     offset = hit_y - (self.coord_y + self.open_amount)
                 else:
@@ -108,12 +108,12 @@ init python:
 
             cell_x, cell_y = self.coord
         
-            if (self.orientation == "horizontal"):
+            if (self.orientation == EOrientation.Horizontal):
                 min_x = cell_x + self.open_amount
                 max_x = cell_x + 1
                 min_y = cell_y + 0.5 + self.offset - self.thickness / 2
                 max_y = cell_y + 0.5 + self.offset + self.thickness / 2
-            elif (self.orientation == "vertical"):
+            elif (self.orientation == EOrientation.Vertical):
                 min_x = cell_x + 0.5 + self.offset - self.thickness / 2
                 max_x = cell_x + 0.5 + self.offset + self.thickness / 2
                 min_y = cell_y + self.open_amount

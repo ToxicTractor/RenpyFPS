@@ -56,9 +56,9 @@ init python:
                         hit_cell = cell
                         hit_side = cell_side
 
-                        if (hit_side in ("east", "west")):
+                        if (hit_side in (EDirection.East, EDirection.West)):
                             offset = player_y + depth * ray_direction_y
-                        elif (hit_side in ("north", "south")):
+                        elif (hit_side in (EDirection.North, EDirection.South)):
                             offset = player_x + depth * ray_direction_x
 
                         break
@@ -89,7 +89,7 @@ init python:
             cell_y = int(pos[1])
 
             ## we always want to append the starting cell
-            entries.append(CellTraceEntry(self.world_map[(cell_x, cell_y)], 0, "inside"))
+            entries.append(CellTraceEntry(self.world_map[(cell_x, cell_y)], 0, EDirection.NONE))
             ## if we are inside of a cell that is not "empty", set first_hit_distance
             if (entries[0].cell.type != ECellType.Empty):
                 first_hit_distance = 0
@@ -122,7 +122,6 @@ init python:
             
             depth = 0
 
-
             while depth < distance:
 
                 ## figure out which side of the cell we hit
@@ -130,12 +129,12 @@ init python:
                     depth = side_distance_x
                     side_distance_x += delta_distance_x
                     cell_x += step_x
-                    cell_side = "east" if step_x < 0 else "west"
+                    cell_side = EDirection.East if step_x < 0 else EDirection.West
                 else:
                     depth = side_distance_y
                     side_distance_y += delta_distance_y
                     cell_y += step_y
-                    cell_side = "south" if step_y < 0 else "north"
+                    cell_side = EDirection.South if step_y < 0 else EDirection.North
 
                 ## try to get the cell
                 cell = self.world_map.get((cell_x, cell_y))
