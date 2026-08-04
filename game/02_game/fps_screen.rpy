@@ -141,6 +141,19 @@ screen fps_screen():
         #     color "fff"
         #     align 0.5, 0.5
 
+    fixed:
+        pos 0, 700
+        xysize 1.0, 0.1
+        # add Solid("#f0f")
+        # text "LOG":
+        #     color "fff"
+        #     align 0.5, 0.5
+
+        if (fps.notification.is_active):
+            text fps.notification.text:
+                color "fff"
+                align 0.5, 0.5
+
     fixed: ## UI BLOCK RIGHT
         pos 1100, 818
         xysize 814, 256

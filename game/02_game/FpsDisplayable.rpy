@@ -12,6 +12,7 @@ init python:
             self.framerate_avg_time = 5
             self.scale = scale
 
+            self.notification = Notification()
             self.map = Map01(scale)
             self.map.world_map[(7,8)] = DoorCell((7,8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal)
             self.map.world_map[(7,14)] = DoorCell((7,14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Vertical)
@@ -104,6 +105,8 @@ init python:
             
             ## update delta time
             self.update_delta_time(st)
+
+            self.notification.update(self.delta_time)
 
             ## stop the game if the player dies
             if (not self.player.is_alive):

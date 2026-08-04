@@ -16,6 +16,8 @@ init python:
 
             self.game.player.apply_armor(self.armor_amount)
 
+            self.game.notification.show(f"{self.armor_amount} armor was added!", notification_type=ENotificationType.Pickup)
+
 
         def _can_pick_up(self):
             

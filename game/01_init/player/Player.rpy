@@ -451,9 +451,7 @@ init python:
                 ## trigger reload
                 weapon.start_reload()
             else:
-                
-                ## TODO: trigger text message on screen saying out of ammo
-                pass
+                self.game.notification.show("No more ammo!", notification_type=ENotificationType.WeaponAction)
 
 
         def _on_horizontal_move_input(self, value):

@@ -6,7 +6,7 @@ init python:
             super().__init__(game, revolver_pickup_anim, pos, scale=0.2, height_shift=2.4)
 
             self.weapon = RevolverWeapon(self.game.player)
-            self.ammo_amount = 20
+            self.ammo_amount = 18
 
         @property
         def ammo_type(self):
@@ -23,10 +23,14 @@ init python:
                 
                 self.game.player.add_weapon(self.weapon, ammo=self.ammo_amount)
 
+                self.game.notification.show(f"{self.weapon.name} and {self.ammo_amount} {self.weapon.ammo_type.name} ammo was picked up!", notification_type=ENotificationType.Pickup)
+
             ## otherwise we just give them the ammo
             else:
             
                 self.game.player.add_ammo(self.ammo_type, self.ammo_amount)
+
+                self.game.notification.show(f"{self.ammo_amount} {self.weapon.ammo_type.name} ammo was picked up!", notification_type=ENotificationType.Pickup)
 
 
         def _can_pick_up(self):

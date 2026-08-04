@@ -16,6 +16,8 @@ init python:
 
             self.game.player.apply_heal(self.healing_amount)
 
+            self.game.notification.show(f"{self.healing_amount} health was restored!", notification_type=ENotificationType.Pickup)
+
 
         def _can_pick_up(self):
             
