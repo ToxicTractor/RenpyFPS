@@ -90,13 +90,40 @@ init python:
 
         def interact(self):
 
-            if (not self.is_open_state and self.open_audio is not None):
+            if (self.is_open_state):
+                self.close_door()
+            else:
+                self.open_door()
+
+            # if (not self.is_open_state and self.open_audio is not None):
+            #     renpy.play(self.open_audio)
+
+            # if (self.is_open_state and self.close_audio is not None):
+            #     renpy.play(self.close_audio)
+
+            # self.is_open_state = not self.is_open_state
+
+        
+        def open_door(self):
+
+            if (self.is_open_state):
+                return
+
+            if (self.open_audio):
                 renpy.play(self.open_audio)
 
-            if (self.is_open_state and self.close_audio is not None):
+            self.is_open_state = True
+
+
+        def close_door(self):
+
+            if (not self.is_open_state):
+                return
+
+            if (self.close_audio):
                 renpy.play(self.close_audio)
 
-            self.is_open_state = not self.is_open_state
+            self.is_open_state = False
 
 
         def update(self, delta_time):

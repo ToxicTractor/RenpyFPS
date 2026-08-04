@@ -14,11 +14,13 @@ init python:
 
             self.notification = Notification()
             self.map = Map01(scale)
-            self.map.world_map[(7,8)] = DoorCell((7,8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal)
-            self.map.world_map[(7,14)] = DoorCell((7,14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Vertical)
-            self.map.world_map[(7,14)].is_locked = True
-            self.map.world_map[(7,13)] = ButtonCell((7,13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.East, EDirection.West])
-            self.map.world_map[(7,13)].button_event.add_listener(self.map.world_map[7,14].interact)
+            self.map.world_map[(7, 8)] = DoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal)
+            self.map.world_map[(7, 14)] = DoorCell((7, 14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Vertical)
+            self.map.world_map[(7, 14)].is_locked = True
+            self.map.world_map[(7, 13)] = ButtonCell((7, 13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.East, EDirection.West])
+            self.map.world_map[(7, 13)].button_event.add_listener(self.map.world_map[7,14].interact)
+            self.map.world_map[(2, 25)] = DoorCell((2, 25), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal)
+            self.map.world_map[(2, 25)].is_locked = True
             self.map.world_map[(0, 14)]._overlay_images = self.map.world_map[(0, 14)]._construct_overlay_images_dict({ EDirection.East: FPS_WALL_OVERLAY_TEXTURES[0] })
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
@@ -47,6 +49,13 @@ init python:
                 ZombieNPC(self, pos=(26.5, 4.5)),
                 ZombieNPC(self, pos=(27.5, 4.5))
             ]
+
+            self.triggers = {
+                "door_1_trigger": Trigger(self, (2, 24), (1, 3), trigger_type=ETriggerType.Any)
+            }
+            ## link trigger to door cell
+            self.triggers["door_1_trigger"].enter_event.add_listener(self.map.world_map[(2, 25)].open_door)
+            self.triggers["door_1_trigger"].exit_event.add_listener(self.map.world_map[(2, 25)].close_door) 
 
             self.screen_effect = ScreenEffect()
 
@@ -122,6 +131,9 @@ init python:
 
             for npc in self.npcs:
                 npc.update(self.delta_time)
+
+            for trigger in self.triggers.values():
+                trigger.update(self.delta_time)
 
             self.screen_effect.update(self.delta_time)
 

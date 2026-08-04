@@ -70,12 +70,14 @@ init -100 python:
         def _resolve_cell_collisions(game, x, y, radius):
             changed = False
             world_map = game.map.world_map
+            max_x = game.map.width - 1
+            max_y = game.map.height - 1
 
             ## find the cells we need to check collisions for
-            min_coord_x = int(x - radius - 1)
-            max_coord_x = int(x + radius + 1)
-            min_coord_y = int(y - radius - 1)
-            max_coord_y = int(y + radius + 1)
+            min_coord_x = clamp(int(x - radius - 1), 0, max_x)
+            max_coord_x = clamp(int(x + radius + 1), 0, max_x)
+            min_coord_y = clamp(int(y - radius - 1), 0, max_y)
+            max_coord_y = clamp(int(y + radius + 1), 0, max_y)
 
             for cell_y in range(min_coord_y, max_coord_y + 1):
                 for cell_x in range(min_coord_x, max_coord_x + 1):
