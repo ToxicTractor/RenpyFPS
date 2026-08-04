@@ -1,11 +1,12 @@
 init python:
     class WallCell(CellBase):
-        def __init__(self, coord, images, overlay_images=None):
+        def __init__(self, coord, images, overlay_images=None, mirror_overlay=False):
             super().__init__(coord)
 
             self.type = ECellType.Wall
             self._images = self._construct_wall_images_dict(images)
             self._overlay_images = self._construct_overlay_images_dict(overlay_images)
+            self.mirror_overlay = mirror_overlay
 
 
         def _construct_wall_images_dict(self, images):
@@ -13,6 +14,7 @@ init python:
                 return images
             else:
                 return {key:images for key in (FpsConstants.DIRECTIONS)}
+
 
         def _construct_overlay_images_dict(self, images):
             new_dict = {}
@@ -27,12 +29,23 @@ init python:
                 if (side not in images):
                     continue
 
+                overlay_image = self._apply_image_flip(images[side], side)
+
                 new_dict[side] = Composite(
                     (FpsSettings.TEXTURE_SIZE, FpsSettings.TEXTURE_SIZE),
                     (0, 0), wall_image,
-                    (0, 0), images[side])
+                    (0, 0), overlay_image)
 
             return new_dict
+
+
+        def _apply_image_flip(self, image, direction):
+
+            if ((direction in (EDirection.East, EDirection.North) and not self.mirror_overlay) or
+                (direction in (EDirection.West, EDirection.South) and self.mirror_overlay)):
+                return Transform(image, xzoom=-1.0)
+            else:
+                return image
 
 
         def get_texture(self, side):

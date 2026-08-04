@@ -1,19 +1,20 @@
 init python:
     class ButtonCell(CellBase):
-        def __init__(self, coord, wall_images, on_images, off_images, sides, is_on=False):
+        def __init__(self, coord, wall_images, on_images, off_images, sides, is_on=False, mirrored=False):
             super().__init__(coord)
 
             self.type = ECellType.Button
             self.sides = sides
             self.is_on = is_on
+            self.mirrored = mirrored
             self.button_event = GameEvent()
 
             self.on_audio = "audio/fps/map/buttons/turn_on_switch.ogg"
             self.off_audio = "audio/fps/map/buttons/turn_off_switch.ogg"
 
             self._wall_images = self._construct_wall_images_dict(wall_images)
-            self._on_images = self._construct_on_images_dict(on_images)
-            self._off_images = self._construct_off_images_dict(off_images)
+            self._on_images = self._construct_overlay_images_dict(on_images)
+            self._off_images = self._construct_overlay_images_dict(off_images)
 
         @property
         def overlay_image(self):
@@ -26,39 +27,37 @@ init python:
             else:
                 return {key:wall_images for key in (FpsConstants.DIRECTIONS)}
         
-        def _construct_on_images_dict(self, on_images):
-            if (not isinstance(on_images, dict)):
-                on_images = {key:on_images for key in (FpsConstants.DIRECTIONS)}
 
+        def _construct_overlay_images_dict(self, images):
             new_dict = {}
+            if (images is None):
+                return new_dict
+
+            if (not isinstance(images, dict)):
+                images = {key:images for key in (FpsConstants.DIRECTIONS)}
+
             for side, wall_image in self._wall_images.items():
 
-                if (side not in on_images):
+                if (side not in images):
                     continue
+
+                overlay_image = self._apply_image_flip(images[side], side)
 
                 new_dict[side] = Composite(
                     (FpsSettings.TEXTURE_SIZE, FpsSettings.TEXTURE_SIZE),
                     (0, 0), wall_image,
-                    (0, 0), on_images[side])
+                    (0, 0), overlay_image)
 
             return new_dict
 
-        def _construct_off_images_dict(self, off_images):
-            if (not isinstance(off_images, dict)):
-                off_images = {key:off_images for key in (FpsConstants.DIRECTIONS)}
+        
+        def _apply_image_flip(self, image, direction):
 
-            new_dict = {}
-            for side, wall_image in self._wall_images.items():
-
-                if (side not in off_images):
-                    continue
-
-                new_dict[side] = Composite(
-                    (FpsSettings.TEXTURE_SIZE, FpsSettings.TEXTURE_SIZE),
-                    (0, 0), wall_image,
-                    (0, 0), off_images[side])
-            
-            return new_dict
+            if ((direction in (EDirection.East, EDirection.North) and not self.mirrored) or
+                (direction in (EDirection.West, EDirection.South) and self.mirrored)):
+                return Transform(image, xzoom=-1.0)
+            else:
+                return image
 
 
         def get_texture(self, side):
