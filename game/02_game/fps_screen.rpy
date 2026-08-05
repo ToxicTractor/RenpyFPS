@@ -3,7 +3,6 @@ screen fps_screen():
     style_prefix "fps"
 
     default fps = FpsDisplayable(scale=25)
-    default fps_fader = FpsFadeOverlay(fps)
     default fps_ui = FpsUIOverlay(fps)
 
     add fps
@@ -186,6 +185,33 @@ screen fps_screen():
                         align 0.0, 0.5
                         color "#fff"
     
+    if (fps.is_won):
+
+        fixed:
+            align 0.5, 0.5
+            xysize 1.0, 1.0
+            add Solid("#111f") at t_fps_fade_from_clear(0.5, 0.5)
+            text "You won! Here have a cookie!":
+                font "images/fps/ui/fonts/fps_font.ttf"
+                size 80
+                align 0.5, 0.5
+                color "#fff"
+                outlines [(2, "#111", 0, 0)]
+
+            add "cookie":
+                align 0.5, 0.25
+                zoom 0.25
+
+            button:
+                xysize(200, 100)
+                align 0.5, 0.65
+                action MainMenu(confirm=False, save=False) ## TODO: this is a temporary solution. Should probably not boot us to main menu in a real game
+                fixed:
+                    add Solid("#111")
+                    add Frame("images/fps/ui/frame.png", 12, 12)
+                    text "Yay!":
+                        align 0.5, 0.5
+
     if (not fps.player.is_alive):
         
         fixed:
@@ -197,14 +223,14 @@ screen fps_screen():
                 size 120
                 align 0.5, 0.5
                 color "#800"
-                outlines [(2, "fff", 0, 0)]
+                outlines [(2, "#fff", 0, 0)]
 
             hbox:
                 align 0.5, 0.65
 
                 button:
                     xysize(200, 100)
-                    action Jump("start")
+                    action Function(fps_fader.fade_out_jump_in, "start_game")
                     fixed:
                         add Solid("#111")
                         add Frame("images/fps/ui/frame.png", 12, 12)
@@ -215,12 +241,15 @@ screen fps_screen():
 
                 button:
                     xysize(200, 100)
-                    action MainMenu(confirm=False, save=False)
+                    action MainMenu(confirm=False, save=False) ## TODO: this is a temporary solution. Should probably not boot us to main menu in a real game
                     fixed:
                         add Solid("#111")
                         add Frame("images/fps/ui/frame.png", 12, 12)
                         text "Quit":
                             align 0.5, 0.5
 
-    add fps_fader
+    #add fps_fader
 
+
+        
+        

@@ -11,6 +11,7 @@ init python:
             self.framerate_buffer = []
             self.framerate_avg_time = 5
             self.scale = scale
+            self.is_won = False
 
             self.notification = Notification()
             self.map = Map01(scale)
@@ -51,11 +52,15 @@ init python:
             ]
 
             self.triggers = {
-                "door_1_trigger": Trigger(self, (2, 24), (1, 3), trigger_type=ETriggerType.Any)
+                "door_1_trigger": Trigger(self, (2, 24), (1, 3), trigger_type=ETriggerType.Any),
+                "win_trigger": Trigger(self, (4, 4), (7, 4), once_only=True)
             }
             ## link trigger to door cell
             self.triggers["door_1_trigger"].enter_event.add_listener(self.map.world_map[(2, 25)].open_door)
             self.triggers["door_1_trigger"].exit_event.add_listener(self.map.world_map[(2, 25)].close_door) 
+
+            ## set up the win trigger
+            self.triggers["win_trigger"].enter_event.add_listener(self.win)
 
             self.screen_effect = ScreenEffect()
 
@@ -66,8 +71,10 @@ init python:
             self.player.heal_event.add_listener(lambda: self.trigger_screen_effect("#0f05", 0.1))
             self.player.gain_armor_event.add_listener(lambda: self.trigger_screen_effect("#00f5", 0.1))
 
-            self.fade_to_black_event = GameEvent()
-            self.fade_to_clear_event = GameEvent()
+            self.won_event = GameEvent()
+
+            ## fade from black at the beginning of the game
+            fps_fader.fade_to_clear()
 
 
         @staticmethod
@@ -118,7 +125,7 @@ init python:
             self.notification.update(self.delta_time)
 
             ## stop the game if the player dies
-            if (not self.player.is_alive):
+            if (not self.player.is_alive or self.is_won):
                 return
 
             self.player.update(self.delta_time, st)
@@ -174,4 +181,9 @@ init python:
 
 
         def trigger_screen_effect(self, color, duration):
-            self.screen_effect.trigger(color, duration) 
+            self.screen_effect.trigger(color, duration)
+
+
+        def win(self):
+            self.is_won = True
+            self.won_event.invoke()

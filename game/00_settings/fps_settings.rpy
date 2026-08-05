@@ -24,3 +24,6 @@ init -100 python:
         ## Texture settings
         TEXTURE_SIZE = 256
         HALF_TEXTURE_SIZE = TEXTURE_SIZE // 2
+
+        ## Fade settings
+        DEFAULT_FADE_DURATION = 0.5
