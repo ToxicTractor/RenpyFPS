@@ -1,7 +1,7 @@
 init -1 python:
     class NPC(SpriteObject, ABC): ## abstract class to enforce inheritance for enemy types
-        def __init__(self, game, pos, sprite_anim=None, scale=1.0, height_shift=0.0):
-            super().__init__(game, sprite_anim, pos=pos, scale=scale, height_shift=height_shift)
+        def __init__(self, game, pos, sprite_anim=None, scale=1.0, height_shift=0.0, is_solid=True):
+            super().__init__(game, sprite_anim, pos=pos, scale=scale, height_shift=height_shift, is_solid=is_solid)
 
             #region Override variables
             ## animations
@@ -19,7 +19,6 @@ init -1 python:
             ## stats
             self.attack_range = 0
             self.speed = 0
-            self.radius = 0
             self.hit_size = 0
             self.health = 0
             self.attack_damage = 0
@@ -48,6 +47,10 @@ init -1 python:
             self.hurt_event = GameEvent()
             self.death_event = GameEvent()
 
+
+        @property
+        def is_solid(self):
+            return self.is_alive and self._is_solid
 
         @property
         def coord(self):

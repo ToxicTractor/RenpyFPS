@@ -27,25 +27,24 @@ init -100 python:
             changed = False
             radius = actor.radius
 
-            ## TODO: implement collisions for all SpriteObjects, currently only NPCs have collisions
-            for npc in game.npcs:
+            for sprite_object in (game.npcs + game.sprite_objects):
                 
                 ## we don't collide with ourselves
-                if npc == actor:
+                if sprite_object == actor:
                     continue
 
-                ## if the npc is dead just skip it
-                if not npc.is_alive:
+                ## we only collide with solid objects
+                if (not sprite_object.is_solid):
                     continue
 
-                npc_check_distance = radius + npc.radius
+                check_distance = radius + sprite_object.radius
                 
-                dx = x - npc.pos_x
-                dy = y - npc.pos_y
+                dx = x - sprite_object.pos_x
+                dy = y - sprite_object.pos_y
 
-                distance_sqrd = sqr_dist(npc.pos, (x, y))
+                distance_sqrd = sqr_dist(sprite_object.pos, (x, y))
                 ## if distance is larger than check distance, no correction is needed
-                if (distance_sqrd >= npc_check_distance ** 2):
+                if (distance_sqrd >= check_distance ** 2):
                     continue
 
                 ## correct x and y
@@ -56,7 +55,7 @@ init -100 python:
                     dy = 0
                     distance = 1
                 
-                penetration = npc_check_distance - distance
+                penetration = check_distance - distance
                 
                 x += dx / distance * penetration
                 y += dy / distance * penetration

@@ -1,12 +1,14 @@
 init -2 python:
     class SpriteObject:
-        def __init__(self, game, sprite_anim, pos=(11.5, 9.5), scale=1.0, height_shift=0.0):
+        def __init__(self, game, sprite_anim, pos=(11.5, 9.5), scale=1.0, height_shift=0.0, is_solid=False, radius=0.25):
             self.game = game
             self.player = game.player
             self.sprite_anim = sprite_anim
             self.pos_x, self.pos_y = pos
             self.scale = scale
             self.height_shift = height_shift
+            self._is_solid = is_solid
+            self.radius = radius
 
             self.sprite_width, self.sprite_height = get_image_size(sprite_anim.image)
             self.half_image_width = self.sprite_width // 2
@@ -37,6 +39,10 @@ init -2 python:
         @property
         def coord_y(self):
             return int(self.pos_y)
+        
+        @property
+        def is_solid(self):
+            return self._is_solid
 
         def update(self, delta_time):
             if (self.sprite_anim.duration and self.sprite_anim.duration > 0):

@@ -27,15 +27,15 @@ init python:
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.raycaster = Raycaster(self.player, self.map)
             self.object_renderer = ObjectRenderer(self, self.player, self.map)
-            self.sprite_objects = []
-
-            self.sprite_objects.append(SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27))
-            self.sprite_objects.append(SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05))
             
-            self.sprite_objects.append(HealthPickup(self, (2.5, 14.5)))
-            self.sprite_objects.append(ArmorPickup(self, (3.5, 14.5)))
-            self.sprite_objects.append(ShotgunAmmoPickup(self, (2.5, 15.5)))
-            self.sprite_objects.append(RevolverPickup(self, (7.5, 4.5)))
+            self.sprite_objects = [
+                SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27, is_solid=True),
+                SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05),
+                HealthPickup(self, (2.5, 14.5)),
+                ArmorPickup(self, (3.5, 14.5)),
+                ShotgunAmmoPickup(self, (2.5, 15.5)),
+                RevolverPickup(self, (7.5, 4.5))
+            ]
 
             self.npcs = [
                 ZombieNPC(self, pos=(2.5, 5.5)),
@@ -45,7 +45,6 @@ init python:
                 ZombieNPC(self, pos=(16.5, 22.5)),
                 ZombieNPC(self, pos=(21.5, 28.5)),
                 ZombieNPC(self, pos=(28.5, 22.5)),
-                #ZombieNPC(self, pos=(27.5, 14.5)),
                 ZombieNPC(self, pos=(17.5, 8.5)),
                 ZombieNPC(self, pos=(26.5, 4.5)),
                 ZombieNPC(self, pos=(27.5, 4.5))
@@ -78,7 +77,7 @@ init python:
 
 
         @staticmethod
-        def modify_renpy_keymaps():
+        def modify_renpy_keymaps(): #TODO: Move this method to settings file
             
             config.keymap["screenshot"] = []
             config.keymap["director"] = []
@@ -87,11 +86,11 @@ init python:
 
 
         @staticmethod
-        def restore_keymaps():
+        def restore_keymaps(): #TODO: Move this method to settings file
             config.keymap["screenshot"] = ['alt_K_s', 'alt_shift_K_s', 'noshift_K_s']
             config.keymap["director"] = ['noshift_K_d']
 
-            renpy.clear_keymap_cache()
+            renpy.clear_keymap_cache() 
 
 
         def render(self, width, height, st, at):
