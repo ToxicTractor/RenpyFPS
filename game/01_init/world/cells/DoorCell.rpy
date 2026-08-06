@@ -1,6 +1,6 @@
 init python:
     class DoorCell(CellBase):
-        def __init__(self, coord, image, slim_side_image, offset=0.0, orientation=EOrientation.Horizontal):
+        def __init__(self, coord, image, slim_side_image, offset=0.0, orientation=EOrientation.Horizontal, flip_texture=False, flip_open_direction=False):
             super().__init__(coord)
 
             self.type = ECellType.Door
@@ -8,6 +8,8 @@ init python:
             self.image_ratios = [1, 0.125]
             self.offset = offset
             self.orientation = orientation
+            self.flip_texture = flip_texture
+            self.flip_open_direction = flip_open_direction
             self.open_amount = 0.0
             self.thickness = 0.125
             self.speed = 2.5
@@ -16,6 +18,9 @@ init python:
 
             self.open_audio = "audio/fps/map/doors/door_open.ogg"
             self.close_audio = "audio/fps/map/doors/door_close.ogg"
+
+            if (self.flip_texture):
+                self.images[0] = Transform(self.images[0], xzoom=-1)
         
         @property
         def is_npc_walkable(self):
@@ -62,7 +67,11 @@ init python:
             if self.orientation == EOrientation.Horizontal:
                 if face in (EDirection.North, EDirection.South):
                     # Large faces
-                    offset = hit_x - (self.coord_x + self.open_amount)
+
+                    if (self.flip_open_direction):
+                        offset = hit_x - (self.coord_x + 1 - self.open_amount)
+                    else:
+                        offset = hit_x - (self.coord_x + self.open_amount)
                 else:
                     # Thin ends
                     offset = (hit_y - aabb.min_y) / self.thickness
@@ -70,7 +79,10 @@ init python:
             elif  self.orientation == EOrientation.Vertical:
                 if face in (EDirection.West, EDirection.East):
                     # Large faces
-                    offset = hit_y - (self.coord_y + self.open_amount)
+                    if (self.flip_open_direction):
+                        offset = hit_y - (self.coord_y + 1 - self.open_amount)
+                    else:
+                        offset = hit_y - (self.coord_y + self.open_amount)
                 else:
                     # Thin ends
                     offset = (hit_x - aabb.min_x) / self.thickness
@@ -94,14 +106,6 @@ init python:
                 self.close_door()
             else:
                 self.open_door()
-
-            # if (not self.is_open_state and self.open_audio is not None):
-            #     renpy.play(self.open_audio)
-
-            # if (self.is_open_state and self.close_audio is not None):
-            #     renpy.play(self.close_audio)
-
-            # self.is_open_state = not self.is_open_state
 
         
         def open_door(self):
@@ -146,15 +150,23 @@ init python:
             cell_x, cell_y = self.coord
         
             if (self.orientation == EOrientation.Horizontal):
-                min_x = cell_x + self.open_amount
-                max_x = cell_x + 1
+                if (self.flip_open_direction):
+                    min_x = cell_x
+                    max_x = cell_x + 1 - self.open_amount
+                else:
+                    min_x = cell_x + self.open_amount
+                    max_x = cell_x + 1
                 min_y = cell_y + 0.5 + self.offset - self.thickness / 2
                 max_y = cell_y + 0.5 + self.offset + self.thickness / 2
             elif (self.orientation == EOrientation.Vertical):
                 min_x = cell_x + 0.5 + self.offset - self.thickness / 2
                 max_x = cell_x + 0.5 + self.offset + self.thickness / 2
-                min_y = cell_y + self.open_amount
-                max_y = cell_y + 1
+                if (self.flip_open_direction):
+                    min_y = cell_y
+                    max_y = cell_y + 1 - self.open_amount
+                else:
+                    min_y = cell_y + self.open_amount
+                    max_y = cell_y + 1
             
             self._cached_aabb = AABB(min_x, min_y, max_x, max_y)
 

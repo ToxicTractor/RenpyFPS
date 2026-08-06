@@ -15,7 +15,7 @@ init python:
 
             self.notification = Notification()
             self.map = Map01(scale)
-            self.map.world_map[(7, 8)] = DoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal)
+            self.map.world_map[(7, 8)] = DoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal, flip_texture=True, flip_open_direction=True)
             self.map.world_map[(7, 14)] = DoorCell((7, 14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Vertical)
             self.map.world_map[(7, 14)].is_locked = True
             self.map.world_map[(7, 13)] = ButtonCell((7, 13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.East, EDirection.West])
