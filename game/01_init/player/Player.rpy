@@ -68,6 +68,8 @@ init python:
                 "shotgun": AmmoCount(),
             }
 
+            self.inventory = Inventory()
+
             self.is_alive = True
 
             self.health = 100
@@ -357,7 +359,7 @@ init python:
 
                 ## if interaction is possible we trigger interact and then return to avoid triggering anything behind the first thing
                 if (trace.cell.is_interactable(trace.cell_side)):
-                    trace.cell.interact()
+                    trace.cell.interact(self.game)
                     return
 
 

@@ -1,6 +1,5 @@
 init -1 python:
     class Notification():
-        DEFAULT_NOTIFICATION_DURATION = 2.5
         def __init__(self):
             self.notification = None
             self.timer = None
@@ -32,7 +31,7 @@ init -1 python:
                     self.notification = None
         
 
-        def show(self, text, *, duration=DEFAULT_NOTIFICATION_DURATION, notification_type=ENotificationType.Default):
+        def show(self, text, *, duration=FpsConstants.DEFAULT_NOTIFICATION_DURATION, notification_type=ENotificationType.Default):
             self.notification = NotificationEntry(text, duration, notification_type)
             self.timer = duration
 

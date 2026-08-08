@@ -1,6 +1,33 @@
+define FPS_BUTTON_TEXTURES = {
+    0: Image("images/fps/textures/buttons/switch_01_on.png"),
+    1: Image("images/fps/textures/buttons/switch_01_off.png"),
+    2: Image("images/fps/textures/buttons/blue_keycard_reader_on.png"),
+    3: Image("images/fps/textures/buttons/blue_keycard_reader_off.png"),
+    4: Image("images/fps/textures/buttons/red_keycard_reader_on.png"),
+    5: Image("images/fps/textures/buttons/red_keycard_reader_off.png"),
+    6: Image("images/fps/textures/buttons/yellow_keycard_reader_on.png"),
+    7: Image("images/fps/textures/buttons/yellow_keycard_reader_off.png"),
+}
+
 init python:
     class ButtonCell(CellBase):
-        def __init__(self, coord, wall_images, on_images, off_images, sides, is_on=False, mirrored=False):
+        def __init__(self, 
+            coord:                      tuple, ## int, int 
+            wall_images:                dict, ## single Image or dict (EDirection, Image)
+            on_images:                  dict, ## single Image or dict (EDirection, Image)
+            off_images:                 dict, ## single Image or dict (EDirection, Image)
+            sides:                      list, ## list of EDirections
+            on_audio:                   str=None,
+            off_audio:                  str=None,
+            unlock_audio:               str=None,
+            locked_audio:               str=None,
+            is_on:                      bool=False, 
+            mirrored:                   bool=False,             
+            can_be_closed:              bool=True,
+            is_locked:                  bool=False, 
+            unlocked_by_item:           str=None,
+            consumed_on_unlock_count:   int=0,
+            locked_notification:        str=FpsConstants.LOCKED_BUTTON_NOTIFICATION):
             super().__init__(coord)
 
             self.type = ECellType.Button
@@ -9,8 +36,16 @@ init python:
             self.mirrored = mirrored
             self.button_event = GameEvent()
 
-            self.on_audio = "audio/fps/map/buttons/turn_on_switch.ogg"
-            self.off_audio = "audio/fps/map/buttons/turn_off_switch.ogg"
+            self.can_be_closed = can_be_closed
+            self.is_locked = is_locked
+            self.unlocked_by_item = unlocked_by_item
+            self.consumed_on_unlock_count = consumed_on_unlock_count
+            self.locked_notification = locked_notification
+
+            self.on_audio = on_audio #"audio/fps/map/buttons/turn_on_switch.ogg"
+            self.off_audio = off_audio #"audio/fps/map/buttons/turn_off_switch.ogg"
+            self.unlock_audio = unlock_audio
+            self.locked_audio = locked_audio
 
             self._wall_images = self._construct_wall_images_dict(wall_images)
             self._on_images = self._construct_overlay_images_dict(on_images)
@@ -73,10 +108,16 @@ init python:
             if (side is None):
                 return False
 
+            if (not self.can_be_closed and self.is_on):
+                return False
+
             return side in self.sides
 
 
-        def interact(self):
+        def interact(self, game):
+
+            if (not self._try_unlock(game)):
+                return
 
             self.is_on = not self.is_on
 
@@ -93,7 +134,62 @@ init python:
             return hit_direction in self.sides
 
 
-define FPS_BUTTON_TEXTURES = {
-    0: Image("images/fps/textures/buttons/switch_01_on.png"),
-    1: Image("images/fps/textures/buttons/switch_01_off.png"),
-}
+        def _try_unlock(self, game) -> bool: ## returns true if the button was not locked or was unlocked
+
+            ## if the buton wasnt locked, we just return true
+            if (not self.is_locked):
+                return True
+
+            ## if the button is not unlocked by an item, we cant use it so we show a generic notification
+            if (self.unlocked_by_item is None):
+                
+                if (self.locked_audio):
+                    renpy.play(self.locked_audio)
+
+                game.notification.show(self.locked_notification)
+                return False
+            
+            ## ------------------------------
+            ## button consumes item on unlock
+            ## ------------------------------
+            if (self.consumed_on_unlock_count > 0):
+
+                ## if the player has enough of the required item we unlock the button and remove the items from the player inventory
+                if (game.player.inventory.has_item(self.unlocked_by_item, self.consumed_on_unlock_count)):
+                    self.is_locked = False
+                    
+                    if (self.unlock_audio):
+                        renpy.play(self.unlock_audio)
+
+                    game.player.inventory.remove_item(self.unlocked_by_item, self.consumed_on_unlock_count)
+                    game.notification.show(f"{self.consumed_on_unlock_count} x {self.unlocked_by_item.name} was removed.")
+
+                    return True
+                
+                ## if the player doesn't have enough of the required item we just show a notification
+                if (self.locked_audio):
+                    renpy.play(self.locked_audio)
+
+                game.notification.show(f"Requires {self.consumed_on_unlock_count} x {self.unlocked_by_item.name}.")
+                return False
+            
+            ## -------------------------------------
+            ## button doesn't consume item on unlock
+            ## -------------------------------------
+            
+            ## if the player has the item we unlock the button
+            if (game.player.inventory.has_item(self.unlocked_by_item)):
+                self.is_locked = False
+                
+                if (self.unlock_audio):
+                    renpy.play(self.unlock_audio)
+
+                return True
+            
+            ## if the player doesn't have the item we show a notification
+            if (self.locked_audio):
+                renpy.play(self.locked_audio)
+
+            game.notification.show(f"Requires {self.unlocked_by_item.name}.")
+
+            return False

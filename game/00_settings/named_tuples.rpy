@@ -1,4 +1,7 @@
 init -100 python:
+    ## widely used
+    Vector2 = namedtuple("Position", ["x", "y"])
+    Rect = namedtuple("Rect", ["x", "y", "width", "height"])
 
     ## axis aligned bounding box used for collisions
     AABB = namedtuple("AABB", ["min_x", "min_y", "max_x", "max_y"])
@@ -9,3 +12,6 @@ init -100 python:
     
     ## notification
     NotificationEntry = namedtuple("NotificationEntry", ["text", "duration", "type"])
+
+    ## inventory and items
+    InventoryItem = namedtuple("InventoryItem", ["id", "name", "icon"])

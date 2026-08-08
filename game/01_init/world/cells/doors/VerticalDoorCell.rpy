@@ -8,6 +8,7 @@ init python:
             open_direction:             EDirection, 
             open_audio:                 str=None, 
             close_audio:                str=None, 
+            unlock_audio:               str=None, 
             locked_interact_audio:      str=None, 
             offset:                     float=0.0,
             thickness:                  float=1.0,
@@ -15,8 +16,12 @@ init python:
             side_texture_aspect_ratio:  float=1.0,
             start_open:                 bool=False,
             flip_main_texture:          bool=False, 
+            allow_interaction:          bool=True,
+            can_be_closed:              bool=True,
             is_locked:                  bool=False, 
-            can_be_closed:              bool=True):
+            unlocked_by_item:           str=None,
+            consumed_on_unlock_count:   int=0,
+            locked_notification:        str=FpsConstants.LOCKED_DOOR_NOTIFICATION):
             super().__init__(
                 coord, 
                 main_texture, 
@@ -25,6 +30,7 @@ init python:
                 open_direction, 
                 open_audio, 
                 close_audio, 
+                unlock_audio,
                 locked_interact_audio, 
                 offset, 
                 thickness, 
@@ -32,8 +38,12 @@ init python:
                 side_texture_aspect_ratio, 
                 start_open, 
                 flip_main_texture, 
-                is_locked, 
-                can_be_closed)
+                allow_interaction,
+                can_be_closed,
+                is_locked,
+                unlocked_by_item,
+                consumed_on_unlock_count,
+                locked_notification)
             
             self.type = ECellType.VerticalDoor
             ## plane textures should be uniform as the surface does not have propper texture mapping

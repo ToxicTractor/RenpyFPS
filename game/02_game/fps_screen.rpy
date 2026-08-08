@@ -8,8 +8,7 @@ screen fps_screen():
     add fps
     add fps_ui
 
-    #region ## UI BLOCK LEFT
-    fixed: 
+    fixed: ## UI BLOCK LEFT
         pos 6, 818
         xysize 814, 256
         # add Solid("#0ff")
@@ -130,8 +129,6 @@ screen fps_screen():
 
         #endregion
 
-    #endregion
-
     fixed: ## UI FACE BLOCK
         pos 832, 818
         xysize 256, 256
@@ -153,13 +150,72 @@ screen fps_screen():
                 color "fff"
                 align 0.5, 0.5
 
+    $ block_width = 814
+    $ block_height = 256
     fixed: ## UI BLOCK RIGHT
         pos 1100, 818
-        xysize 814, 256
+        xysize block_width, block_height
         # add Solid("#ff0")
         # text "BLOCK RIGHT":
         #     color "000"
         #     align 0.5, 0.5
+
+        fixed:
+            xysize 1.0, 128
+            #add Solid("#0f0")
+            $ left_space = 12
+            $ title_height = 32
+            $ item_size = 64
+
+            fixed:
+                xysize 1.0, title_height
+                text "INVENTORY":
+                    align 0.5, 0.5
+
+            $ items_per_row = 12
+            $ item_spacing = 2
+            $ row_count = 2
+            $ shown_items = fps.player.inventory.get_shown_items()
+            $ shown_items_count = len(shown_items)
+
+            fixed:
+                pos left_space, title_height
+                xysize items_per_row * item_size + (items_per_row - 1) * item_spacing, row_count * item_size + (row_count - 1 * item_spacing)
+                add Solid("#222")
+
+            grid items_per_row row_count:
+                spacing 1
+                pos left_space, title_height
+                for i in range(items_per_row * row_count):
+                    if (i < shown_items_count):
+                        $ current_item_count = fps.player.inventory.get_item_count(shown_items[i]) 
+                        fixed:
+                            xysize item_size, item_size
+                            ## TODO: Replace these with buttons so we can add tooltips
+                            add shown_items[i].icon:
+                                align 0.5, 0.5
+                            if (current_item_count > 1):
+                                text f"{current_item_count}":
+                                    size 24
+                                    align 1.0, 1.0
+                    else:
+                        add Null(item_size, item_size)
+
+        fixed:
+            pos left_space, block_height - 64 - 16
+            xysize block_width - 2 * left_space, 64
+            #add Solid("#f0f")
+
+            button:
+                xysize(300, 1.0)
+                align 0.5, 0.5
+                action NullAction() ## button doesnt do anything yet
+                fixed:
+                    add Solid("#111")
+                    add Frame("images/fps/ui/frame.png", 12, 12)
+                    text "Menu":
+                        align 0.5, 0.5
+            
     
     if (fps.show_framerate):
         fixed: ## FRAME RATE COUNTER
@@ -247,9 +303,3 @@ screen fps_screen():
                         add Frame("images/fps/ui/frame.png", 12, 12)
                         text "Quit":
                             align 0.5, 0.5
-
-    #add fps_fader
-
-
-        
-        

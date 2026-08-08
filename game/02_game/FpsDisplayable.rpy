@@ -15,17 +15,17 @@ init python:
 
             self.notification = Notification()
             self.map = Map01(scale)
-            self.map.world_map[(7, 8)] = HorizontalDoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Right, flip_main_texture=True)
-            self.map.world_map[(7, 14)] = HorizontalDoorCell((7, 14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Left)
+            self.map.world_map[(7, 8)] = HorizontalDoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Right, flip_main_texture=True, is_locked=True, unlocked_by_item=FpsItem.RED_KEYCARD)
+            self.map.world_map[(7, 14)] = HorizontalDoorCell((7, 14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Left, allow_interaction=False)
             self.map.world_map[(7, 14)].is_locked = True
             self.map.world_map[(7, 13)] = ButtonCell((7, 13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.Right, EDirection.Left])
-            self.map.world_map[(7, 13)].button_event.add_listener(self.map.world_map[7,14].interact)
-            self.map.world_map[(2, 25)] = HorizontalDoorCell((2, 25), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Left)
-            self.map.world_map[(2, 25)].is_locked = True
+            self.map.world_map[(7, 16)] = ButtonCell((7, 16), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[2], FPS_BUTTON_TEXTURES[3], sides=[EDirection.Right], can_be_closed=False, is_locked=True, unlocked_by_item=FpsItem.BLUE_KEYCARD, consumed_on_unlock_count=1)
+            self.map.world_map[(7, 13)].button_event.add_listener(self.map.world_map[7,14].toggle_door_state)
+            self.map.world_map[(2, 25)] = HorizontalDoorCell((2, 25), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Left, is_locked=True, unlocked_by_item=FpsItem.BLUE_KEY, consumed_on_unlock_count=1)
             self.map.world_map[(0, 14)]._overlay_images = self.map.world_map[(0, 14)]._construct_overlay_images_dict({ EDirection.Right: FPS_WALL_OVERLAY_TEXTURES[0] })
 
-            self.map.world_map[(11, 21)] = VerticalDoorCell((11, 21), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Up)
-            self.map.world_map[(14, 18)] = VerticalDoorCell((14, 18), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Down)
+            self.map.world_map[(11, 21)] = VerticalDoorCell((11, 21), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Up, can_be_closed=False)
+            self.map.world_map[(14, 18)] = VerticalDoorCell((14, 18), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Down, allow_interaction=False)
 
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
@@ -38,7 +38,13 @@ init python:
                 HealthPickup(self, (2.5, 14.5)),
                 ArmorPickup(self, (3.5, 14.5)),
                 ShotgunAmmoPickup(self, (2.5, 15.5)),
-                RevolverPickup(self, (7.5, 4.5))
+                RevolverPickup(self, (7.5, 4.5)),
+                KeyPickup(self, (1.5, 18.5), red_keycard_pickup_anim, FpsItem.RED_KEYCARD),
+                KeyPickup(self, (1.5, 19.5), yellow_keycard_pickup_anim, FpsItem.YELLOW_KEYCARD),
+                KeyPickup(self, (1.5, 20.5), blue_keycard_pickup_anim, FpsItem.BLUE_KEYCARD),
+                KeyPickup(self, (1.5, 21.5), red_key_pickup_anim, FpsItem.RED_KEY),
+                KeyPickup(self, (1.5, 22.5), yellow_key_pickup_anim, FpsItem.YELLOW_KEY),
+                KeyPickup(self, (1.5, 23.5), blue_key_pickup_anim, FpsItem.BLUE_KEY),
             ]
 
             self.npcs = [
@@ -55,12 +61,12 @@ init python:
             ]
 
             self.triggers = {
-                "door_1_trigger": Trigger(self, (2, 24), (1, 3), trigger_type=ETriggerType.Any),
+                "door_1_trigger": Trigger(self, (12, 16), (5, 5), trigger_type=ETriggerType.Any),
                 "win_trigger": Trigger(self, (4, 4), (7, 4), once_only=True)
             }
             ## link trigger to door cell
-            self.triggers["door_1_trigger"].enter_event.add_listener(self.map.world_map[(2, 25)].open_door)
-            self.triggers["door_1_trigger"].exit_event.add_listener(self.map.world_map[(2, 25)].close_door) 
+            self.triggers["door_1_trigger"].enter_event.add_listener(self.map.world_map[(14, 18)].open_door)
+            self.triggers["door_1_trigger"].exit_event.add_listener(self.map.world_map[(14, 18)].close_door) 
 
             ## set up the win trigger
             self.triggers["win_trigger"].enter_event.add_listener(self.win)
