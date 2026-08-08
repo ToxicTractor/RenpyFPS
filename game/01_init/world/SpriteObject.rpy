@@ -74,6 +74,7 @@ init -2 python:
 
             self.game.object_renderer.objects_to_render.append(
                 (self.norm_dist,
+                self.norm_dist,
                 self.sprite_anim.image, 
                 (0, 0, self.sprite_width, self.sprite_height), 
                 (proj_width, proj_height), 

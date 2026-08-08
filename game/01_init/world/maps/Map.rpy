@@ -20,11 +20,8 @@ init python:
 #region Public methods
 
         def update(self, delta_time):
-
             for cell in self.world_map.values():
-
-                if (cell.type == ECellType.Door):
-                    cell.update(delta_time)
+                cell.update(delta_time)
 
 
         def draw_2d(self, canvas):    
@@ -44,7 +41,7 @@ init python:
                 if (cell.type == ECellType.Button):
                     canvas.rect("#0f0" if cell.is_on else "#f00", (x * self.debug_scale, y * self.debug_scale, self.debug_scale, self.debug_scale), 2)
 
-                if (cell.type == ECellType.Door):
+                if (cell.type == ECellType.HorizontalDoor):
                     min_x, min_y, max_x, max_y = cell.get_aabb()
                     x = min_x * self.debug_scale
                     y = min_y * self.debug_scale

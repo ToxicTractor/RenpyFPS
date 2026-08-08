@@ -9,7 +9,7 @@ init python:
             self.speed = 5
             self.angular_speed = 2
             self.radius = .25
-            self.interact_range = 1.0
+            self.interact_range = 5.0
 
             self.input_horizontal = 0
             self.input_vertical = 0
@@ -384,7 +384,7 @@ init python:
                     
                     ## if we hit a cell that is not empty or an open door, we stop
                     if (cell.type != ECellType.Empty and 
-                        not (cell.type == ECellType.Door and cell.open_amount >= 1.0)):
+                        not (cell.type == ECellType.HorizontalDoor and cell.open_amount >= 1.0)):
                         block_distance = depth ## we overwrite this since the first hit could have been an open door
                         break
 

@@ -6,7 +6,7 @@ init python:
                 debug_scale
             )
 
-            self.floor_image = Solid("#333")
+            self.floor_image = Solid(FpsSettings.DEFAULT_FLOOR_COLOR)
             self.sky_image = self.sky_image = Transform(
                 Image("images/fps/textures/skies/sky_sunset.png"), 
                 size=(FpsSettings.SCREEN_WIDTH, FpsSettings.HALF_SCREEN_HEIGHT)

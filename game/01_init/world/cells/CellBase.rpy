@@ -1,4 +1,4 @@
-init -1 python:
+init -3 python:
     class CellBase(ABC):
         def __init__(self, coord):
             self.type = ECellType.Empty
@@ -21,7 +21,9 @@ init -1 python:
         @abstractmethod
         def get_texture(self, side):
             pass
-
+        
+        def update(self, delta_time):
+            pass
 
         def is_interactable(self, side):
             return False

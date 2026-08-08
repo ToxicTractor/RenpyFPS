@@ -12,7 +12,7 @@ init -100 python:
         ## Raycasting settings
         FOV = math.pi / 3
         HALF_FOV = FOV / 2
-        RAY_COUNT = SCREEN_WIDTH // 4
+        RAY_COUNT = SCREEN_WIDTH // 6 ## determines the width of the vertical slices of the projection. Major performance impact
         HALF_RAY_COUNT = RAY_COUNT // 2
         DELTA_ANGLE = FOV / RAY_COUNT
         MAX_DEPTH = 64
@@ -24,6 +24,8 @@ init -100 python:
         ## Texture settings
         TEXTURE_SIZE = 256
         HALF_TEXTURE_SIZE = TEXTURE_SIZE // 2
+        DEFAULT_FLOOR_COLOR = "#333"
+        DEFAULT_CEILING_COLOR = "#444"
 
         ## Fade settings
         DEFAULT_FADE_DURATION = 0.5

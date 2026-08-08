@@ -53,8 +53,8 @@ init python:
         
         def _apply_image_flip(self, image, direction):
 
-            if ((direction in (EDirection.East, EDirection.North) and not self.mirrored) or
-                (direction in (EDirection.West, EDirection.South) and self.mirrored)):
+            if ((direction in (EDirection.Right, EDirection.Up) and not self.mirrored) or
+                (direction in (EDirection.Left, EDirection.Down) and self.mirrored)):
                 return Transform(image, xzoom=-1.0)
             else:
                 return image

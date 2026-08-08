@@ -1,7 +1,7 @@
 init -100 python:
     class EDirection(Enum):
         NONE = 0
-        North = 1
-        East = 2
-        South = 3
-        West = 4
+        Up = 1
+        Right = 2
+        Down = 3
+        Left = 4

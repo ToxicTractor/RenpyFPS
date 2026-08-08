@@ -2,5 +2,6 @@ init -100 python:
     class ECellType(Enum):
         Empty = 0
         Wall = 1
-        Door = 2
-        Button = 3
+        HorizontalDoor = 2
+        VerticalDoor = 3
+        Button = 4

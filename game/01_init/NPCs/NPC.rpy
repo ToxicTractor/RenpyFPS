@@ -280,7 +280,7 @@ init -1 python:
             for trace in traced_cells:
                 
                 if (trace.cell.type == ECellType.Wall or 
-                    (trace.cell.type == ECellType.Door and trace.cell.open_amount < 1.0)):
+                    (trace.cell.type == ECellType.HorizontalDoor and trace.cell.open_amount < 1.0)):
                     return False
 
                 if (trace.cell.coord == self.game.player.coord):

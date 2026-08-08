@@ -22,10 +22,8 @@ init python:
             cos_player_angle = math.cos(player_angle)
 
             for sin_offset, cos_offset in self._ray_data:
-                ## defaults
-                hit_cell = None
-                hit_side = None
-                offset = 0
+                ## list of hits for the ray
+                ray_hits = []
 
                 ## calculate sin and cos using our precomputed offsets
                 ray_direction_x = cos_player_angle * cos_offset - sin_player_angle * sin_offset
@@ -35,42 +33,47 @@ init python:
                 traced_cells, _ = self.trace_cells(self.player.pos, ray_dir=(ray_direction_x, ray_direction_y))
 
                 ## figure out where we hit something
-                for cell, depth, cell_side in traced_cells:
-                    
-                    if (cell.type == ECellType.Empty):
+                for entry in traced_cells:
+
+                    if (entry.cell.type == ECellType.Empty):
                         continue
 
-                    if (cell.type == ECellType.Door):
-                        hit = cell.ray_intersect(player_x, player_y, ray_direction_x, ray_direction_y)
+                    if (entry.cell.type in (ECellType.HorizontalDoor, ECellType.VerticalDoor)):
+
+                        if (entry.cell.type == ECellType.VerticalDoor and entry.cell.open_amount == 1.0):
+                            continue
+
+                        hit = entry.cell.ray_intersect(player_x, player_y, ray_direction_x, ray_direction_y)
                         
                         if (hit is None):
                             continue
                         
-                        depth, offset, hit_side = hit
-                        hit_cell = cell
+                        near_depth, far_depth, offset, hit_side = hit
+
+                        ## we multiply depth by cos_offset to eliminate fisheye effect
+                        ray_hits.append(RaycastHitDDA(near_depth * cos_offset, far_depth * cos_offset, entry.cell, offset, hit_side))
+
+                        if (entry.cell.type == ECellType.HorizontalDoor):
+                            break
+
+                        if (entry.cell.open_amount == 0):
+                            break
+
+                        continue
+
+                    if (entry.cell.type in (ECellType.Wall, ECellType.Button)):
+ 
+                        if (entry.cell_side in (EDirection.Right, EDirection.Left)):
+                            offset = (player_y + entry.depth * ray_direction_y) % 1.0
+                        elif (entry.cell_side in (EDirection.Up, EDirection.Down)):
+                            offset = (player_x + entry.depth * ray_direction_x) % 1.0
+
+                        ## we multiply depth by cos_offset to eliminate fisheye effect
+                        ray_hits.append(RaycastHitDDA(entry.depth * cos_offset, 0, entry.cell, offset, entry.cell_side))
                         break
 
-                    if (cell.type in (ECellType.Wall, ECellType.Button)):
-                        hit_cell = cell
-                        hit_side = cell_side
-
-                        if (hit_side in (EDirection.East, EDirection.West)):
-                            offset = player_y + depth * ray_direction_y
-                        elif (hit_side in (EDirection.North, EDirection.South)):
-                            offset = player_x + depth * ray_direction_x
-
-                        break
-
-                offset -= math.floor(offset)
-
-                ## eliminate fisheye effect
-                depth *= cos_offset
-
-                ## calculate projection height
-                projection_height = FpsSettings.PROJECTION_DISTANCE / (depth + 0.0001)
-
-                raycast_results.append(RaycastHitDDA(depth, projection_height, hit_cell, offset, hit_side))
-            
+                raycast_results.append(ray_hits)
+                        
             return raycast_results
 
 
@@ -127,12 +130,12 @@ init python:
                     depth = side_distance_x
                     side_distance_x += delta_distance_x
                     cell_x += step_x
-                    cell_side = EDirection.East if step_x < 0 else EDirection.West
+                    cell_side = EDirection.Right if step_x < 0 else EDirection.Left
                 else:
                     depth = side_distance_y
                     side_distance_y += delta_distance_y
                     cell_y += step_y
-                    cell_side = EDirection.South if step_y < 0 else EDirection.North
+                    cell_side = EDirection.Down if step_y < 0 else EDirection.Up
 
                 ## try to get the cell
                 cell = self.world_map.get((cell_x, cell_y))

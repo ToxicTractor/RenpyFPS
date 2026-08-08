@@ -15,14 +15,18 @@ init python:
 
             self.notification = Notification()
             self.map = Map01(scale)
-            self.map.world_map[(7, 8)] = DoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal, flip_texture=True, flip_open_direction=True)
-            self.map.world_map[(7, 14)] = DoorCell((7, 14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Vertical)
+            self.map.world_map[(7, 8)] = HorizontalDoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Right, flip_main_texture=True)
+            self.map.world_map[(7, 14)] = HorizontalDoorCell((7, 14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Left)
             self.map.world_map[(7, 14)].is_locked = True
-            self.map.world_map[(7, 13)] = ButtonCell((7, 13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.East, EDirection.West])
+            self.map.world_map[(7, 13)] = ButtonCell((7, 13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.Right, EDirection.Left])
             self.map.world_map[(7, 13)].button_event.add_listener(self.map.world_map[7,14].interact)
-            self.map.world_map[(2, 25)] = DoorCell((2, 25), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], orientation=EOrientation.Horizontal)
+            self.map.world_map[(2, 25)] = HorizontalDoorCell((2, 25), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Left)
             self.map.world_map[(2, 25)].is_locked = True
-            self.map.world_map[(0, 14)]._overlay_images = self.map.world_map[(0, 14)]._construct_overlay_images_dict({ EDirection.East: FPS_WALL_OVERLAY_TEXTURES[0] })
+            self.map.world_map[(0, 14)]._overlay_images = self.map.world_map[(0, 14)]._construct_overlay_images_dict({ EDirection.Right: FPS_WALL_OVERLAY_TEXTURES[0] })
+
+            self.map.world_map[(11, 21)] = VerticalDoorCell((11, 21), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Up)
+            self.map.world_map[(14, 18)] = VerticalDoorCell((14, 18), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Down)
+
             self.jukebox = FpsJukebox(self.map)
             self.player = Player(self, pos=self.map.player_start_pos, angle=230)
             self.raycaster = Raycaster(self.player, self.map)

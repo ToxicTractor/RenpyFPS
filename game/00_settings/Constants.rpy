@@ -1,5 +1,5 @@
 init -1 python:
     class FpsConstants(ABC):
-        DIRECTIONS = (EDirection.North, EDirection.East, EDirection.South, EDirection.West)
-        HORIZONTAL_DIRECTIONS = (EDirection.East, EDirection.West)
-        VERTICAL_DIRECTIONS = (EDirection.North, EDirection.South)
+        DIRECTIONS = (EDirection.Up, EDirection.Right, EDirection.Down, EDirection.Left)
+        HORIZONTAL_DIRECTIONS = (EDirection.Right, EDirection.Left)
+        VERTICAL_DIRECTIONS = (EDirection.Up, EDirection.Down)
