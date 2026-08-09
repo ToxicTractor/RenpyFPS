@@ -1,5 +1,6 @@
 init -99 python:
     class FpsConstants(ABC):
+        ## Common
         DIRECTIONS = (EDirection.Up, EDirection.Right, EDirection.Down, EDirection.Left)
         HORIZONTAL_DIRECTIONS = (EDirection.Right, EDirection.Left)
         VERTICAL_DIRECTIONS = (EDirection.Up, EDirection.Down)
@@ -12,3 +13,7 @@ init -99 python:
 
         ## Notifications
         DEFAULT_NOTIFICATION_DURATION = 2.5
+
+        ## Face
+        NEUTRAL_EMOTES = (EFaceEmote.Neutral, EFaceEmote.LookLeft, EFaceEmote.LookRight)
+        LOOK_EMOTES = (EFaceEmote.LookLeft, EFaceEmote.LookRight)
