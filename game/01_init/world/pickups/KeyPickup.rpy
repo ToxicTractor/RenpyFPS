@@ -31,7 +31,7 @@ init python:
 
         def _effect(self):
 
-            self.player.inventory.add_item(self.item, 2)
+            self.player.inventory.add_item(self.item, 1)
 
             if (self.trigger_notification):
                 self.game.notification.show(f"{self.item.name} was picked up!", notification_type=ENotificationType.Pickup)

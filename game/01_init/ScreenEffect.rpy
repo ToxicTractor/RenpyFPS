@@ -10,7 +10,19 @@ init python:
 
             self.at = 0
             self.duration = duration
-            self.image = Solid(color)            
+            self.image = Solid(color)
+
+        
+        def trigger_heal(self):
+            self.trigger("#0f05", 0.1)
+        
+        
+        def trigger_armor_pickup(self):
+            self.trigger("#00f5", 0.1)
+        
+
+        def trigger_hurt(self):
+            self.trigger("#f005", 0.1)
 
 
         def update(self, delta_time):

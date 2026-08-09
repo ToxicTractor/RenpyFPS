@@ -15,28 +15,28 @@ init python:
             self.input_vertical = 0
             self.input_angle = 0
 
-            self.input_move_forward = InputKeyHandler(pygame.K_w, on_key=lambda: self._on_vertical_move_input(+1))
-            self.input_move_backward = InputKeyHandler(pygame.K_s, on_key=lambda: self._on_vertical_move_input(-1))
-            self.input_move_right = InputKeyHandler(pygame.K_d, on_key=lambda: self._on_horizontal_move_input(+1))
-            self.input_move_left = InputKeyHandler(pygame.K_a, on_key=lambda: self._on_horizontal_move_input(-1))
+            self.input_move_forward = InputKeyHandler(pygame.K_w, on_key=self._on_forward_move_input)
+            self.input_move_backward = InputKeyHandler(pygame.K_s, on_key=self._on_back_move_input)
+            self.input_move_right = InputKeyHandler(pygame.K_d, on_key=self._on_right_move_input)
+            self.input_move_left = InputKeyHandler(pygame.K_a, on_key=self._on_left_move_input)
 
-            self.input_look_right = InputKeyHandler(pygame.K_RIGHT, on_key=lambda: self._on_angle_input(+1))
-            self.input_look_left = InputKeyHandler(pygame.K_LEFT, on_key=lambda: self._on_angle_input(-1))
+            self.input_look_right = InputKeyHandler(pygame.K_RIGHT, on_key=self._on_look_right_input)
+            self.input_look_left = InputKeyHandler(pygame.K_LEFT, on_key=self._on_look_left_input)
 
             self.input_use = InputKeyHandler(pygame.K_e, on_key_down=self._on_use_key_down)
             self.input_attack = InputKeyHandler(pygame.K_SPACE, on_key=self._on_attack_key)
             self.input_reload = InputKeyHandler(pygame.K_r, on_key_down=self._on_reload_key_down)
 
-            self.input_weapon_1 = InputKeyHandler(pygame.K_1, on_key_down=lambda: self._on_change_weapon_key_down(1))
-            self.input_weapon_2 = InputKeyHandler(pygame.K_2, on_key_down=lambda: self._on_change_weapon_key_down(2))
-            self.input_weapon_3 = InputKeyHandler(pygame.K_3, on_key_down=lambda: self._on_change_weapon_key_down(3))
-            self.input_weapon_4 = InputKeyHandler(pygame.K_4, on_key_down=lambda: self._on_change_weapon_key_down(4))
-            self.input_weapon_5 = InputKeyHandler(pygame.K_5, on_key_down=lambda: self._on_change_weapon_key_down(5))
-            self.input_weapon_6 = InputKeyHandler(pygame.K_6, on_key_down=lambda: self._on_change_weapon_key_down(6))
-            self.input_weapon_7 = InputKeyHandler(pygame.K_7, on_key_down=lambda: self._on_change_weapon_key_down(7))
-            self.input_weapon_8 = InputKeyHandler(pygame.K_8, on_key_down=lambda: self._on_change_weapon_key_down(8))
-            self.input_weapon_9 = InputKeyHandler(pygame.K_9, on_key_down=lambda: self._on_change_weapon_key_down(9))
-            self.input_weapon_0 = InputKeyHandler(pygame.K_0, on_key_down=lambda: self._on_change_weapon_key_down(0))
+            self.input_weapon_1 = InputKeyHandler(pygame.K_1, on_key_down=self._on_change_weapon_key_1_down)
+            self.input_weapon_2 = InputKeyHandler(pygame.K_2, on_key_down=self._on_change_weapon_key_2_down)
+            self.input_weapon_3 = InputKeyHandler(pygame.K_3, on_key_down=self._on_change_weapon_key_3_down)
+            self.input_weapon_4 = InputKeyHandler(pygame.K_4, on_key_down=self._on_change_weapon_key_4_down)
+            self.input_weapon_5 = InputKeyHandler(pygame.K_5, on_key_down=self._on_change_weapon_key_5_down)
+            self.input_weapon_6 = InputKeyHandler(pygame.K_6, on_key_down=self._on_change_weapon_key_6_down)
+            self.input_weapon_7 = InputKeyHandler(pygame.K_7, on_key_down=self._on_change_weapon_key_7_down)
+            self.input_weapon_8 = InputKeyHandler(pygame.K_8, on_key_down=self._on_change_weapon_key_8_down)
+            self.input_weapon_9 = InputKeyHandler(pygame.K_9, on_key_down=self._on_change_weapon_key_9_down)
+            self.input_weapon_0 = InputKeyHandler(pygame.K_0, on_key_down=self._on_change_weapon_key_0_down)
 
             self.sway_offset = (0, 0)
             self.sway_enabled = True
@@ -327,6 +327,46 @@ init python:
 
 #region Event handlers
 
+        def _on_change_weapon_key_1_down(self):
+            self._on_change_weapon_key_down(1)
+
+
+        def _on_change_weapon_key_2_down(self):
+            self._on_change_weapon_key_down(2)
+
+
+        def _on_change_weapon_key_3_down(self):
+            self._on_change_weapon_key_down(3)
+
+
+        def _on_change_weapon_key_4_down(self):
+            self._on_change_weapon_key_down(4)
+
+
+        def _on_change_weapon_key_5_down(self):
+            self._on_change_weapon_key_down(5)
+
+
+        def _on_change_weapon_key_6_down(self):
+            self._on_change_weapon_key_down(6)
+
+
+        def _on_change_weapon_key_7_down(self):
+            self._on_change_weapon_key_down(7)
+
+
+        def _on_change_weapon_key_8_down(self):
+            self._on_change_weapon_key_down(8)
+
+
+        def _on_change_weapon_key_9_down(self):
+            self._on_change_weapon_key_down(9)
+
+
+        def _on_change_weapon_key_0_down(self):
+            self._on_change_weapon_key_down(0)
+
+
         def _on_change_weapon_key_down(self, weapon_key):
             
             if weapon_key == 0:
@@ -456,16 +496,27 @@ init python:
                 self.game.notification.show("No more ammo!", notification_type=ENotificationType.WeaponAction)
 
 
-        def _on_horizontal_move_input(self, value):
-            self.input_horizontal += value
+        def _on_right_move_input(self):
+            self.input_horizontal += 1
 
 
-        def _on_vertical_move_input(self, value):
-            self.input_vertical += value
+        def _on_left_move_input(self):
+            self.input_horizontal -= 1
 
 
-        def _on_angle_input(self, value):
-            self.input_angle += value
+        def _on_forward_move_input(self):
+            self.input_vertical += 1
+
+        def _on_back_move_input(self):
+            self.input_vertical -= 1
+
+
+        def _on_look_right_input(self):
+            self.input_angle += 1
+
+
+        def _on_look_left_input(self):
+            self.input_angle -= 1
 
 #endregion
 

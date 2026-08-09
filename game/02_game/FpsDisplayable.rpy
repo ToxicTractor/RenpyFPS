@@ -76,9 +76,9 @@ init python:
             self.modify_renpy_keymaps()
             self.jukebox.play()
 
-            self.player.hurt_event.add_listener(lambda: self.trigger_screen_effect("#f005", 0.1))
-            self.player.heal_event.add_listener(lambda: self.trigger_screen_effect("#0f05", 0.1))
-            self.player.gain_armor_event.add_listener(lambda: self.trigger_screen_effect("#00f5", 0.1))
+            self.player.hurt_event.add_listener(self.screen_effect.trigger_hurt)
+            self.player.heal_event.add_listener(self.screen_effect.trigger_heal)
+            self.player.gain_armor_event.add_listener(self.screen_effect.trigger_armor_pickup)
 
             self.won_event = GameEvent()
 
@@ -87,7 +87,7 @@ init python:
 
 
         @staticmethod
-        def modify_renpy_keymaps(): #TODO: Move this method to settings file
+        def modify_renpy_keymaps(): # TODO: Move this method to settings file
             
             config.keymap["screenshot"] = []
             config.keymap["director"] = []
@@ -96,7 +96,7 @@ init python:
 
 
         @staticmethod
-        def restore_keymaps(): #TODO: Move this method to settings file
+        def restore_keymaps(): # TODO: Move this method to settings file
             config.keymap["screenshot"] = ['alt_K_s', 'alt_shift_K_s', 'noshift_K_s']
             config.keymap["director"] = ['noshift_K_d']
 
@@ -158,8 +158,6 @@ init python:
             key_pressed = pygame.key.get_pressed()
             
             self.player.handle_input(key_pressed)
-
-            renpy.restart_interaction() ## make the interaction restart so text outside of the displayable can be updated
 
 
         ## calculates and sets delta time

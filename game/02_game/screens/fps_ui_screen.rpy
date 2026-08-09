@@ -1,12 +1,13 @@
-screen fps_screen():
+screen fps_ui_screen(fps):
     modal True
     style_prefix "fps"
 
-    default fps = FpsDisplayable(scale=25)
-    default fps_ui = FpsUIOverlay(fps)
-
-    add fps
-    add fps_ui
+    #region Force screen update
+    ## Hacky way to force update screen at 20 FPS
+    ## Setting the frame rate to high will break hover/unhover events on buttons
+    default screen_lifetime = 0
+    timer 0.05 repeat True action IncrementLocalVariable("screen_lifetime", 1)
+    #endregion
 
     fixed: ## UI BLOCK LEFT
         pos 6, 818
@@ -206,15 +207,15 @@ screen fps_screen():
             xysize block_width - 2 * left_space, 64
             #add Solid("#f0f")
 
-            button:
-                xysize(300, 1.0)
-                align 0.5, 0.5
-                action NullAction() ## button doesnt do anything yet
-                fixed:
-                    add Solid("#111")
-                    add Frame("images/fps/ui/frame.png", 12, 12)
-                    text "Menu":
-                        align 0.5, 0.5
+            ## pause menu button
+            use fps_button_screen(
+                (300, 1.0), 
+                align=(0.5, 0.5), 
+                text="Menu", 
+                text_offset=(0, -3),
+                sensitive=fps.player.is_alive,
+                tint_on_insensitive=False
+            )
             
     
     if (fps.show_framerate):
@@ -258,15 +259,12 @@ screen fps_screen():
                 align 0.5, 0.25
                 zoom 0.25
 
-            button:
-                xysize(200, 100)
-                align 0.5, 0.65
-                action MainMenu(confirm=False, save=False) ## TODO: this is a temporary solution. Should probably not boot us to main menu in a real game
-                fixed:
-                    add Solid("#111")
-                    add Frame("images/fps/ui/frame.png", 12, 12)
-                    text "Yay!":
-                        align 0.5, 0.5
+            use fps_button_screen(
+                (200, 100),
+                align=(0.5, 0.65),
+                text="Yay!",
+                on_click=[MainMenu(False, False)] ## TODO: this is a temporary solution. Should probably not boot us to main menu in a real game
+            ) 
 
     if (not fps.player.is_alive):
         
@@ -284,22 +282,34 @@ screen fps_screen():
             hbox:
                 align 0.5, 0.65
 
-                button:
-                    xysize(200, 100)
-                    action Function(fps_fader.fade_out_jump_in, "start_game")
-                    fixed:
-                        add Solid("#111")
-                        add Frame("images/fps/ui/frame.png", 12, 12)
-                        text "Retry":
-                            align 0.5, 0.5
+                use fps_button_screen(
+                    (200, 100),
+                    text="Retry",
+                    on_click=[Function(fps_fader.fade_out_jump_in, "start_game")]
+                )
+
+                # button:
+                #     xysize(200, 100)
+                #     action Function(fps_fader.fade_out_jump_in, "start_game")
+                #     fixed:
+                #         add Solid("#111")
+                #         add Frame("images/fps/ui/frame.png", 12, 12)
+                #         text "Retry":
+                #             align 0.5, 0.5
                 
                 null width 100
 
-                button:
-                    xysize(200, 100)
-                    action MainMenu(confirm=False, save=False) ## TODO: this is a temporary solution. Should probably not boot us to main menu in a real game
-                    fixed:
-                        add Solid("#111")
-                        add Frame("images/fps/ui/frame.png", 12, 12)
-                        text "Quit":
-                            align 0.5, 0.5
+                use fps_button_screen(
+                    (200, 100),
+                    text="Quit",
+                    on_click=[MainMenu(False, False)] ## TODO: this is a temporary solution. Should probably not boot us to main menu in a real game
+                )
+
+                # button:
+                #     xysize(200, 100)
+                #     action MainMenu(confirm=False, save=False) ## TODO: this is a temporary solution. Should probably not boot us to main menu in a real game
+                #     fixed:
+                #         add Solid("#111")
+                #         add Frame("images/fps/ui/frame.png", 12, 12)
+                #         text "Quit":
+                #             align 0.5, 0.5

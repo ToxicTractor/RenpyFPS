@@ -1,4 +1,7 @@
-﻿default fps_fader = FpsFadeOverlay()
+﻿define config.mouse_hide_time = None
+
+default fps_fader = FpsFadeOverlay()
+default fps = None
 
 label start:
 
@@ -7,7 +10,9 @@ label start:
     show screen fps_fade_screen()
 
     label start_game:
-    show screen fps_screen()
+    $ fps = FpsDisplayable(scale=25)
+    show screen fps_screen(fps)
+    show screen fps_ui_screen(fps)
 
     pause
 
