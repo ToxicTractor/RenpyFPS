@@ -8,6 +8,7 @@ init -100 python:
         SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE
         HALF_SCREEN_WIDTH = SCREEN_WIDTH // 2
         HALF_SCREEN_HEIGHT = SCREEN_HEIGHT // 2
+        RAW_HALF_SCREEN_HEIGHT = (config.screen_height - 274) // 2 ## doesnt take the offset into account
 
         ## Raycasting settings
         FOV = math.pi / 3
@@ -29,3 +30,7 @@ init -100 python:
 
         ## Fade settings
         DEFAULT_FADE_DURATION = 0.5
+
+        ## UI settings
+        CROSSHAIR_COLOR = "#fff"
+        CROSSHAIR_ALPHA = 0.75

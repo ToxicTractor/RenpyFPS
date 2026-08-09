@@ -12,7 +12,6 @@ label start:
     label start_game:
     $ fps = FpsDisplayable(scale=25)
     show screen fps_screen(fps)
-    show screen fps_ui_screen(fps)
 
     pause
 

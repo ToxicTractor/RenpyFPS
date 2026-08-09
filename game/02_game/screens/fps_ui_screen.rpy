@@ -1,5 +1,4 @@
 screen fps_ui_screen(fps):
-    modal True
     style_prefix "fps"
 
     $ debug_mode = False
@@ -10,6 +9,14 @@ screen fps_ui_screen(fps):
     default screen_lifetime = 0
     timer 0.05 repeat True action IncrementLocalVariable("screen_lifetime", 1)
     #endregion
+
+    add "fps_ui_base":
+        yalign 1.0
+
+    add "fps_crosshair" at t_fps_tint(FpsSettings.CROSSHAIR_COLOR), t_fps_alpha(FpsSettings.CROSSHAIR_ALPHA):
+        xalign 0.5
+        yanchor 0.5
+        ypos FpsSettings.RAW_HALF_SCREEN_HEIGHT
 
     fixed: ## NOTIFICATIONS BLOCK
         use fps_notification_log_screen(
@@ -60,6 +67,8 @@ screen fps_ui_screen(fps):
             text "FACE":
                 color "#fff"
                 align 0.5, 0.5
+
+        add fps.player.face.get_image()
 
     $ block_width   = 814
     $ block_height  = 256

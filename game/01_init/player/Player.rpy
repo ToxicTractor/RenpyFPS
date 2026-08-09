@@ -83,6 +83,8 @@ init python:
             self.attack_event = GameEvent()
             self.death_event = GameEvent()
 
+            self.face = PlayerFace(self.health)
+
 #region Properties
 
         @property
@@ -188,6 +190,8 @@ init python:
 
         def update(self, delta_time, st):
             
+            self.face.update(delta_time, self.health)
+
             self._move(delta_time)
 
             self._calculate_sway_offset(st)
@@ -249,6 +253,7 @@ init python:
             ## if health is greater than 0, invoke hurt event
             else:
                 self.hurt_event.invoke()
+                self.face.hurt_event.invoke()
 
 
         def apply_heal(self, amount):
@@ -412,6 +417,7 @@ init python:
 
                 if (self.equipped_weapon.has_ammo_in_magazine()):
                     self.attack_event.invoke()
+                    self.face.attack_event.invoke()
                 else:
                     return
 
