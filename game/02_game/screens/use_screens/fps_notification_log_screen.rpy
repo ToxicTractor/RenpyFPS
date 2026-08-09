@@ -13,5 +13,5 @@ screen fps_notification_log_screen(debug_mode=False):
         if (fps.notification.is_active):            
             text fps.notification.text:
                 color  FpsSettings.NOTIFICATION_COLORS.get(fps.notification.type, FpsSettings.DEFAULT_NOTIFICATION_COLOR)
-                outlines FpsSettings.NOTIFICATION_OUTLINES.get(fps.notification.type, FpsSettings.DEFAULT_NOTIFICATIOn_OUTLINES)
+                outlines FpsSettings.NOTIFICATION_OUTLINES.get(fps.notification.type, FpsSettings.DEFAULT_NOTIFICATION_OUTLINES)
                 align 0.5, 0.5

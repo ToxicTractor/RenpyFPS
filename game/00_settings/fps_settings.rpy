@@ -36,9 +36,9 @@ init -100 python:
         CROSSHAIR_ALPHA = 0.75
 
         DEFAULT_NOTIFICATION_COLOR = "#fff"
-        DEFAULT_NOTIFICATIOn_OUTLINES = [(2, "#111", 0, 0)]
+        DEFAULT_NOTIFICATION_OUTLINES = [(2, "#111", 0, 0)]
         NOTIFICATION_OUTLINES = {
-            ENotificationType.Default: DEFAULT_NOTIFICATIOn_OUTLINES,
+            ENotificationType.Default: DEFAULT_NOTIFICATION_OUTLINES,
             ENotificationType.Positive: [(2, "#111", 0, 0)],
             ENotificationType.Negative: [(2, "#111", 0, 0)],
         }
