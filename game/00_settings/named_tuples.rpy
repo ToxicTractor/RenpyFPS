@@ -1,6 +1,6 @@
 init -100 python:
-    ## widely used
-    Vector2 = namedtuple("Position", ["x", "y"])
+    ## common
+    Vector2 = namedtuple("Vector2", ["x", "y"])
     Rect = namedtuple("Rect", ["x", "y", "width", "height"])
 
     ## axis aligned bounding box used for collisions
