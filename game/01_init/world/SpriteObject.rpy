@@ -15,14 +15,9 @@ init -2 python:
 
             self.image_ratio = self.sprite_width / self.sprite_height
 
-            self.delta_x, self.delta_y = 0, 0
-            self.theta = 0
-            self.screen_x = 0
-            self.dist = 0
-            self.norm_dist = 1
-            self.sprite_half_width = 0
-
             self.at = 0
+
+            self._min_render_depth = 0.1
 
         @property
         def pos(self):
@@ -55,52 +50,63 @@ init -2 python:
                 else:
                     self.at += delta_time
 
-            self.get_sprite()
-
 
         def on_animation_end(self, animation):
             pass
 
 
-        def get_sprite_projection(self):
-                
-            proj = FpsSettings.PROJECTION_DISTANCE / max(self.norm_dist, 0.0001) * self.scale
-            proj_width, proj_height = int(proj * self.image_ratio), int(proj)
-
-            self.sprite_half_width = proj_width // 2
+        def get_projection(self):
             
-            height_shift = proj_height * self.height_shift
-            pos = self.screen_x - self.sprite_half_width, FpsSettings.HALF_SCREEN_HEIGHT - proj_height // 2 + height_shift
+            ## find dx and dy to the player
+            dx = self.pos_x - self.player.pos_x
+            dy = self.pos_y - self.player.pos_y
 
-            self.game.object_renderer.objects_to_render.append(
-                (self.norm_dist,
-                self.norm_dist,
-                self.sprite_anim.image, 
-                (0, 0, self.sprite_width, self.sprite_height), 
-                (proj_width, proj_height), 
-                pos,
-                min(self.sprite_anim.duration - 0.0001 if self.sprite_anim.duration else 0, self.at),
-                None,
-                None)
-            )
+            ## calculate angle from world x to direction of above
+            ## note atan2 takes y first and x second
+            theta = math.atan2(dy, dx)
 
+            ## calculate angle between player view direction and theta
+            da = theta - self.player.angle
+            da = (da + math.pi) % math.tau - math.pi ## make sure the angle wraps around, keeping the range between -pi and +pi
 
-        def get_sprite(self):
+            ## figure out how many rays the sprite spans
+            ray_count = da / FpsSettings.DELTA_ANGLE
 
-            delta_x = self.pos_x - self.player.pos_x
-            delta_y = self.pos_y - self.player.pos_y 
-            self.delta_x, self.delta_y = delta_x, delta_y
-            self.theta = math.atan2(delta_y, delta_x)
+            ## calculate screen position of the sprite
+            screen_x = (FpsSettings.HALF_RAY_COUNT + ray_count) * FpsSettings.PROJECTION_SCALE
 
-            delta = self.theta - self.player.angle
-            delta = (delta + math.pi) % math.tau - math.pi
+            ## calculate depth
+            depth = math.hypot(dx, dy) * math.cos(da)
 
-            delta_rays = delta / FpsSettings.DELTA_ANGLE
-            self.screen_x = (FpsSettings.HALF_RAY_COUNT + delta_rays) * FpsSettings.PROJECTION_SCALE
+            ## return early if the sprite is not on screen
+            if (depth < self._min_render_depth or
+                screen_x < -self.half_image_width or
+                screen_x > self.half_image_width + FpsSettings.SCREEN_WIDTH):
+                return None
 
-            self.dist = math.hypot(delta_x, delta_y)
-            self.norm_dist = self.dist * math.cos(delta)
+            projection = FpsSettings.PROJECTION_DISTANCE / max(depth, 0.0001) * self.scale
+            projection_width = int(projection * self.image_ratio) ## projection with is multiplied by ratio since we can have non-square sprites
+            projection_height = int(projection)
 
-            if (-self.half_image_width < self.screen_x < (FpsSettings.SCREEN_WIDTH + self.half_image_width) and self.norm_dist > 0.1):
-                self.get_sprite_projection()
-            
+            half_projection_width = projection_width // 2
+
+            ## apply height shift
+            height_shift = projection_height * self.height_shift
+
+            ## calculate position
+            pos_x = screen_x - half_projection_width
+            pos_y = FpsSettings.HALF_SCREEN_HEIGHT - projection_height // 2 + height_shift
+
+            ## make sure animation time stays within duration to avoid the animation looping back to the start
+            at = min(self.sprite_anim.duration - 0.0001 if self.sprite_anim.duration else 0, self.at)
+
+            ## retun projection result
+            return (depth, 
+                    depth, 
+                    self.sprite_anim.image, 
+                    Rect(0, 0, self.sprite_width, self.sprite_height),
+                    Vector2(projection_width, projection_height),
+                    Vector2(pos_x, pos_y),
+                    at,
+                    None,
+                    None)

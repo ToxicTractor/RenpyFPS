@@ -81,7 +81,7 @@ init -1 python:
 
                 elif (self.has_los_to_player):
                     
-                    if (self.dist <= self.attack_range):
+                    if (sqr_dist(self.pos, self.game.player.pos) <= self.attack_range**2):
                         self.attack = True
                         return
 
@@ -271,9 +271,14 @@ init -1 python:
             ## get starting coord
             cell_x, cell_y = self.coord
 
+            ## calculate theta
+            dx = self.pos_x - self.player.pos_x
+            dy = self.pos_y - self.player.pos_y
+            theta = math.atan2(dy, dx)
+
             ## calculate sin and cos
-            ray_direction_x = -math.cos(self.theta)
-            ray_direction_y = -math.sin(self.theta)
+            ray_direction_x = -math.cos(theta)
+            ray_direction_y = -math.sin(theta)
 
             traced_cells, _ = self.game.raycaster.trace_cells(self.pos, ray_dir=(ray_direction_x, ray_direction_y))
 

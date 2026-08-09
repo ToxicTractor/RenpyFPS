@@ -58,6 +58,12 @@ init python:
                         hit.side)
                     )
 
+            for obj in self.game.sprite_objects + self.game.npcs:
+                projection_result = obj.get_projection()
+
+                if (projection_result):
+                    self.objects_to_render.append(projection_result)
+
 
         def draw(self, screen, st):
             offset = elementwise_add_tuple(self.player.sway_offset, (FpsSettings.X_OFFSET, FpsSettings.Y_OFFSET))
