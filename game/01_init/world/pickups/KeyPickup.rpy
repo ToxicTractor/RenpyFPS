@@ -34,7 +34,7 @@ init python:
             self.player.inventory.add_item(self.item, 1)
 
             if (self.trigger_notification):
-                self.game.notification.show(f"{self.item.name} was picked up!", notification_type=ENotificationType.Pickup)
+                self.game.notification.show(f"{self.item.name} was picked up!", type=ENotificationType.Positive)
 
 
         def _can_pick_up(self):

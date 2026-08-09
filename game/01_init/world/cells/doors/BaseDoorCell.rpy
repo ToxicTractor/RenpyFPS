@@ -133,7 +133,7 @@ init -2 python:
                 if (self.locked_interact_audio):
                     renpy.play(self.locked_interact_audio)
 
-                game.notification.show(self.locked_notification)
+                game.notification.show(self.locked_notification, ENotificationType.Negative)
                 return False
             
             ## ----------------------------
@@ -157,7 +157,7 @@ init -2 python:
                 if (self.locked_interact_audio):
                     renpy.play(self.locked_interact_audio)
 
-                game.notification.show(f"Requires {self.consumed_on_unlock_count} x {self.unlocked_by_item.name}.")
+                game.notification.show(f"Requires {self.consumed_on_unlock_count} x {self.unlocked_by_item.name}.", type=ENotificationType.Negative)
                 return False
             
             ## -----------------------------------
@@ -177,7 +177,7 @@ init -2 python:
             if (self.locked_interact_audio):
                 renpy.play(self.locked_interact_audio)
 
-            game.notification.show(f"Requires {self.unlocked_by_item.name}.")
+            game.notification.show(f"Requires {self.unlocked_by_item.name}.", type=ENotificationType.Negative)
 
             return False
 

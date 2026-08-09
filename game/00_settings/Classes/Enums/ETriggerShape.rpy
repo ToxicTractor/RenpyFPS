@@ -1,4 +1,4 @@
 init -100 python:
     class ETriggerShape(Enum):
-        Rectangle = 0
-        Circle = 1
+        Rectangle   = 0
+        Circle      = 1

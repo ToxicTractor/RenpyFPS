@@ -3,6 +3,7 @@ init -1 python:
         def __init__(self):
             self.notification = None
             self.timer = None
+            self.type = None
 
             self.notification_show_event = GameEvent()
             self.notification_hide_event = GameEvent()
@@ -29,10 +30,12 @@ init -1 python:
                     
                     self.notification_hide_event.invoke(self.notification)
                     self.notification = None
+                    self.type = None
         
 
-        def show(self, text, *, duration=FpsConstants.DEFAULT_NOTIFICATION_DURATION, notification_type=ENotificationType.Default):
-            self.notification = NotificationEntry(text, duration, notification_type)
+        def show(self, text, *, duration=FpsConstants.DEFAULT_NOTIFICATION_DURATION, type=ENotificationType.Default):
+            self.notification = NotificationEntry(text, duration, type)
             self.timer = duration
+            self.type = type
 
             self.notification_show_event.invoke(self.notification)

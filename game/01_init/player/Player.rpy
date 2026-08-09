@@ -499,7 +499,7 @@ init python:
                 ## trigger reload
                 weapon.start_reload()
             else:
-                self.game.notification.show("No more ammo!", notification_type=ENotificationType.WeaponAction)
+                self.game.notification.show("No more ammo!", type=ENotificationType.Negative)
 
 
         def _on_right_move_input(self):

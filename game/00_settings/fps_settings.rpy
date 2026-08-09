@@ -34,3 +34,16 @@ init -100 python:
         ## UI settings
         CROSSHAIR_COLOR = "#fff"
         CROSSHAIR_ALPHA = 0.75
+
+        DEFAULT_NOTIFICATION_COLOR = "#fff"
+        DEFAULT_NOTIFICATIOn_OUTLINES = [(2, "#111", 0, 0)]
+        NOTIFICATION_OUTLINES = {
+            ENotificationType.Default: DEFAULT_NOTIFICATIOn_OUTLINES,
+            ENotificationType.Positive: [(2, "#111", 0, 0)],
+            ENotificationType.Negative: [(2, "#111", 0, 0)],
+        }
+        NOTIFICATION_COLORS = {
+            ENotificationType.Default: DEFAULT_NOTIFICATION_COLOR,
+            ENotificationType.Positive: "#cfc",
+            ENotificationType.Negative: "#fcc",
+        }

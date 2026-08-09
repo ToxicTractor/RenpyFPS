@@ -17,7 +17,7 @@ init python:
             
             self.game.player.ammo[self.ammo_type.name].add(self.ammo_amount)
 
-            self.game.notification.show(f"{self.ammo_amount} {self.ammo_type.name} ammo was picked up!", notification_type=ENotificationType.Pickup)
+            self.game.notification.show(f"{self.ammo_amount} {self.ammo_type.name} ammo was picked up!", type=ENotificationType.Positive)
 
 
         def _can_pick_up(self):
