@@ -1,18 +1,18 @@
 screen fps_button_screen(
     xysize, 
-    pos=None, 
-    anchor=None,
-    align=None,
-    text=None,
-    text_offset=(0, 0),
-    text_color="#fff",
-    text_size=None,
-    text_outlines=[(2, "#111", 0, 0)],
-    sensitive=True,
-    tint_on_insensitive=True,
-    on_click=None, 
-    on_hover=[], 
-    on_unhover=[]):
+    pos                 = None, 
+    anchor              = None,
+    align               = None,
+    text                = None,
+    text_offset         = (0, 0),
+    text_color          = "#fff",
+    text_size           = None,
+    text_outlines       = [(2, "#111", 0, 0)],
+    sensitive           = True,
+    tint_on_insensitive = True,
+    on_click            = None, 
+    on_hover            = [], 
+    on_unhover          = []):
 
     $ insensitive_tint = "#0008"
     default is_hovered = False
