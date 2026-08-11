@@ -13,9 +13,27 @@ init python:
 
 #region Public methods
 
-        def update(self):
+        def update(self, delta_time):
             self.objects_to_render = []
 
+            self._prepare_cells()
+
+            self._prepare_sprite_objects()
+
+
+        def draw(self, screen, st):
+            offset = elementwise_add_tuple(self.player.sway_offset, (FpsSettings.X_OFFSET, FpsSettings.Y_OFFSET))
+
+            self._draw_sky(screen, offset)
+            self._draw_floor(screen, offset)
+
+            self._draw_objects(screen, offset, st)
+
+#endregion
+
+#region Private methods
+
+        def _prepare_cells(self):
             raycast_hits = self.game.raycaster.cast_rays_dda()
 
             for ray_index, hits in enumerate(raycast_hits):
@@ -58,24 +76,20 @@ init python:
                         hit.side)
                     )
 
-            for obj in self.game.sprite_objects + self.game.npcs:
-                projection_result = obj.get_projection()
+
+        def _prepare_sprite_objects(self):
+
+            for sprite_object in self.game.sprite_objects + self.game.npcs:
+                projection_result = sprite_object.get_sprite_projection()
 
                 if (projection_result):
                     self.objects_to_render.append(projection_result)
 
+                    shadow_projection = sprite_object.get_shadow_projection()
+                    
+                    if (shadow_projection):
+                        self.objects_to_render.append(shadow_projection)
 
-        def draw(self, screen, st):
-            offset = elementwise_add_tuple(self.player.sway_offset, (FpsSettings.X_OFFSET, FpsSettings.Y_OFFSET))
-
-            self._draw_sky(screen, offset)
-            self._draw_floor(screen, offset)
-
-            self._draw_objects(screen, offset, st)
-
-#endregion
-
-#region Private methods
 
         def _draw_objects(self, screen, offset, st):
             """

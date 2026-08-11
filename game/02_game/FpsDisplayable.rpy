@@ -34,7 +34,7 @@ init python:
             
             self.sprite_objects = [
                 SpriteObject(self, candlestick_anim, scale=0.7, is_solid=True),
-                SpriteObject(self, torch_anim, pos=(14.5, 15.5)),
+                SpriteObject(self, torch_anim, pos=(14.5, 15.5), shadow_scale=0.5),
                 HealthPickup(self, (2.5, 14.5)),
                 ArmorPickup(self, (3.5, 14.5)),
                 ShotgunAmmoPickup(self, (2.5, 15.5)),
@@ -140,8 +140,6 @@ init python:
             self.player.update(self.delta_time, st)
             self.map.update(self.delta_time)
 
-            self.object_renderer.update()
-            
             for obj in self.sprite_objects:
                 obj.update(self.delta_time)
 
@@ -150,6 +148,8 @@ init python:
 
             for trigger in self.triggers.values():
                 trigger.update(self.delta_time)
+
+            self.object_renderer.update(self.delta_time)
 
             self.screen_effect.update(self.delta_time)
 

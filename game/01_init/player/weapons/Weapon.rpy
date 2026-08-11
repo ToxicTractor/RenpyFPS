@@ -197,7 +197,7 @@ init -1 python:
         
 
         def has_ammo_in_magazine(self):
-            ## if we dont use ammo, we always retun True
+            ## if we dont use ammo, we always return True
             if (not self.ammo_type):
                 return True
 
