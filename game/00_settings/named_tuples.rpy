@@ -9,7 +9,10 @@ init -100 python:
     ## used by the raycaster
     CellTraceEntry = namedtuple("CellTraceEntry", ["cell", "depth", "cell_side"])
     RaycastHitDDA = namedtuple("RaycastHitDDA", ["near_depth", "far_depth","cell", "offset", "side"])
-    
+
+    ## rendering
+    ProjectionResult = namedtuple ("ProjectionResult", ["near_depth", "far_depth", "texture", "crop", "size", "position", "at", "cell", "cell_side"])
+
     ## notification
     NotificationEntry = namedtuple("NotificationEntry", ["text", "duration", "type"])
 

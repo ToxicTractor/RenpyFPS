@@ -125,7 +125,7 @@ init -2 python:
             ## make sure animation time stays within duration
             at = min(self.sprite_anim.duration - 0.0001 if self.sprite_anim.duration else 0, self.at)
 
-            return (
+            return ProjectionResult(
                 depth,
                 depth,
                 self.sprite_anim.image,
@@ -160,7 +160,7 @@ init -2 python:
             pos_x = screen_x - shadow_width // 2
             pos_y = ground_y - shadow_height // 2
 
-            return (
+            return ProjectionResult(
                 FpsSettings.MAX_DEPTH, ## we always want to draw the shadow behind other things no matter how far or close they are
                 depth,
                 self.shadow_image,

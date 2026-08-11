@@ -47,6 +47,7 @@ init -1 python:
             self.hurt_event = GameEvent()
             self.death_event = GameEvent()
 
+        #region Properties
 
         @property
         def is_solid(self):
@@ -56,6 +57,9 @@ init -1 python:
         def coord(self):
             return int(self.pos_x), int(self.pos_y)
 
+        #endregion
+        
+        #region Public methods
 
         def update(self, delta_time):
             super().update(delta_time)
@@ -63,10 +67,10 @@ init -1 python:
             if self.is_alive:
                 player_coord = self.game.player.coord
                 player_coord_x, player_coord_y = player_coord
-                self.has_los_to_player = self.is_player_in_sight()
+                self.has_los_to_player = self._is_player_in_sight()
 
                 if (self.hurt):
-                    self.change_animation(self.hurt_anim, audio=self.hurt_audio)
+                    self._change_animation(self.hurt_anim, audio=self.hurt_audio)
                 
                 elif(self.stunned):
 
@@ -77,7 +81,7 @@ init -1 python:
                         self.stunned = False
 
                 elif (self.attack):
-                    self.change_animation(self.attack_anim, on_change=self.on_attack)
+                    self._change_animation(self.attack_anim, on_change=self._on_attack)
 
                 elif (self.has_los_to_player):
                     
@@ -85,7 +89,7 @@ init -1 python:
                         self.attack = True
                         return
 
-                    self.move_towards((player_coord_x + 0.5, player_coord_y + 0.5), delta_time)
+                    self._move_towards((player_coord_x + 0.5, player_coord_y + 0.5), delta_time)
 
                     ## set variables
                     self.path = None
@@ -94,134 +98,16 @@ init -1 python:
                     self.los_grace_timer = 0
 
                 elif (self.last_player_coord is not None):
-                    self.pathfind_to_player(player_coord, delta_time)
+                    self._pathfind_to_player(player_coord, delta_time)
 
                 elif (self.return_to_start_pos and self.lost_player):
-                    self.pathfind_to_start_pos(delta_time)
+                    self._pathfind_to_start_pos(delta_time)
 
                 else:
-                    self.change_animation(self.idle_anim)
+                    self._change_animation(self.idle_anim)
 
             else:
-                self.change_animation(self.death_anim, audio=self.death_audio)
-
-
-        def change_animation(self, animation, audio=None, on_change=None, override_same=False):
-
-            if (self.sprite_anim == animation and not override_same):
-                return
-            
-            if (on_change is not None):
-                on_change()
-
-            if (audio is not None):
-                renpy.play(audio)
-
-            self.sprite_anim = animation
-            self.at = 0
-        
-
-        def on_attack(self):
-            if (self.attack_audio is not None):
-                renpy.play(self.attack_audio)
-
-            hit_roll = renpy.random.randint(0, 99)
-
-            if (hit_roll < self.accuracy):
-                self.game.player.apply_damage(self.attack_damage)
-                
-
-        def pathfind_to_start_pos(self, delta_time):
-
-            if (self.path is None):
-                self.path = self.pathfinding.find_path(self.coord, self.start_coord)
-            
-            ## if there is no path or we have arrived, return self.lost_player to False
-            if (not self.pathfind_along_current_path(delta_time)):
-                self.lost_player = False
-
-
-        def pathfind_to_player(self, player_coord, delta_time):
-
-            ## update the path if we dont have one or if the players position changed and we are still within the LOS grace period
-            if (self.los_grace_timer < self.los_grace_period and (self.path is None or self.last_player_coord != player_coord)):
-                self.path = self.pathfinding.find_path(self.coord, player_coord)
-            
-            self.last_player_coord = player_coord
-
-            if (self.path is not None and len(self.path) > 1):
-
-                next_tile = self.path[1]
-
-                ## +0.5 to go to the center of the tile
-                target_x = next_tile[0] + 0.5
-                target_y = next_tile[1] + 0.5
-
-                distance = math.hypot(target_x - self.pos_x, target_y - self.pos_y)
-
-                ## pop the element to use the next step, next time
-                if (distance < 0.1):
-                    self.path.pop(0)
-
-                self.move_towards((target_x, target_y), delta_time)
-
-            else:
-
-                ## reset variables
-                self.path = None
-                self.last_player_coord = None
-                self.los_grace_timer = 0
-                self.lost_player = True
-                return
-
-            self.los_grace_timer += delta_time
-        
-
-        def pathfind_along_current_path(self, delta_time):
-
-            if (self.path is not None and len(self.path) > 1):
-
-                next_tile = self.path[1]
-
-                ## +0.5 to go to the center of the tile
-                target_x = next_tile[0] + 0.5
-                target_y = next_tile[1] + 0.5
-
-                distance = math.hypot(target_x - self.pos_x, target_y - self.pos_y)
-
-                ## pop the element to use the next step, next time
-                if (distance < 0.1):
-                    self.path.pop(0)
-
-                self.move_towards((target_x, target_y), delta_time)
-                
-                return True
-            
-            return False
-
-
-        def move_towards(self, target_coord, delta_time):
-            
-            self.change_animation(self.walk_anim)
-
-            target_coord_x, target_coord_y = target_coord
-
-            angle = math.atan2(target_coord_y - self.pos_y, target_coord_x - self.pos_x)
-            speed = self.speed * delta_time
-            
-            speed_cos = speed * math.cos(angle)
-            speed_sin = speed * math.sin(angle)
-
-            delta_x = speed_cos
-            delta_y = speed_sin
-
-            new_x = self.pos_x + delta_x
-            new_y = self.pos_y + delta_y
-
-            self.pos_x = new_x
-            self.pos_y = new_y
-
-            self.pos_x, self.pos_y = CollisionSystem.collision_pass(self.game, self)
+                self._change_animation(self.death_anim, audio=self.death_audio)
 
 
         def on_animation_end(self, animation):
@@ -260,7 +146,139 @@ init -1 python:
                 self.hurt_event.invoke()
 
 
-        def is_player_in_sight(self):
+        ## this method exists purely for 2d debugging
+        def draw_2d(self, canvas):
+            canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.radius * self.game.scale)
+
+            if (not self.is_alive or not self._is_player_in_sight()):
+                return
+
+            canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 
+                (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 2)
+                
+        #endregion
+
+        #region Private methods
+
+        def _change_animation(self, animation, audio=None, on_change=None, override_same=False):
+
+            if (self.sprite_anim == animation and not override_same):
+                return
+            
+            if (on_change is not None):
+                on_change()
+
+            if (audio is not None):
+                renpy.play(audio)
+
+            self.sprite_anim = animation
+            self.at = 0
+        
+
+        def _on_attack(self):
+            if (self.attack_audio is not None):
+                renpy.play(self.attack_audio)
+
+            hit_roll = renpy.random.randint(0, 99)
+
+            if (hit_roll < self.accuracy):
+                self.game.player.apply_damage(self.attack_damage)
+                
+
+        def _pathfind_to_start_pos(self, delta_time):
+
+            if (self.path is None):
+                self.path = self.pathfinding.find_path(self.coord, self.start_coord)
+            
+            ## if there is no path or we have arrived, return self.lost_player to False
+            if (not self._pathfind_along_current_path(delta_time)):
+                self.lost_player = False
+
+
+        def _pathfind_to_player(self, player_coord, delta_time):
+
+            ## update the path if we dont have one or if the players position changed and we are still within the LOS grace period
+            if (self.los_grace_timer < self.los_grace_period and (self.path is None or self.last_player_coord != player_coord)):
+                self.path = self.pathfinding.find_path(self.coord, player_coord)
+            
+            self.last_player_coord = player_coord
+
+            if (self.path is not None and len(self.path) > 1):
+
+                next_tile = self.path[1]
+
+                ## +0.5 to go to the center of the tile
+                target_x = next_tile[0] + 0.5
+                target_y = next_tile[1] + 0.5
+
+                distance = math.hypot(target_x - self.pos_x, target_y - self.pos_y)
+
+                ## pop the element to use the next step, next time
+                if (distance < 0.1):
+                    self.path.pop(0)
+
+                self._move_towards((target_x, target_y), delta_time)
+
+            else:
+
+                ## reset variables
+                self.path = None
+                self.last_player_coord = None
+                self.los_grace_timer = 0
+                self.lost_player = True
+                return
+
+            self.los_grace_timer += delta_time
+        
+
+        def _pathfind_along_current_path(self, delta_time):
+
+            if (self.path is not None and len(self.path) > 1):
+
+                next_tile = self.path[1]
+
+                ## +0.5 to go to the center of the tile
+                target_x = next_tile[0] + 0.5
+                target_y = next_tile[1] + 0.5
+
+                distance = math.hypot(target_x - self.pos_x, target_y - self.pos_y)
+
+                ## pop the element to use the next step, next time
+                if (distance < 0.1):
+                    self.path.pop(0)
+
+                self._move_towards((target_x, target_y), delta_time)
+                
+                return True
+            
+            return False
+
+
+        def _move_towards(self, target_coord, delta_time):
+            
+            self._change_animation(self.walk_anim)
+
+            target_coord_x, target_coord_y = target_coord
+
+            angle = math.atan2(target_coord_y - self.pos_y, target_coord_x - self.pos_x)
+            speed = self.speed * delta_time
+            
+            speed_cos = speed * math.cos(angle)
+            speed_sin = speed * math.sin(angle)
+
+            delta_x = speed_cos
+            delta_y = speed_sin
+
+            new_x = self.pos_x + delta_x
+            new_y = self.pos_y + delta_y
+
+            self.pos_x = new_x
+            self.pos_y = new_y
+
+            self.pos_x, self.pos_y = CollisionSystem.collision_pass(self.game, self)
+        
+        
+        def _is_player_in_sight(self):
 
             world_map = self.game.map.world_map
 
@@ -293,13 +311,4 @@ init -1 python:
             
             return False
 
-        
-        ## this method exists purely for 2d debugging
-        def draw_2d(self, canvas):
-            canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.radius * self.game.scale)
-
-            if (not self.is_alive or not self.is_player_in_sight()):
-                return
-
-            canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 
-                (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 2)
+        #endregion

@@ -35,6 +35,7 @@ init python:
 
         def _prepare_cells(self):
             raycast_hits = self.game.raycaster.cast_rays_dda()
+            self.depth_buffer = [float("inf") for _ in range(FpsSettings.RAY_COUNT)]
 
             for ray_index, hits in enumerate(raycast_hits):
                 for hit in hits:
@@ -64,8 +65,8 @@ init python:
                         elif (hit.cell.open_direction is EDirection.Up):
                             crop_y = int(FpsSettings.TEXTURE_SIZE * hit.cell.open_amount)
 
-                    self.objects_to_render.append(
-                        (hit.near_depth,
+                    projection_result = ProjectionResult(
+                        hit.near_depth,
                         hit.far_depth,
                         texture,
                         (crop_x, crop_y, crop_width, crop_height),
@@ -73,16 +74,19 @@ init python:
                         (pos_x, pos_y),
                         0,
                         hit.cell,
-                        hit.side)
+                        hit.side
                     )
+
+                    self.objects_to_render.append(projection_result)
 
 
         def _prepare_sprite_objects(self):
 
             for sprite_object in self.game.sprite_objects + self.game.npcs:
                 projection_result = sprite_object.get_sprite_projection()
-
+                
                 if (projection_result):
+
                     self.objects_to_render.append(projection_result)
 
                     shadow_projection = sprite_object.get_shadow_projection()

@@ -2,8 +2,8 @@ init python:
     class InputKeyHandler():
         def __init__(self, key, *, on_key_down=None, on_key_up=None, on_key=None):
 
-            self.pressed = False
-            self.key = key
+            self._pressed = False
+            self._key = key
 
             self.on_key_down = GameEvent()
             self.on_key_up = GameEvent()
@@ -18,14 +18,14 @@ init python:
 
 
         def handle_input(self, input_event):
-            if (input_event[self.key]):
+            if (input_event[self._key]):
 
-                if (not self.pressed):
-                    self.pressed = True
+                if (not self._pressed):
+                    self._pressed = True
                     self.on_key_down.invoke()
 
                 self.on_key.invoke()
 
-            elif (self.pressed):
-                self.pressed = False
+            elif (self._pressed):
+                self._pressed = False
                 self.on_key_up.invoke()

@@ -1,29 +1,25 @@
 init python:
     class ObjectPool():
-
-        TAKEN_VALUE = "taken"
-        NOT_TAKEN_VALUE = "not_taken"
-
         def __init__(self, obj, pool_size, dynamic=True):
 
-            self.template = obj
-            self.pool = {}
+            self._obj = obj
+            self._pool = {}
+            self._dynamic = dynamic
+
             for i in range(pool_size):
-                self.pool[deepcopy(self.template)] = ObjectPool.NOT_TAKEN_VALUE
-            
-            self.dynamic = dynamic
-        
+                self._pool[deepcopy(self._obj)] = EAvailability.Available
+
 
         def get(self):
 
-            for key, value in self.pool.items():
-                if (value == ObjectPool.NOT_TAKEN_VALUE):
-                    self.pool[key] = ObjectPool.TAKEN_VALUE
+            for key, value in self._pool.items():
+                if (value == EAvailability.Available):
+                    self._pool[key] = EAvailability.Unavailable
                     return key
             
-            if (self.dynamic):
-                new_entry = deepcopy(self.template)
-                self.pool[new_entry] = ObjectPool.TAKEN_VALUE
+            if (self._dynamic):
+                new_entry = deepcopy(self._obj)
+                self._pool[new_entry] = EAvailability.Unavailable
                 return new_entry
 
             return None
@@ -31,6 +27,6 @@ init python:
 
         def release(self, obj):
 
-            if (obj in self.pool.keys()):
+            if (obj in self._pool.keys()):
                 obj.reset()
-                self.pool[obj] = ObjectPool.NOT_TAKEN_VALUE
+                self._pool[obj] = EAvailability.Available
