@@ -3,7 +3,7 @@ define health_pickup_anim = AnimationData("health_pack", None)
 init python:
     class HealthPickup(PickupObject):
         def __init__(self, game, pos):
-            super().__init__(game, health_pickup_anim, pos, scale=0.1, height_shift=5)
+            super().__init__(game, health_pickup_anim, pos, scale=0.4)
 
             self.healing_amount = 25
 

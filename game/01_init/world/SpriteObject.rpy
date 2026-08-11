@@ -90,12 +90,13 @@ init -2 python:
 
             half_projection_width = projection_width // 2
 
-            ## apply height shift
+            ground_y = (FpsSettings.HALF_SCREEN_HEIGHT + FpsSettings.PROJECTION_DISTANCE / depth * 0.5)
+            
             height_shift = projection_height * self.height_shift
 
             ## calculate position
             pos_x = screen_x - half_projection_width
-            pos_y = FpsSettings.HALF_SCREEN_HEIGHT - projection_height // 2 + height_shift
+            pos_y = ground_y - projection_height + height_shift
 
             ## make sure animation time stays within duration to avoid the animation looping back to the start
             at = min(self.sprite_anim.duration - 0.0001 if self.sprite_anim.duration else 0, self.at)

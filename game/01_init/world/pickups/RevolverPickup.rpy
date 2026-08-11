@@ -3,7 +3,7 @@ define revolver_pickup_anim = AnimationData("revolver", None)
 init python:
     class RevolverPickup(PickupObject):
         def __init__(self, game, pos):
-            super().__init__(game, revolver_pickup_anim, pos, scale=0.2, height_shift=2.4)
+            super().__init__(game, revolver_pickup_anim, pos, scale=0.2)
 
             self.weapon = RevolverWeapon(self.game.player)
             self.ammo_amount = 18

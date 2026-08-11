@@ -12,8 +12,8 @@ init python:
                 pos:                    Position, 
                 animation:              AnimationData, 
                 item:                   InventoryItem,
-                scale:                  float=0.3, 
-                height_shift:           float=1.5, 
+                scale:                  float=0.4, 
+                height_shift:           float=0.0, 
                 pickup_audio:           str=None, 
                 trigger_notification:   bool=True):
             super().__init__(

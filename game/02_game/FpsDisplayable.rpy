@@ -33,15 +33,15 @@ init python:
             self.object_renderer = ObjectRenderer(self, self.player, self.map)
             
             self.sprite_objects = [
-                SpriteObject(self, candlestick_anim, scale=0.7, height_shift=0.27, is_solid=True),
-                SpriteObject(self, torch_anim, pos=(14.5, 15.5), height_shift=0.05),
+                SpriteObject(self, candlestick_anim, scale=0.7, is_solid=True),
+                SpriteObject(self, torch_anim, pos=(14.5, 15.5)),
                 HealthPickup(self, (2.5, 14.5)),
                 ArmorPickup(self, (3.5, 14.5)),
                 ShotgunAmmoPickup(self, (2.5, 15.5)),
                 RevolverPickup(self, (7.5, 4.5)),
-                KeyPickup(self, (1.5, 18.5), red_keycard_pickup_anim, FpsItem.RED_KEYCARD),
-                KeyPickup(self, (1.5, 19.5), yellow_keycard_pickup_anim, FpsItem.YELLOW_KEYCARD),
-                KeyPickup(self, (1.5, 20.5), blue_keycard_pickup_anim, FpsItem.BLUE_KEYCARD),
+                KeyPickup(self, (1.5, 18.5), red_keycard_pickup_anim, FpsItem.RED_KEYCARD, scale=0.25),
+                KeyPickup(self, (1.5, 19.5), yellow_keycard_pickup_anim, FpsItem.YELLOW_KEYCARD, scale=0.25),
+                KeyPickup(self, (1.5, 20.5), blue_keycard_pickup_anim, FpsItem.BLUE_KEYCARD, scale=0.25),
                 KeyPickup(self, (1.5, 21.5), red_key_pickup_anim, FpsItem.RED_KEY),
                 KeyPickup(self, (1.5, 22.5), yellow_key_pickup_anim, FpsItem.YELLOW_KEY),
                 KeyPickup(self, (1.5, 23.5), blue_key_pickup_anim, FpsItem.BLUE_KEY),

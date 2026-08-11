@@ -3,7 +3,7 @@ define armor_pickup_anim = AnimationData("armor", None)
 init python:
     class ArmorPickup(PickupObject):
         def __init__(self, game, pos):
-            super().__init__(game, armor_pickup_anim, pos, scale=.3, height_shift=1.5)
+            super().__init__(game, armor_pickup_anim, pos, scale=.5)
 
             self.armor_amount = 50
 

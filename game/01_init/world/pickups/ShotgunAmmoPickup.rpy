@@ -3,7 +3,7 @@ define shotgun_ammo_pickup_anim = AnimationData("shotgun_ammo", None)
 init python:
     class ShotgunAmmoPickup(PickupObject):
         def __init__(self, game, pos):
-            super().__init__(game, shotgun_ammo_pickup_anim, pos, scale=0.2, height_shift=2.4)
+            super().__init__(game, shotgun_ammo_pickup_anim, pos, scale=0.2)
 
             self.ammo_type = ShotgunAmmoType()
             self.ammo_amount = 10

@@ -5,8 +5,8 @@ define zombie_hurt_anim = AnimationData("zombie_hurt", 0.4)
 define zombie_death_anim = AnimationData("zombie_death", 0.5)
 
 image zombie_attack = Animation(
-    "zombie_shoot_02", 0.1,
-    "zombie_shoot_03", 0.4
+    "zombie_shoot_01", 0.1,
+    "zombie_idle_01", 0.4
 ) # 0.5 seconds
 
 image zombie_idle:
@@ -21,7 +21,7 @@ image zombie_walk = Animation(
 
 image zombie_hurt = Animation(
     "zombie_hurt_01", 0.3,
-    "zombie_hurt_02", 0.1
+    "zombie_idle_01", 0.1
 ) # 0.4 seconds
 
 image zombie_death = Animation(
@@ -39,8 +39,8 @@ init python:
                 game, 
                 pos, 
                 sprite_anim=zombie_idle_anim, 
-                scale=0.7, 
-                height_shift=0.35)
+                scale=0.7,
+                height_shift=0.05)
 
             ## animations
             self.attack_anim = zombie_attack_anim
