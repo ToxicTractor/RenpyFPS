@@ -1,5 +1,7 @@
 init python:
     class ObjectRenderer():
+        OCCLUSION_EPSILON = 0.05 ## avoids flicker when a sprite sits right at a wall's depth
+
         def __init__(self, game, player, map):
             self.game = game
             self.player = player
@@ -38,6 +40,9 @@ init python:
             self.depth_buffer = [float("inf") for _ in range(FpsSettings.RAY_COUNT)]
 
             for ray_index, hits in enumerate(raycast_hits):
+                if hits:
+                    self.depth_buffer[ray_index] = hits[0].near_depth
+
                 for hit in hits:
                     if (hit.cell.type == ECellType.Empty):
                         continue
@@ -84,15 +89,40 @@ init python:
 
             for sprite_object in self.game.sprite_objects + self.game.npcs:
                 projection_result = sprite_object.get_sprite_projection()
-                
+
                 if (projection_result):
+
+                    if (self._is_sprite_occluded(projection_result)):
+                        continue
 
                     self.objects_to_render.append(projection_result)
 
                     shadow_projection = sprite_object.get_shadow_projection()
-                    
+
                     if (shadow_projection):
                         self.objects_to_render.append(shadow_projection)
+
+
+        def _is_sprite_occluded(self, projection_result):
+            """
+            Returns True if every screen column the sprite covers has a nearer wall in front of it.
+            """
+            left = projection_result.position.x
+            right = left + projection_result.size.x
+
+            start_ray = max(int(left // FpsSettings.PROJECTION_SCALE), 0)
+            end_ray = min(int(right // FpsSettings.PROJECTION_SCALE), FpsSettings.RAY_COUNT - 1)
+
+            if start_ray > end_ray:
+                return False
+
+            sprite_depth = projection_result.near_depth
+
+            for ray_index in range(start_ray, end_ray + 1):
+                if sprite_depth <= self.depth_buffer[ray_index] + self.OCCLUSION_EPSILON:
+                    return False
+
+            return True
 
 
         def _draw_objects(self, screen, offset, st):
