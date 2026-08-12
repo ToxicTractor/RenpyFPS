@@ -1,8 +1,8 @@
-define zombie_attack_anim = AnimationData("zombie_attack", 0.5, False)
-define zombie_idle_anim = AnimationData("zombie_idle", 0, False)
+define zombie_attack_anim = AnimationData("zombie_attack", 0.5)
+define zombie_idle_anim = AnimationData("zombie_idle", 0)
 define zombie_walk_anim = AnimationData("zombie_walk", 0.8, True)
-define zombie_hurt_anim = AnimationData("zombie_hurt", 0.4, False)
-define zombie_death_anim = AnimationData("zombie_death", 0.5, False)
+define zombie_hurt_anim = AnimationData("zombie_hurt", 0.4)
+define zombie_death_anim = AnimationData("zombie_death", 0.5)
 
 image zombie_attack = Animation(
     "zombie_shoot_01", 0.1,

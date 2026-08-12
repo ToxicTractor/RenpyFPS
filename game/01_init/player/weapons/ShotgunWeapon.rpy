@@ -1,6 +1,6 @@
-define shotgun_idle_anim = AnimationData("shotgun_idle", None, False)
-define shotgun_shoot_anim = AnimationData("shotgun_shoot", 0.8, False)
-define shotgun_shell_anim = AnimationData("shotgun_shell", 0.3, False)
+define shotgun_idle_anim = AnimationData("shotgun_idle", None)
+define shotgun_shoot_anim = AnimationData("shotgun_shoot", 0.8)
+define shotgun_shell_anim = AnimationData("shotgun_shell", 0.3)
 
 image shotgun_idle:
     "shotgun_idle_01"

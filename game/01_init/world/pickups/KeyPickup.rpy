@@ -1,9 +1,9 @@
-define red_keycard_pickup_anim = AnimationData("red_keycard", None, False)
-define red_key_pickup_anim = AnimationData("red_key", None, False)
-define yellow_keycard_pickup_anim = AnimationData("yellow_keycard", None, False)
-define yellow_key_pickup_anim = AnimationData("yellow_key", None, False)
-define blue_keycard_pickup_anim = AnimationData("blue_keycard", None, False)
-define blue_key_pickup_anim = AnimationData("blue_key", None, False)
+define red_keycard_pickup_anim = AnimationData("red_keycard", None)
+define red_key_pickup_anim = AnimationData("red_key", None)
+define yellow_keycard_pickup_anim = AnimationData("yellow_keycard", None)
+define yellow_key_pickup_anim = AnimationData("yellow_key", None)
+define blue_keycard_pickup_anim = AnimationData("blue_keycard", None)
+define blue_key_pickup_anim = AnimationData("blue_key", None)
 
 init python:
     class KeyPickup(PickupObject):

@@ -1,6 +1,6 @@
-define fists_idle_anim = AnimationData("fists_idle", None, False)
-define fists_attack_r_anim = AnimationData("fists_attack_left", 0.4, False)
-define fists_attack_l_anim = AnimationData("fists_attack_right", 0.4, False)
+define fists_idle_anim = AnimationData("fists_idle", None)
+define fists_attack_r_anim = AnimationData("fists_attack_left", 0.4)
+define fists_attack_l_anim = AnimationData("fists_attack_right", 0.4)
 
 image fists_idle:
     "fists_idle_01"

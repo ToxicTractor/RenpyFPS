@@ -18,6 +18,3 @@ init -100 python:
 
     ## inventory and items
     InventoryItem = namedtuple("InventoryItem", ["id", "name", "icon"])
-
-    ## animations
-    AnimationData = namedtuple("AnimationData", ["image", "duration", "loop"])

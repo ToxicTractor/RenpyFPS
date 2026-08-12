@@ -1,6 +1,6 @@
-define revolver_idle_anim = AnimationData("revolver_idle", None, False)
-define revolver_shoot_anim = AnimationData("revolver_shoot", 0.8, False)
-define revolver_reload_anim = AnimationData("revolver_reload", 1.2, False)
+define revolver_idle_anim = AnimationData("revolver_idle", None)
+define revolver_shoot_anim = AnimationData("revolver_shoot", 0.8)
+define revolver_reload_anim = AnimationData("revolver_reload", 1.2)
 
 image revolver_idle:
     "revolver_idle_01"

@@ -1,4 +1,4 @@
-define shotgun_ammo_pickup_anim = AnimationData("shotgun_ammo", None, False)
+define shotgun_ammo_pickup_anim = AnimationData("shotgun_ammo", None)
 
 init python:
     class ShotgunAmmoPickup(PickupObject):
