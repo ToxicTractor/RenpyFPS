@@ -24,7 +24,6 @@ init -2 python:
             locked_notification:        str=FpsConstants.LOCKED_DOOR_NOTIFICATION):
             super().__init__(coord)
 
-            self.coord = coord
             self.main_texture = main_texture
             self.side_texture = side_texture
             self.grid_alignment = grid_alignment

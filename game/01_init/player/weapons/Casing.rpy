@@ -4,8 +4,8 @@ init python:
         def __init__(self, animation, start_position, lifetime=None, scale=1.0):
 
             self.animation = animation
-            self.start_x, self.start_y = start_position
-            self.pos_x, self.pos_y = start_position
+            self.start_pos = Vector2(*start_position)
+            self.pos = Vector2(*start_position)
             self.scale = scale
             self.lifetime = self.animation.duration if lifetime is None else lifetime
             self.at = 0
@@ -26,7 +26,7 @@ init python:
 
             render = renpy.render(displayable, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, min(self.animation.duration - 0.0001, self.at))
 
-            screen.blit(render, (self.pos_x, self.pos_y))
+            screen.blit(render, (self.pos.x, self.pos.y))
 
 
         def update(self, delta_time):
@@ -34,26 +34,25 @@ init python:
             if (self.at < self.lifetime):
                 self.at += delta_time
 
-            self.pos_x, self.pos_y = self.calculate_current_position()
+            self.pos = self.calculate_current_position()
 
 
         def reset(self):
 
-            self.pos_x = self.start_x
-            self.pos_y = self.start_y
+            self.pos = self.start_pos
             self.at = 0
 
 
         def calculate_current_position(self):
             if (self.animation.duration == 0):
-                return self.start_x, self.start_y
+                return self.start_pos
 
-            x = int((2000*self.at) + self.start_x)
-            
+            x = int((2000*self.at) + self.start_pos.x)
+
             a = 8000
             b = -1800
             c = 0
-            
-            y = int((a * self.at ** 2 + b * self.at + c) + self.start_y)
 
-            return x, y
+            y = int((a * self.at ** 2 + b * self.at + c) + self.start_pos.y)
+
+            return Vector2(x, y)

@@ -4,7 +4,7 @@ init -2 python:
             self.game = game
             self.player = game.player
             self.sprite_anim = sprite_anim
-            self.pos_x, self.pos_y = pos
+            self.pos = Vector2(*pos)
             self.scale = scale
             self.height_shift = height_shift
             self._is_solid = is_solid
@@ -25,21 +25,9 @@ init -2 python:
             self._min_render_depth = 0.1
 
         @property
-        def pos(self):
-            return (self.pos_x, self.pos_y)
-
-        @property
         def coord(self):
-            return (int(self.pos_x), int(self.pos_y))
+            return Vector2(int(self.pos.x), int(self.pos.y))
 
-        @property
-        def coord_x(self):
-            return int(self.pos_x)
-
-        @property
-        def coord_y(self):
-            return int(self.pos_y)
-        
         @property
         def is_solid(self):
             return self._is_solid
@@ -63,8 +51,8 @@ init -2 python:
         def get_projection(self):
             
             ## find dx and dy to the player
-            dx = self.pos_x - self.player.pos_x
-            dy = self.pos_y - self.player.pos_y
+            dx = self.pos.x - self.player.pos.x
+            dy = self.pos.y - self.player.pos.y
 
             ## calculate angle from world x to direction of above
             ## note atan2 takes y first and x second
@@ -119,8 +107,7 @@ init -2 python:
             height_shift = projection_height * self.height_shift
 
             ## calculate position
-            pos_x = screen_x - half_projection_width
-            pos_y = ground_y - projection_height + height_shift
+            pos = Vector2(screen_x - half_projection_width, ground_y - projection_height + height_shift)
 
             ## make sure animation time stays within duration
             at = min(self.sprite_anim.duration - 0.0001 if self.sprite_anim.duration else 0, self.at)
@@ -131,7 +118,7 @@ init -2 python:
                 self.sprite_anim.image,
                 Rect(0, 0, self.sprite_width, self.sprite_height),
                 Vector2(projection_width, projection_height),
-                Vector2(pos_x, pos_y),
+                pos,
                 at,
                 None,
                 None
@@ -157,16 +144,15 @@ init -2 python:
             shadow_height = int(projection * self.shadow_height)
 
             ## calculate position
-            pos_x = screen_x - shadow_width // 2
-            pos_y = ground_y - shadow_height // 2
+            pos = Vector2(screen_x - shadow_width // 2, ground_y - shadow_height // 2)
 
             return ProjectionResult(
                 FpsSettings.MAX_DEPTH, ## we always want to draw the shadow behind other things no matter how far or close they are
                 depth,
                 self.shadow_image,
-                Rect(0, 0, self.shadow_width, self.shadow_height), 
-                Vector2(shadow_width, shadow_height), 
-                Vector2(pos_x, pos_y),
+                Rect(0, 0, self.shadow_width, self.shadow_height),
+                Vector2(shadow_width, shadow_height),
+                pos,
                 0,
                 None,
                 None

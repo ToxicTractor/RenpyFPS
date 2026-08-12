@@ -55,7 +55,7 @@ init -1 python:
 
         @property
         def coord(self):
-            return int(self.pos_x), int(self.pos_y)
+            return Vector2(int(self.pos.x), int(self.pos.y))
 
         #endregion
         
@@ -66,7 +66,6 @@ init -1 python:
             
             if self.is_alive:
                 player_coord = self.game.player.coord
-                player_coord_x, player_coord_y = player_coord
                 self.has_los_to_player = self._is_player_in_sight()
 
                 if (self.hurt):
@@ -89,7 +88,7 @@ init -1 python:
                         self.attack = True
                         return
 
-                    self._move_towards((player_coord_x + 0.5, player_coord_y + 0.5), delta_time)
+                    self._move_towards((player_coord.x + 0.5, player_coord.y + 0.5), delta_time)
 
                     ## set variables
                     self.path = None
@@ -148,13 +147,13 @@ init -1 python:
 
         ## this method exists purely for 2d debugging
         def draw_2d(self, canvas):
-            canvas.circle("#f00", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.radius * self.game.scale)
+            canvas.circle("#f00", (self.pos.x * self.game.scale, self.pos.y * self.game.scale), self.radius * self.game.scale)
 
             if (not self.is_alive or not self._is_player_in_sight()):
                 return
 
-            canvas.line("#fa0", (self.game.player.pos_x * self.game.scale, self.game.player.pos_y * self.game.scale), 
-                (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 2)
+            canvas.line("#fa0", (self.game.player.pos.x * self.game.scale, self.game.player.pos.y * self.game.scale),
+                (self.pos.x * self.game.scale, self.pos.y * self.game.scale), 2)
                 
         #endregion
 
@@ -211,7 +210,7 @@ init -1 python:
                 target_x = next_tile[0] + 0.5
                 target_y = next_tile[1] + 0.5
 
-                distance = math.hypot(target_x - self.pos_x, target_y - self.pos_y)
+                distance = math.hypot(target_x - self.pos.x, target_y - self.pos.y)
 
                 ## pop the element to use the next step, next time
                 if (distance < 0.1):
@@ -241,14 +240,14 @@ init -1 python:
                 target_x = next_tile[0] + 0.5
                 target_y = next_tile[1] + 0.5
 
-                distance = math.hypot(target_x - self.pos_x, target_y - self.pos_y)
+                distance = math.hypot(target_x - self.pos.x, target_y - self.pos.y)
 
                 ## pop the element to use the next step, next time
                 if (distance < 0.1):
                     self.path.pop(0)
 
                 self._move_towards((target_x, target_y), delta_time)
-                
+
                 return True
             
             return False
@@ -260,22 +259,21 @@ init -1 python:
 
             target_coord_x, target_coord_y = target_coord
 
-            angle = math.atan2(target_coord_y - self.pos_y, target_coord_x - self.pos_x)
+            angle = math.atan2(target_coord_y - self.pos.y, target_coord_x - self.pos.x)
             speed = self.speed * delta_time
-            
+
             speed_cos = speed * math.cos(angle)
             speed_sin = speed * math.sin(angle)
 
             delta_x = speed_cos
             delta_y = speed_sin
 
-            new_x = self.pos_x + delta_x
-            new_y = self.pos_y + delta_y
+            new_x = self.pos.x + delta_x
+            new_y = self.pos.y + delta_y
 
-            self.pos_x = new_x
-            self.pos_y = new_y
+            self.pos = Vector2(new_x, new_y)
 
-            self.pos_x, self.pos_y = CollisionSystem.collision_pass(self.game, self)
+            self.pos = CollisionSystem.collision_pass(self.game, self)
         
         
         def _is_player_in_sight(self):
@@ -290,8 +288,8 @@ init -1 python:
             cell_x, cell_y = self.coord
 
             ## calculate theta
-            dx = self.pos_x - self.player.pos_x
-            dy = self.pos_y - self.player.pos_y
+            dx = self.pos.x - self.player.pos.x
+            dy = self.pos.y - self.player.pos.y
             theta = math.atan2(dy, dx)
 
             ## calculate sin and cos

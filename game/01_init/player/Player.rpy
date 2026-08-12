@@ -4,7 +4,7 @@ init python:
         def __init__(self, game, pos=(0, 0), angle=0.0):
             self.game = game
             self.map = game.map
-            self.pos_x, self.pos_y = pos
+            self.pos = Vector2(*pos)
             self.angle = deg_to_rad(angle)
             self.speed = 5
             self.angular_speed = 2
@@ -100,27 +100,12 @@ init python:
             return self.weapons[self.equipped_weapon_index]
 
         @property
-        def pos(self):
-            """
-            A tuple representing the players current position.
-            """
-            return self.pos_x, self.pos_y
-
-        @property
         def coord(self):
             """
-            A tuple representing the players current map coord.
+            A Vector2 representing the players current map coord.
             """
-            return int(self.pos_x), int(self.pos_y)
+            return Vector2(int(self.pos.x), int(self.pos.y))
 
-        @property
-        def coord_x(self):
-            return int(self.pos_x)
-
-        @property
-        def coord_y(self):
-            return int(self.pos_y)
-        
         @property
         def center_cell_trace(self):
             if (self._cached_center_cell_trace):
@@ -148,10 +133,10 @@ init python:
             """
             Draws a 2d representation of the player to the screen. Intended for debugging only.
             """
-            canvas.line("#ff0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), 
-                (self.pos_x * self.game.scale + config.screen_width * math.cos(self.angle) , self.pos_y  * self.game.scale + config.screen_width * math.sin(self.angle)), 2)
+            canvas.line("#ff0", (self.pos.x * self.game.scale, self.pos.y * self.game.scale),
+                (self.pos.x * self.game.scale + config.screen_width * math.cos(self.angle) , self.pos.y  * self.game.scale + config.screen_width * math.sin(self.angle)), 2)
 
-            canvas.circle("#0f0", (self.pos_x * self.game.scale, self.pos_y * self.game.scale), self.radius * self.game.scale)
+            canvas.circle("#0f0", (self.pos.x * self.game.scale, self.pos.y * self.game.scale), self.radius * self.game.scale)
 
 
         def handle_input(self, key_pressed):
@@ -446,8 +431,8 @@ init python:
                     if (not npc.is_alive):
                         continue
 
-                    vx = npc.pos_x - self.pos_x
-                    vy = npc.pos_y - self.pos_y
+                    vx = npc.pos.x - self.pos.x
+                    vy = npc.pos.y - self.pos.y
 
                     t = vx * dx + vy * dy
 
@@ -462,10 +447,10 @@ init python:
                     if weapon_range and t > weapon_range:
                         continue
 
-                    closest_x = self.pos_x + dx * t
-                    closest_y = self.pos_y + dy * t
+                    closest_x = self.pos.x + dx * t
+                    closest_y = self.pos.y + dy * t
 
-                    dist_sq = (npc.pos_x - closest_x)**2 + (npc.pos_y - closest_y)**2
+                    dist_sq = (npc.pos.x - closest_x)**2 + (npc.pos.y - closest_y)**2
 
                     if (dist_sq <= npc.hit_size**2):
 
@@ -550,15 +535,14 @@ init python:
             delta_x = vertical * speed_cos + horizontal * -speed_sin
             delta_y = vertical * speed_sin + horizontal * speed_cos
 
-            new_x = self.pos_x + delta_x
-            new_y = self.pos_y + delta_y
-            
+            new_x = self.pos.x + delta_x
+            new_y = self.pos.y + delta_y
+
             ## move the player
-            self.pos_x = new_x
-            self.pos_y = new_y
+            self.pos = Vector2(new_x, new_y)
 
             ## correct the players position by doing a collision pass
-            self.pos_x, self.pos_y = CollisionSystem.collision_pass(self.game, self)
+            self.pos = CollisionSystem.collision_pass(self.game, self)
 
             delta_angle = self.input_angle * self.angular_speed * delta_time
 

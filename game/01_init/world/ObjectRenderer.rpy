@@ -71,7 +71,7 @@ init python:
                         texture,
                         (crop_x, crop_y, crop_width, crop_height),
                         (FpsSettings.PROJECTION_SCALE, height),
-                        (pos_x, pos_y),
+                        Vector2(pos_x, pos_y),
                         0,
                         hit.cell,
                         hit.side
@@ -118,7 +118,7 @@ init python:
                 
                 slice_render = renpy.render(pixel_slice, FpsSettings.PROJECTION_SCALE, int(projection_size[1]), st, at)
 
-                screen.blit(slice_render, (pos[0] + offset_x, pos[1] + offset_y))
+                screen.blit(slice_render, (pos.x + offset_x, pos.y + offset_y))
 
 
         def _draw_vertical_door_horizontal_side(self, screen, offset, near_depth, far_depth, crop, pos, cell, st, at):
@@ -149,7 +149,7 @@ init python:
 
             slice_render = renpy.render(pixel_slice, FpsSettings.PROJECTION_SCALE, height, st, at)
 
-            screen.blit(slice_render, (pos[0] + offset_x, top + offset_y))
+            screen.blit(slice_render, (pos.x + offset_x, top + offset_y))
 
 
         def _draw_floor(self, screen, offset):

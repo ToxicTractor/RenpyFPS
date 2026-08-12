@@ -3,7 +3,7 @@ init -1 python:
         def __init__(self, game, pos, size, trigger_shape=ETriggerShape.Rectangle, trigger_type=ETriggerType.PlayerOnly, once_only=False):
             self.game = game
             self.player = game.player
-            self.pos_x, self.pos_y = pos
+            self.pos = Vector2(*pos)
             self.width, self.height = size
             self._trigger_shape = trigger_shape
             self._trigger_type = trigger_type
@@ -19,11 +19,6 @@ init -1 python:
             ## they are also called just after the normal events
             self.enter_entity_event = GameEvent()
             self.exit_entity_event = GameEvent()
-
-        @property
-        def pos(self):
-            return (self.pos_x, self.pos_y)
-
 
         def update(self, delta_time):
             if (self._once_only and self._enter_triggered and self._exit_triggered):
@@ -52,11 +47,10 @@ init -1 python:
                 return sqr_dist(self.pos, pos) <= self.size**2
 
             else:## fall back to a rectangle shape
-                pos_x, pos_y = pos
-                return (pos_x >= self.pos_x and
-                        pos_x <= self.pos_x + self.width and
-                        pos_y >= self.pos_y and
-                        pos_y <= self.pos_y + self.height)
+                return (pos.x >= self.pos.x and
+                        pos.x <= self.pos.x + self.width and
+                        pos.y >= self.pos.y and
+                        pos.y <= self.pos.y + self.height)
 
 
         def _handle_entity_events(self, entity):

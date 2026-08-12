@@ -95,9 +95,9 @@ init python:
                 if face in FpsConstants.VERTICAL_DIRECTIONS:
                     # Large faces
                     if (self.open_direction == EDirection.Right):
-                        offset = hit_x - (self.coord_x + 1 - self.open_amount)
+                        offset = hit_x - (self.coord.x + 1 - self.open_amount)
                     else:
-                        offset = hit_x - (self.coord_x + self.open_amount)
+                        offset = hit_x - (self.coord.x + self.open_amount)
                 else:
                     # Thin ends
                     offset = (hit_y - aabb.min_y) / self.thickness
@@ -106,9 +106,9 @@ init python:
                 if face in FpsConstants.HORIZONTAL_DIRECTIONS:
                     # Large faces
                     if (self.open_direction == EDirection.Right):
-                        offset = hit_y - (self.coord_y + 1 - self.open_amount)
+                        offset = hit_y - (self.coord.y + 1 - self.open_amount)
                     else:
-                        offset = hit_y - (self.coord_y + self.open_amount)
+                        offset = hit_y - (self.coord.y + self.open_amount)
                 else:
                     # Thin ends
                     offset = (hit_x - aabb.min_x) / self.thickness

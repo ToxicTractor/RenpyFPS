@@ -2,16 +2,8 @@ init -3 python:
     class CellBase(ABC):
         def __init__(self, coord):
             self.type = ECellType.Empty
-            self.coord = coord
+            self.coord = Vector2(*coord)
             self._cached_aabb = None
-        
-        @property
-        def coord_x(self):
-            return self.coord[0]
-
-        @property
-        def coord_y(self):
-            return self.coord[1]
 
         @property
         def is_npc_walkable(self):
@@ -33,10 +25,10 @@ init -3 python:
             if (self._cached_aabb):
                 return self._cached_aabb
 
-            min_x = self.coord_x
-            min_y = self.coord_y
-            max_x = self.coord_x + 1
-            max_y = self.coord_y + 1
+            min_x = self.coord.x
+            min_y = self.coord.y
+            max_x = self.coord.x + 1
+            max_y = self.coord.y + 1
 
             self._cached_aabb = AABB(min_x, min_y, max_x, max_y)
 

@@ -94,7 +94,7 @@ init python:
             if self.grid_alignment == EGridAlignment.X:
                 if face in FpsConstants.VERTICAL_DIRECTIONS:
                     # Large faces
-                    offset = hit_x - self.coord_x
+                    offset = hit_x - self.coord.x
                 else:
                     # Thin ends
                     offset = (hit_y - aabb.min_y) / self.thickness
@@ -102,7 +102,7 @@ init python:
             elif  self.grid_alignment == EGridAlignment.Y:
                 if face in FpsConstants.HORIZONTAL_DIRECTIONS:
                     # Large faces
-                    offset = hit_y - self.coord_y
+                    offset = hit_y - self.coord.y
                 else:
                     # Thin ends
                     offset = (hit_x - aabb.min_x) / self.thickness

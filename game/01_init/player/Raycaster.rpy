@@ -14,8 +14,8 @@ init python:
             """
             raycast_results = []
 
-            player_x = self.player.pos_x
-            player_y = self.player.pos_y
+            player_x = self.player.pos.x
+            player_y = self.player.pos.y
             player_angle = self.player.angle
             
             sin_player_angle = math.sin(player_angle)

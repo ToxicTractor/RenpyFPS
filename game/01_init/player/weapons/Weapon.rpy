@@ -48,8 +48,7 @@ init -1 python:
 
             self.width, self.height = get_image_size(self.idle_anim.image)
             self.scaled_width, self.scaled_height = int(self.width * self.scale), int(self.height * self.scale)
-            self.pos_x = FpsSettings.HALF_SCREEN_WIDTH - (self.scaled_width // 2)
-            self.pos_y = FpsSettings.SCREEN_HEIGHT - self.scaled_height
+            self.pos = Vector2(FpsSettings.HALF_SCREEN_WIDTH - (self.scaled_width // 2), FpsSettings.SCREEN_HEIGHT - self.scaled_height)
 
             self.at = 0
             self.current_animation = self.idle_anim
@@ -164,7 +163,7 @@ init -1 python:
             weapon_render = renpy.render(weapon_image, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, min(self.current_animation.duration - 0.0001, self.at) if self.current_animation.duration else self.at) ## make sure dont overshoot duration to avoid wrapping back to start
 
             ## draw weapon render to the screen
-            screen.blit(weapon_render, (self.pos_x + offset_x, self.pos_y + offset_y))
+            screen.blit(weapon_render, (self.pos.x + offset_x, self.pos.y + offset_y))
         
         #endregion
 

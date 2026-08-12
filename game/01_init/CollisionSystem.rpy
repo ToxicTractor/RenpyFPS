@@ -19,7 +19,7 @@ init -100 python:
                     break
 
             ## return corrected values
-            return x, y
+            return Vector2(x, y)
         
 
         @staticmethod
@@ -39,8 +39,8 @@ init -100 python:
 
                 check_distance = radius + sprite_object.radius
                 
-                dx = x - sprite_object.pos_x
-                dy = y - sprite_object.pos_y
+                dx = x - sprite_object.pos.x
+                dy = y - sprite_object.pos.y
 
                 distance_sqrd = sqr_dist(sprite_object.pos, (x, y))
                 ## if distance is larger than check distance, no correction is needed
