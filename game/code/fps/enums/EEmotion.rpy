@@ -1,4 +1,4 @@
-init -100 python:
+init -999 python:
     class EFaceEmote(Enum):
         Neutral     = 0
         Hurt        = 1

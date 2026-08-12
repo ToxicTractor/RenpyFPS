@@ -1,4 +1,4 @@
-init -100 python:
+init -999 python:
     class ETriggerType(Enum):
         PlayerOnly  = 0
         NpcOnly     = 1

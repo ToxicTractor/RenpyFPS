@@ -1,4 +1,4 @@
-init -100 python:
+init -999 python:
     class ENotificationType(Enum):
         Default         = 0
         Positive        = 1

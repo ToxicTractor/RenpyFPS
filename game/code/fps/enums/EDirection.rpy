@@ -1,4 +1,4 @@
-init -100 python:
+init -999 python:
     class EDirection(Enum):
         NONE    = 0
         Up      = 1

@@ -1,4 +1,4 @@
-init -100 python:
+init -999 python:
     class ECellType(Enum):
         Empty           = 0
         Wall            = 1
