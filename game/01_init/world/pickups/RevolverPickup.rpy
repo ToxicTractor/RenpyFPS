@@ -1,4 +1,4 @@
-define revolver_pickup_anim = AnimationData("revolver", None)
+define revolver_pickup_anim = AnimationData("revolver", None, False)
 
 init python:
     class RevolverPickup(PickupObject):

@@ -1,5 +1,5 @@
 #region Candlestick
-define candlestick_anim = AnimationData("candlestick", 0)
+define candlestick_anim = AnimationData("candlestick", None, False)
 #endregion
 
 

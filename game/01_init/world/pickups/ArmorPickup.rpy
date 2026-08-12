@@ -1,4 +1,4 @@
-define armor_pickup_anim = AnimationData("armor", None)
+define armor_pickup_anim = AnimationData("armor", None, False)
 
 init python:
     class ArmorPickup(PickupObject):

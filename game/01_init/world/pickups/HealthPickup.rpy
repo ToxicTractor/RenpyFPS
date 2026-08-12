@@ -1,4 +1,4 @@
-define health_pickup_anim = AnimationData("health_pack", None)
+define health_pickup_anim = AnimationData("health_pack", None, False)
 
 init python:
     class HealthPickup(PickupObject):
