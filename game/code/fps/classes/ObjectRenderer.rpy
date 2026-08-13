@@ -153,6 +153,10 @@ init python:
 
         def _draw_vertical_door_horizontal_side(self, screen, offset, near_depth, far_depth, crop, pos, cell, st, at):
             
+            ## if the door is less than half open, we cannot see the surface so we just return.
+            if (cell.open_amount < 0.5):
+                return
+
             offset_x, offset_y = offset
 
             z = cell.get_horizontal_side_z()
