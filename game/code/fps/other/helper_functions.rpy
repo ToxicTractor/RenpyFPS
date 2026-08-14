@@ -74,3 +74,17 @@ init -100 python:
 
     def deg_to_rad(d):
         return d * 0.0174533
+
+
+    ## Converts an angle offset from the center of the player's view (in
+    ## radians) into a screen x position, using true (tan-based) perspective
+    ## rather than the equiangular mapping raw ray index would give.
+    def angle_offset_to_screen_x(angle_offset):
+        return FpsSettings.HALF_SCREEN_WIDTH + FpsSettings.PROJECTION_DISTANCE * math.tan(angle_offset)
+
+
+    ## Inverse of angle_offset_to_screen_x, returning a fractional ray index
+    ## (0 at the left edge of the FOV, RAY_COUNT at the right edge).
+    def screen_x_to_ray_index(screen_x):
+        angle_offset = math.atan((screen_x - FpsSettings.HALF_SCREEN_WIDTH) / FpsSettings.PROJECTION_DISTANCE)
+        return (angle_offset + FpsSettings.HALF_FOV) / FpsSettings.DELTA_ANGLE

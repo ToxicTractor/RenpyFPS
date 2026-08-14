@@ -126,6 +126,12 @@ screen fps_ui_screen(fps):
             align = (0.996, 0.995),
             debug_mode = debug_mode
         )
+    
+    use fps_button_screen(
+        xysize      = (50, 50),
+        align       = (0.0, 0.0),
+        on_click    = Function(swap_renderer_button)
+    )
 
     if (fps.is_won):
         use fps_victory_screen(
@@ -136,3 +142,8 @@ screen fps_ui_screen(fps):
         use fps_game_over_screen(
             debug_mode = debug_mode
         )
+
+## TEMP RENDER BUTTON
+init python:
+    def swap_renderer_button():
+        FpsSettings.USE_DDA_RENDERING = not FpsSettings.USE_DDA_RENDERING

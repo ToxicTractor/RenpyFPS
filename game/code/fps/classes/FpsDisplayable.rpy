@@ -28,7 +28,8 @@ init python:
             self.map.world_map[(14, 18)] = VerticalDoorCell((14, 18), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Down, allow_interaction=False)
 
             self.jukebox = FpsJukebox(self.map)
-            self.player = Player(self, pos=self.map.player_start_pos, angle=230)
+            self.player = Player(self, pos=self.map.player_start_pos, angle=0)
+            self.player.pos = Vector2(1.5, 10.5)
             self.raycaster = Raycaster(self.player, self.map)
             self.object_renderer = ObjectRenderer(self, self.player, self.map)
             
@@ -48,7 +49,7 @@ init python:
             ]
 
             self.npcs = [
-                ZombieNPC(self, pos=(2.5, 5.5)),
+                #ZombieNPC(self, pos=(2.5, 5.5)),
                 ZombieNPC(self, pos=(13.5, 6.5)),
                 ZombieNPC(self, pos=(8.5, 23.5)),
                 ZombieNPC(self, pos=(9.5, 26.5)),

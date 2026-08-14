@@ -61,12 +61,17 @@ init -2 python:
             ## calculate angle between player view direction and theta
             da = theta - self.player.angle
             da = (da + math.pi) % math.tau - math.pi
+            
+            if (FpsSettings.USE_DDA_RENDERING):
+                ## figure out how many rays the sprite spans
+                ray_count = da / FpsSettings.DELTA_ANGLE
 
-            ## figure out how many rays the sprite spans
-            ray_count = da / FpsSettings.DELTA_ANGLE
-
-            ## calculate screen position
-            screen_x = (FpsSettings.HALF_RAY_COUNT + ray_count) * FpsSettings.PROJECTION_SCALE
+                ## calculate screen position
+                screen_x = (FpsSettings.HALF_RAY_COUNT + ray_count) * FpsSettings.PROJECTION_SCALE
+            else:
+                ## calculate screen position using true (tan-based) perspective,
+                ## matching the wall renderer rather than the equiangular mapping from DDA
+                screen_x = angle_offset_to_screen_x(da)
 
             ## calculate depth
             depth = math.hypot(dx, dy) * math.cos(da)
