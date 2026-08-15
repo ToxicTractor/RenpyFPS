@@ -296,17 +296,25 @@ init -1 python:
             ray_direction_x = -math.cos(theta)
             ray_direction_y = -math.sin(theta)
 
-            traced_cells, _ = self.game.raycaster.trace_cells(self.pos, ray_dir=(ray_direction_x, ray_direction_y))
+            traced_cells, _ = self.game.raycaster.trace_cells(self.pos, ray_dir=(ray_direction_x, ray_direction_y), stop_predicate=self._stop_at_blocker_or_player)
 
             for trace in traced_cells:
-                
-                if (trace.cell.type == ECellType.Wall or 
+
+                if (trace.cell.type == ECellType.Wall or
                     (trace.cell.type == ECellType.HorizontalDoor and trace.cell.open_amount < 1.0)):
                     return False
 
                 if (trace.cell.coord == self.game.player.coord):
                     return True
-            
+
             return False
+
+
+        def _stop_at_blocker_or_player(self, entry):
+            if (entry.cell.coord == self.game.player.coord):
+                return True
+
+            return (entry.cell.type == ECellType.Wall or
+                    (entry.cell.type == ECellType.HorizontalDoor and entry.cell.open_amount < 1.0))
 
         #endregion
