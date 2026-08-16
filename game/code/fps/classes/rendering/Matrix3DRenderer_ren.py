@@ -462,15 +462,20 @@ class Matrix3DRenderer():
         crop_height = max(1, int((height_max - height_min) * T))
 
         ## the quad's own local size, in our world-unit-to-coordinate-unit
-        ## scale (T pixels per world unit). For the ratio==1 case, width is
-        ## derived from crop_width (rather than recomputed from face_width)
-        ## so the two always agree exactly, even after crop's int()
-        ## truncation. For ratio!=1 (a whole stretched-to-fit texture like a
-        ## door's end-cap), crop_width no longer scales with face_width, so
-        ## the destination size has to be computed from face_width directly.
-        ## Height always stays a full T (one world unit), unscaled.
-        quad_width = face_width * T if texture_size_ratio != 1.0 else crop_width / texture_size_ratio
-        quad_height = crop_height
+        ## scale (T pixels per world unit) - computed straight from the
+        ## continuous face_width/height, NOT from crop_width/crop_height.
+        ## Those are texel-truncated, and a door's face_width/height shrinks
+        ## continuously as it opens; deriving the destination size from the
+        ## truncated texel count would round it down by up to a texel,
+        ## pulling both edges of the quad inward around its fixed center and
+        ## opening a hairline gap against the neighboring wall on the door's
+        ## non-moving edge until it lands back on a whole texel at
+        ## open_amount 0 or 1. size=(quad_width, quad_height) below (always
+        ## applied) resamples the truncated crop up to this exact size so
+        ## geometry stays gapless even when the source texels don't evenly
+        ## divide it.
+        quad_width = face_width * T
+        quad_height = (height_max - height_min) * T
 
         dx = center_x - player.pos.x
         dy = center_y - player.pos.y
@@ -533,13 +538,10 @@ class Matrix3DRenderer():
         ## rendering entirely (even when the crop is a mathematical no-op),
         ## so the crop is done on an inner Transform, with matrixtransform
         ## applied on an outer one wrapping it.
-        inner_kwargs = dict(crop=(crop_x, crop_y, crop_width, crop_height))
+        inner_kwargs = dict(crop=(crop_x, crop_y, crop_width, crop_height), size=(quad_width, quad_height))
 
         if mirror:
             inner_kwargs["xzoom"] = -1.0
-
-        if texture_size_ratio != 1.0:
-            inner_kwargs["size"] = (quad_width, quad_height)
 
         cropped = Transform(texture, **inner_kwargs)
 
