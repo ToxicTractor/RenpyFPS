@@ -1,3 +1,6 @@
+from renpy.display.transform import Transform
+from renpy.display.im import Image
+from renpy.display.image import ImageReference
 from game.code.fps.classes.settings.Constants_ren import FpsConstants
 from game.code.fps.classes.world.cells.doors.BaseDoorCell_ren import BaseDoorCell
 from game.code.fps.enums.ECellType_ren import ECellType

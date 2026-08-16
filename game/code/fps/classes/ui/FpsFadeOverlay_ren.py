@@ -1,3 +1,6 @@
+import renpy
+from renpy.display.transform import Transform
+from renpy.display.imagelike import Solid
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.other.helper_functions_ren import inverse_lerp, lerp
 

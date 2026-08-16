@@ -1,4 +1,5 @@
 import math
+import renpy
 from game.code.fps.classes.CollisionSystem_ren import CollisionSystem
 from game.code.fps.classes.GameEvent_ren import GameEvent
 from game.code.fps.classes.InputHandler_ren import InputKeyHandler

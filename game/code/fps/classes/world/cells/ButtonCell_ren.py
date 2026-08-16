@@ -1,3 +1,7 @@
+import renpy
+from renpy.display.transform import Transform
+from renpy.display.im import Image
+from renpy.display.layout import Composite
 from game.code.fps.classes.GameEvent_ren import GameEvent
 from game.code.fps.classes.settings.Constants_ren import FpsConstants
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings

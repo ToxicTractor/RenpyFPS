@@ -1,3 +1,6 @@
+from renpy.display.transform import Transform
+from renpy.display.im import Image
+from renpy.display.imagelike import Solid
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.classes.world.maps.Map_ren import Map
 

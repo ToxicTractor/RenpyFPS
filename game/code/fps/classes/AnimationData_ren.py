@@ -1,3 +1,5 @@
+from renpy.display.image import ImageReference
+
 """renpy
 init -10 python:
 """

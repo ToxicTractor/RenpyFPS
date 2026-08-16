@@ -1,4 +1,6 @@
 import math
+from renpy.display.transform import Transform
+from renpy.display.image import ImageReference
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.other.helper_functions_ren import angle_offset_to_screen_x, get_image_size
 from game.code.fps.other.named_tuples_ren import Vector2

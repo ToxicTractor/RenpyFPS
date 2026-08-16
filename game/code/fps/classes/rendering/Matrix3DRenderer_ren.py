@@ -1,4 +1,6 @@
 import math
+import renpy
+from renpy.display.transform import Transform
 from game.code.fps.classes.settings.Constants_ren import FpsConstants
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.enums.ECellType_ren import ECellType

@@ -1,3 +1,5 @@
+import renpy
+from renpy.display.transform import Transform
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.other.helper_functions_ren import get_image_size
 from game.code.fps.other.named_tuples_ren import Vector2

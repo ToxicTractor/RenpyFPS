@@ -1,4 +1,5 @@
 import random
+from renpy.display.image import ImageReference
 from game.code.fps.classes.GameEvent_ren import GameEvent
 from game.code.fps.classes.settings.Constants_ren import FpsConstants
 from game.code.fps.enums.EEmotion_ren import EFaceEmote

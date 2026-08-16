@@ -1,3 +1,4 @@
+from renpy.display.image import ImageReference
 from game.code.fps.other.named_tuples_ren import InventoryItem
 
 """renpy

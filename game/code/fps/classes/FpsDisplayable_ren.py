@@ -1,3 +1,4 @@
+import renpy
 from game.code.fps.classes.FpsItem_ren import FpsItem
 from game.code.fps.classes.FpsJukebox_ren import FpsJukebox
 from game.code.fps.classes.GameEvent_ren import GameEvent

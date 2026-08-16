@@ -1,3 +1,4 @@
+import renpy
 from abc import ABC, abstractmethod
 from game.code.fps.classes.world.SpriteObject_ren import SpriteObject
 from game.code.fps.other.helper_functions_ren import sqr_dist

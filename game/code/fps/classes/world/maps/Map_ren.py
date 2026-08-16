@@ -1,3 +1,4 @@
+import renpy
 from abc import ABC
 from game.code.fps.classes.world.cells.EmptyCell_ren import EmptyCell
 from game.code.fps.classes.world.cells.WallCell_ren import WallCell

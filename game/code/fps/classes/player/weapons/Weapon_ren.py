@@ -1,4 +1,6 @@
+import renpy
 from abc import ABC, abstractmethod
+from renpy.display.transform import Transform
 from game.code.fps.classes.GameEvent_ren import GameEvent
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.other.helper_functions_ren import elementwise_add_tuple, get_image_size, lerp

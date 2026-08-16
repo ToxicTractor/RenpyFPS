@@ -1,4 +1,5 @@
 import random
+import renpy
 from game.code.fps.classes.AnimationData_ren import AnimationData
 from game.code.fps.classes.player.weapons.Weapon_ren import Weapon
 

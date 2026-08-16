@@ -1,3 +1,5 @@
+from renpy.display.transform import Transform
+from renpy.display.layout import Composite
 from game.code.fps.classes.settings.Constants_ren import FpsConstants
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.classes.world.cells.CellBase_ren import CellBase

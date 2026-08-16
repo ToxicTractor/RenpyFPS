@@ -1,4 +1,5 @@
 import math
+import renpy
 from abc import ABC
 from game.code.fps.classes.CollisionSystem_ren import CollisionSystem
 from game.code.fps.classes.GameEvent_ren import GameEvent
