@@ -1,10 +1,14 @@
+import math
 import renpy
+from typing import Any
 from renpy.display.transform import Transform
 from game.code.fps.classes.rendering.Matrix3DRenderer_ren import Matrix3DRenderer
 from game.code.fps.classes.rendering.RaycastingDDARenderer_ren import RaycastingDDARenderer
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.enums.ECellType_ren import ECellType
 from game.code.fps.other.helper_functions_ren import elementwise_add_tuple, screen_x_to_ray_index
+
+BrightnessMatrix: Any ## defined in renpy/common/00matrixcolor.rpy - not a real importable module
 
 """renpy
 init python:
@@ -80,7 +84,7 @@ class ObjectRenderer():
             texture,
             crop=crop,
             size=projection_size,
-            matrixcolor=BrightnessMatrix(-(near_depth / FpsSettings.MAX_DEPTH)) # type: ignore
+            matrixcolor=BrightnessMatrix(-(near_depth / FpsSettings.MAX_DEPTH))
         )
 
         item_render = renpy.render(item_transform, int(projection_size[0]), int(projection_size[1]), st, at)
