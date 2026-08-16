@@ -1,4 +1,5 @@
 import renpy
+from renpy import config
 from game.code.fps.classes.FpsItem_ren import FpsItem
 from game.code.fps.classes.FpsJukebox_ren import FpsJukebox
 from game.code.fps.classes.GameEvent_ren import GameEvent
@@ -185,9 +186,8 @@ class FpsDisplayable(renpy.Displayable):
 
 
     def event(self, ev, x, y, st): ## use this for reacting to events
-        key_pressed = pygame.key.get_pressed()
 
-        self.player.handle_input(key_pressed)
+        self.player.handle_input()
 
 
     ## calculates and sets delta time

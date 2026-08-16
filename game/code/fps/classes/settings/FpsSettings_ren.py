@@ -1,5 +1,6 @@
-from abc import ABC
 import math
+from abc import ABC
+from renpy import config
 from game.code.fps.enums.ENotificationType_ren import ENotificationType
 
 """renpy
@@ -31,16 +32,6 @@ class FpsSettings(ABC):
     ## Projection settings
     PROJECTION_DISTANCE = HALF_SCREEN_WIDTH / math.tan(HALF_FOV)
     PROJECTION_SCALE = SCREEN_WIDTH // RAY_COUNT
-
-    ## True-perspective (tan-based, not equiangular) screen x for each ray's
-    ## angle boundary. RAY_COUNT + 1 entries: entry i is the left edge of
-    ## ray i's column, entry i+1 is its right edge. Rays are cast at equal
-    ## angular increments, but true perspective is not linear in angle, so
-    ## columns get progressively wider toward the edges of the FOV.
-    RAY_SCREEN_X = []
-    for _ray_screen_x_i in range(RAY_COUNT + 1):
-        RAY_SCREEN_X.append(HALF_SCREEN_WIDTH + PROJECTION_DISTANCE * math.tan(-HALF_FOV + _ray_screen_x_i * DELTA_ANGLE))
-    del _ray_screen_x_i
 
     ## Texture settings
     TEXTURE_SIZE = 256

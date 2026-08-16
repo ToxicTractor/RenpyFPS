@@ -1,4 +1,5 @@
 import renpy
+from renpy import config
 from renpy.display.transform import Transform
 from renpy.display.imagelike import Solid
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings

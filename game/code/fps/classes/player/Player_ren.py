@@ -1,5 +1,7 @@
 import math
 import renpy
+from renpy import config
+from renpy import pygame ## not a real importable module but supresses warning
 from game.code.fps.classes.CollisionSystem_ren import CollisionSystem
 from game.code.fps.classes.GameEvent_ren import GameEvent
 from game.code.fps.classes.InputHandler_ren import InputKeyHandler
@@ -157,10 +159,12 @@ class Player():
         canvas.circle("#0f0", (self.pos.x * self.game.scale, self.pos.y * self.game.scale), self.radius * self.game.scale)
 
 
-    def handle_input(self, key_pressed):
+    def handle_input(self):
         """
         Handles player input such as move, look and shoot.
         """
+        key_pressed = pygame.key.get_pressed()
+
         ## first reset input variables
         self.input_horizontal = 0
         self.input_vertical = 0

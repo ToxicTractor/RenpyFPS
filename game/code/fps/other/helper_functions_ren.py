@@ -1,5 +1,7 @@
 import struct
 import math
+import renpy
+from renpy.display.layout import ImageReference
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 
 """renpy

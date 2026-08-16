@@ -1,6 +1,7 @@
 from game.code.fps.classes.AnimationData_ren import AnimationData
 from game.code.fps.classes.player.ammo.AmmoType_ren import ShotgunAmmoType
 from game.code.fps.classes.world.pickups.PickupObject_ren import PickupObject
+from game.code.fps.enums.ENotificationType_ren import ENotificationType
 
 """renpy
 init python:
