@@ -1,4 +1,7 @@
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
+from game.code.fps.enums.ECellType_ren import ECellType
+from game.code.fps.enums.EDirection_ren import EDirection
+from game.code.fps.other.named_tuples_ren import ProjectionResult, Vector2
 
 """renpy
 init python:

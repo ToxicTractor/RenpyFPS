@@ -1,8 +1,12 @@
+from abc import ABC
+import math
+from game.code.fps.enums.ENotificationType_ren import ENotificationType
+
 """renpy
 init -100 python:
 """
 
-class FpsSettings():
+class FpsSettings(ABC):
     
     ## Rendering
     USE_DDA_RENDERING = False
