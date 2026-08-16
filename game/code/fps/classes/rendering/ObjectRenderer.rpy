@@ -27,7 +27,10 @@ init python:
             self._build_depth_buffer(raycast_hits)
 
             if (FpsSettings.USE_DDA_RENDERING):
-                self.dda_renderer.prepare_cells(raycast_hits)
+                self.dda_renderer.update(raycast_hits)
+            else:
+                pass
+                ## no update loop in matrix renderer yet 
 
             self._prepare_sprite_objects()
 
@@ -42,6 +45,36 @@ init python:
                 self.dda_renderer.draw(screen, offset, st)
             else:
                 self.matrix_renderer.draw(screen, offset, st)
+
+
+        def draw_object_item(self, screen, offset, st, projection_result):
+            """
+            Draws a single projection result as one flat, cropped-and-resized
+            image blit. Shared by both renderers since sprites are always
+            drawn this way regardless of which technique (DDA or matrix) is
+            currently rendering the walls. What this blit actually covers
+            depends on who built the projection result: a single one-column
+            strip for a DDA wall/door face (one call per screen column - see
+            RaycastingDDARenderer.prepare_cells), or the sprite's whole image
+            in one call for a sprite/shadow (see SpriteObject.get_sprite_projection).
+            """
+            offset_x, offset_y = offset
+
+            near_depth, far_depth, texture, crop, projection_size, pos, at, cell, hit_direction = projection_result
+
+            if (cell is not None and cell.type == ECellType.VerticalDoor):
+                self._draw_vertical_door_horizontal_side(screen, offset, near_depth, far_depth, crop, pos, cell, st, at)
+
+            item_transform = Transform(
+                texture,
+                crop=crop,
+                size=projection_size,
+                matrixcolor=BrightnessMatrix(-(near_depth / FpsSettings.MAX_DEPTH))
+            )
+
+            item_render = renpy.render(item_transform, int(projection_size[0]), int(projection_size[1]), st, at)
+
+            screen.blit(item_render, (pos.x + offset_x, pos.y + offset_y))
 
 #endregion
 
@@ -97,6 +130,47 @@ init python:
                     return False
 
             return True
+
+
+        def _draw_vertical_door_horizontal_side(self, screen, offset, near_depth, far_depth, crop, pos, cell, st, at):
+            """
+            Draws the horizontal surface exposed above/below a vertical door
+            as it slides open, one screen-column strip at a time - called
+            from draw_object_item for each DDA wall/door column that hits a
+            vertical door, so unlike that caller's generic blit this one is
+            always genuinely a per-column pixel strip.
+            """
+            ## if the door is less than half open, we cannot see the surface so we just return.
+            if (cell.open_amount < 0.5):
+                return
+
+            offset_x, offset_y = offset
+
+            z = cell.get_horizontal_side_z()
+
+            camera_z = 0.5
+
+            near_y = (FpsSettings.HALF_SCREEN_HEIGHT + (camera_z - z) * FpsSettings.PROJECTION_DISTANCE / near_depth)
+            far_y = (FpsSettings.HALF_SCREEN_HEIGHT + (camera_z - z) * FpsSettings.PROJECTION_DISTANCE / far_depth)
+
+            top = int(min(near_y, far_y))
+            bottom = int(max(near_y, far_y))
+
+            height = bottom - top
+
+            if height <= 0:
+                return
+
+            door_side_transform = Transform(
+                cell.plane_texture,
+                crop=crop,
+                size=(FpsSettings.PROJECTION_SCALE, height),
+                matrixcolor=BrightnessMatrix(-(near_depth / FpsSettings.MAX_DEPTH))
+            )
+
+            door_side_render = renpy.render(door_side_transform, FpsSettings.PROJECTION_SCALE, height, st, at)
+
+            screen.blit(door_side_render, (pos.x + offset_x, top + offset_y))
 
 
         def _draw_floor(self, screen, offset):

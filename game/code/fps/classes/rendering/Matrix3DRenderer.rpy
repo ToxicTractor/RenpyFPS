@@ -30,7 +30,7 @@ init python:
 
             for depth, kind, payload in combined:
                 if kind == "object":
-                    self.object_renderer.dda_renderer.draw_object_item(screen, offset, st, payload)
+                    self.object_renderer.draw_object_item(screen, offset, st, payload)
                     continue
 
                 cell, side, edge_override, plane_cell, tint = payload
@@ -530,7 +530,7 @@ init python:
 
             cropped = Transform(texture, **inner_kwargs)
 
-            pixel_slice = Transform(
+            face_transform = Transform(
                 cropped,
                 matrixtransform=quad_matrix,
                 matrixanchor=(0, 0),
@@ -538,9 +538,9 @@ init python:
                 alpha=1.0,
             )
 
-            slice_render = renpy.render(pixel_slice, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, 0)
+            face_render = renpy.render(face_transform, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, 0)
 
-            screen.blit(slice_render, (0 + offset_x, 0 + offset_y))
+            screen.blit(face_render, (0 + offset_x, 0 + offset_y))
 
 
         def _draw_matrix_prototype_horizontal_plane(self, screen, offset, st, player, cell):
@@ -622,7 +622,7 @@ init python:
 
             resized = Transform(texture, size=(quad_width, quad_height))
 
-            pixel_slice = Transform(
+            plane_transform = Transform(
                 resized,
                 matrixtransform=quad_matrix,
                 matrixanchor=(0, 0),
@@ -630,8 +630,8 @@ init python:
                 alpha=1.0,
             )
 
-            slice_render = renpy.render(pixel_slice, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, 0)
+            plane_render = renpy.render(plane_transform, FpsSettings.SCREEN_WIDTH, FpsSettings.SCREEN_HEIGHT, st, 0)
 
-            screen.blit(slice_render, (0 + offset_x, 0 + offset_y))
+            screen.blit(plane_render, (0 + offset_x, 0 + offset_y))
 
 #endregion
