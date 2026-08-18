@@ -142,16 +142,27 @@ class Matrix3DRenderer():
             center_depth = dx * math.cos(player.angle) + dy * math.sin(player.angle)
             draw_items.append((center_depth, target.cell, target.side, None, None, "#f0f"))
 
-        for cell, side, seg_min, seg_max, crop_x_fraction, piece_label in split_segments:
-            if side in (EDirection.Left, EDirection.Right):
-                center_x, center_y, _, _, _ = self._get_face_geometry(cell, side)
-                center_y = (seg_min + seg_max) / 2
+        for cell, side, seg_min, seg_max, crop_x_fraction, piece_label, door_cell in split_segments:
+            if piece_label == "middle":
+                ## the middle piece is the pocket's own reveal wall, flush against
+                ## the door across its whole span - it has no single true depth of
+                ## its own relative to the door. Anchor it directly to the depth of
+                ## the door's OWN farthest face (not an estimate from the segment's
+                ## own edges, which are offset from the door and can still land
+                ## nearer than the door at some angles) so it's guaranteed to lose
+                ## the painter's-algorithm tie against the door specifically,
+                ## without being pushed behind unrelated objects in the scene.
+                seg_depth = self._get_door_far_face_depth(door_cell, player)
             else:
                 center_x, center_y, _, _, _ = self._get_face_geometry(cell, side)
-                center_x = (seg_min + seg_max) / 2
-            dx = center_x - player.pos.x
-            dy = center_y - player.pos.y
-            seg_depth = dx * math.cos(player.angle) + dy * math.sin(player.angle)
+                if side in (EDirection.Left, EDirection.Right):
+                    center_y = (seg_min + seg_max) / 2
+                else:
+                    center_x = (seg_min + seg_max) / 2
+                dx = center_x - player.pos.x
+                dy = center_y - player.pos.y
+                seg_depth = dx * math.cos(player.angle) + dy * math.sin(player.angle)
+
             draw_items.append((seg_depth, cell, side, (seg_min, seg_max, crop_x_fraction), None, PIECE_TINTS[piece_label]))
 
         ## the horizontal plane is per-cell (not per-face), so add one per
@@ -271,6 +282,31 @@ class Matrix3DRenderer():
         return dx * math.cos(normal_angle) + dy * math.sin(normal_angle) > 0
 
 
+    def _get_door_far_face_depth(self, door_cell, player):
+        """
+        Depth of whichever of the door's two main faces is farther from the
+        player - the door's front/back faces (Up/Down for an X-aligned door,
+        Left/Right for Y-aligned) bound the depth range the door's pocket
+        actually occupies, so anything meant to sit behind the door as a
+        whole (e.g. the pocket's reveal wall) can anchor to this value.
+        """
+        main_faces = FpsConstants.VERTICAL_DIRECTIONS if door_cell.grid_alignment == EGridAlignment.X else FpsConstants.HORIZONTAL_DIRECTIONS
+
+        depths = []
+        for face in main_faces:
+            center_x, center_y, _, _, _ = self._get_face_geometry(door_cell, face)
+            dx = center_x - player.pos.x
+            dy = center_y - player.pos.y
+            depths.append(dx * math.cos(player.angle) + dy * math.sin(player.angle))
+
+        ## nudged a hair farther than the actual far face so the reveal wall
+        ## strictly loses the painter's-algorithm tie against it too (the sort
+        ## is stable and the door faces are added to draw_items before the
+        ## split segments, so an exact tie would otherwise draw the reveal
+        ## wall - added later - on top of the door's own far face)
+        return max(depths) + 0.0001
+
+
     def _get_door_neighbor_splits(self, cell, suppressed_faces):
         """
         For a door with thickness < 1, finds the wall/button cells
@@ -329,7 +365,7 @@ class Matrix3DRenderer():
             for seg_min, seg_max, piece_label in pieces:
                 if seg_max - seg_min > 0.001:
                     crop_x_fraction = (seg_min - cell_edge_min) % 1.0
-                    segments.append((neighbor_cell, face, seg_min, seg_max, crop_x_fraction, piece_label))
+                    segments.append((neighbor_cell, face, seg_min, seg_max, crop_x_fraction, piece_label, cell))
 
         return segments
 
