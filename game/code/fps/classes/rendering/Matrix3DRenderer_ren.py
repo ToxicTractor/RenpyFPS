@@ -321,8 +321,13 @@ class Matrix3DRenderer():
         omitted since the door's own geometry already covers it there.
         Vertical doors never shrink this footprint, so both neighbors
         always get the full 3-way split.
+
+        Once the door is fully open, its pocket depth range is irrelevant
+        to the neighbor faces - a fully-open door can't be nearer than the
+        wall at any point along it - so the split (and its suppression of
+        the neighbor's normal whole-face render) is skipped entirely.
         """
-        if cell.thickness >= 1.0:
+        if cell.thickness >= 1.0 or cell.open_amount >= 1.0:
             return []
 
         cx, cy = cell.coord.x, cell.coord.y
