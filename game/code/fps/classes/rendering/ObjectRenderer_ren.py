@@ -97,8 +97,12 @@ class ObjectRenderer():
         self.depth_buffer = [float("inf") for _ in range(FpsSettings.RAY_COUNT)]
 
         for ray_index, hits in enumerate(raycast_hits):
-            if hits:
-                self.depth_buffer[ray_index] = hits[0].near_depth
+            for hit in hits:
+                if (hit.cell.type == ECellType.VerticalDoor and hit.cell.open_amount > 0.0):
+                    continue
+
+                self.depth_buffer[ray_index] = hit.near_depth
+                break
 
 
     def _prepare_sprite_objects(self):
