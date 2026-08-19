@@ -6,7 +6,8 @@ from game.code.fps.classes.rendering.Matrix3DRenderer_ren import Matrix3DRendere
 from game.code.fps.classes.rendering.RaycastingDDARenderer_ren import RaycastingDDARenderer
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.enums.ECellType_ren import ECellType
-from game.code.fps.other.helper_functions_ren import elementwise_add_tuple, screen_x_to_ray_index
+from game.code.fps.other.helper_functions_ren import elementwise_add_tuple, ray_index_to_screen_x, screen_x_to_ray_index
+from game.code.fps.other.named_tuples_ren import ProjectionResult, Rect, Vector2
 
 """renpy
 init python:
@@ -111,21 +112,38 @@ class ObjectRenderer():
             projection_result = sprite_object.get_sprite_projection()
 
             if (projection_result):
+                visible_segments = self._clip_projection_to_depth_buffer(projection_result)
 
-                if (self._is_sprite_occluded(projection_result)):
+                if not visible_segments:
                     continue
 
-                self.objects_to_render.append(projection_result)
+                self.objects_to_render.extend(visible_segments)
 
                 shadow_projection = sprite_object.get_shadow_projection()
 
                 if (shadow_projection):
-                    self.objects_to_render.append(shadow_projection)
+                    ## shadow_projection.near_depth is deliberately forced to
+                    ## MAX_DEPTH (see get_shadow_projection) so it always sorts
+                    ## behind other objects - that's not its real distance, so
+                    ## clip using far_depth (the shadow's true distance) instead
+                    self.objects_to_render.extend(self._clip_projection_to_depth_buffer(shadow_projection, occlusion_depth=shadow_projection.far_depth))
 
 
-    def _is_sprite_occluded(self, projection_result):
+    def _clip_projection_to_depth_buffer(self, projection_result, occlusion_depth=None):
         """
-        Returns True if every screen column the sprite covers has a nearer wall in front of it.
+        Splits a flat billboard projection (sprite or shadow) into however
+        many column-aligned sub-segments are actually nearer than the wall
+        depth buffer, so it only draws the part of it that's really
+        visible when it's standing partially behind a nearer wall (e.g.
+        at a corner), instead of either drawing whole or not at all. Each
+        segment reuses the same texture/depth, just cropped to its own
+        slice of screen columns.
+
+        occlusion_depth is the real world-space distance to compare
+        against the wall depth buffer, defaulting to near_depth - shadows
+        pass their actual far_depth instead, since their near_depth is
+        deliberately forced to MAX_DEPTH for draw-order purposes and
+        isn't their true distance.
         """
         left = projection_result.position.x
         right = left + projection_result.size.x
@@ -137,16 +155,70 @@ class ObjectRenderer():
             start_ray = max(int(screen_x_to_ray_index(left)), 0)
             end_ray = min(int(screen_x_to_ray_index(right)), FpsSettings.RAY_COUNT - 1)
 
+        ## no depth buffer coverage for this sprite's column range (fully
+        ## off the raycast FOV) - draw it unclipped rather than dropping it
         if start_ray > end_ray:
-            return False
+            return [projection_result]
 
-        sprite_depth = projection_result.near_depth
+        sprite_depth = projection_result.near_depth if occlusion_depth is None else occlusion_depth
+
+        ## run-length encode the visible (nearer-than-wall) ray columns
+        ## into contiguous runs, since a sprite is only ever split at wall
+        ## depth discontinuities - typically once or twice near a corner,
+        ## never per-column
+        runs = []
+        run_start = None
 
         for ray_index in range(start_ray, end_ray + 1):
-            if sprite_depth <= self.depth_buffer[ray_index] + self.OCCLUSION_EPSILON:
-                return False
+            visible = sprite_depth <= self.depth_buffer[ray_index] + self.OCCLUSION_EPSILON
 
-        return True
+            if visible:
+                if run_start is None:
+                    run_start = ray_index
+            elif run_start is not None:
+                runs.append((run_start, ray_index - 1))
+                run_start = None
+
+        if run_start is not None:
+            runs.append((run_start, end_ray))
+
+        if not runs:
+            return []
+
+        ## fast path: the whole sprite is visible, no need to touch its crop/size
+        if runs[0] == (start_ray, end_ray):
+            return [projection_result]
+
+        segments = []
+
+        for run_start_ray, run_end_ray in runs:
+            if (FpsSettings.USE_DDA_RENDERING):
+                run_left_x = run_start_ray * FpsSettings.PROJECTION_SCALE
+                run_right_x = (run_end_ray + 1) * FpsSettings.PROJECTION_SCALE
+            else:
+                run_left_x = ray_index_to_screen_x(run_start_ray)
+                run_right_x = ray_index_to_screen_x(run_end_ray + 1)
+
+            seg_left = max(left, run_left_x)
+            seg_right = min(right, run_right_x)
+
+            if seg_right - seg_left <= 0.5:
+                continue
+
+            u0 = (seg_left - left) / projection_result.size.x
+            u1 = (seg_right - left) / projection_result.size.x
+
+            orig_crop = projection_result.crop
+            crop_x0 = orig_crop.x + int(u0 * orig_crop.width)
+            crop_x1 = orig_crop.x + int(u1 * orig_crop.width)
+
+            segments.append(projection_result._replace(
+                crop=Rect(crop_x0, orig_crop.y, max(1, crop_x1 - crop_x0), orig_crop.height),
+                size=Vector2(seg_right - seg_left, projection_result.size.y),
+                position=Vector2(seg_left, projection_result.position.y),
+            ))
+
+        return segments
 
 
     def _draw_vertical_door_horizontal_side(self, screen, offset, near_depth, far_depth, crop, pos, cell, st, at):

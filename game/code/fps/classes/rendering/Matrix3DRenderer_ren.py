@@ -22,35 +22,35 @@ class Matrix3DRenderer():
 
     def draw(self, screen, offset, st):
         """
-        Merges the matrix-rendered wall/door faces with sprite/shadow
-        objects into a single depth-sorted draw pass. These used to be two
-        entirely separate passes (all walls, then all sprites on top),
-        which meant a sprite only got hidden if a raw raycast said it was
-        FULLY occluded - a sprite partially behind a nearer wall face
-        (e.g. at a corner) still drew whole, on top of the nearer wall
-        pixels too. Sorting both kinds of item together by the same depth
-        key fixes that, at whole-face/whole-sprite granularity.
+        Draws wall/door faces first (sorted among themselves, farthest
+        first), then sprite/shadow objects on top (sorted among
+        themselves). These used to be merged into one shared depth sort,
+        but a wall face's depth key is a single representative point (its
+        center) standing in for the whole face - on a long or steeply
+        angled face the center can be nearer than a sprite even though the
+        sprite is genuinely in front of the face at its own specific
+        screen columns, which sorted the wall on top of a sprite it should
+        have lost to. Sprite/shadow projections are already clipped
+        column-by-column against the true per-ray wall depth buffer before
+        they ever reach objects_to_render (see
+        ObjectRenderer._clip_projection_to_depth_buffer) - anything that
+        survives that clip is guaranteed nearer than every wall at the
+        exact columns it occupies, so it can draw on top of all walls
+        unconditionally and only needs sorting against other objects.
         """
         wall_items = self._collect_matrix_draw_items()
+        wall_items.sort(key=lambda item: item[0], reverse=True)
 
-        combined = [
-            (depth, "wall", (cell, side, edge_override, plane_cell, tint))
-            for depth, cell, side, edge_override, plane_cell, tint in wall_items
-        ]
-        combined.extend((p.near_depth, "object", p) for p in self.object_renderer.objects_to_render)
-
-        combined.sort(key=lambda item: item[0], reverse=True)
-
-        for depth, kind, payload in combined:
-            if kind == "object":
-                self.object_renderer.draw_object_item(screen, offset, st, payload)
-                continue
-
-            cell, side, edge_override, plane_cell, tint = payload
+        for _depth, cell, side, edge_override, plane_cell, tint in wall_items:
             if plane_cell is not None:
                 self._draw_matrix_prototype_horizontal_plane(screen, offset, st, self.player, plane_cell)
             else:
                 self._draw_matrix_prototype_face(screen, offset, st, self.player, cell, side, edge_override, tint)
+
+        object_items = sorted(self.object_renderer.objects_to_render, key=lambda p: p.near_depth, reverse=True)
+
+        for projection_result in object_items:
+            self.object_renderer.draw_object_item(screen, offset, st, projection_result)
 
 #endregion
 

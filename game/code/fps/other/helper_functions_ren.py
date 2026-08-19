@@ -96,3 +96,11 @@ def angle_offset_to_screen_x(angle_offset):
 def screen_x_to_ray_index(screen_x):
     angle_offset = math.atan((screen_x - FpsSettings.HALF_SCREEN_WIDTH) / FpsSettings.PROJECTION_DISTANCE)
     return (angle_offset + FpsSettings.HALF_FOV) / FpsSettings.DELTA_ANGLE
+
+
+## Inverse of screen_x_to_ray_index: the screen x of a given (fractional)
+## ray index, using the same true (tan-based) perspective as
+## angle_offset_to_screen_x rather than the equiangular DDA mapping.
+def ray_index_to_screen_x(ray_index):
+    angle_offset = ray_index * FpsSettings.DELTA_ANGLE - FpsSettings.HALF_FOV
+    return angle_offset_to_screen_x(angle_offset)
