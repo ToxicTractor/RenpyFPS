@@ -29,9 +29,47 @@ class RaycastingDDARenderer():
         for projection_result in objects_to_render:
             self.object_renderer.draw_object_item(screen, offset, st, projection_result)
 
+
+    def prepare_sprite_objects(self, sprite_objects, npcs):
+
+        for sprite_object in sprite_objects + npcs:
+            projection_result = sprite_object.get_sprite_projection()
+
+            if (projection_result):
+                if (self._is_sprite_occluded(projection_result)):
+                    continue
+
+                self.object_renderer.objects_to_render.append(projection_result)
+
+                shadow_projection = sprite_object.get_shadow_projection()
+
+                if (shadow_projection):
+                    self.object_renderer.objects_to_render.append(shadow_projection)
+
 #endregion
 
 #region Private methods
+
+    def _is_sprite_occluded(self, projection_result, occlusion_depth=None):
+        """
+        Returns True if every screen column the sprite covers has a nearer wall in front of it.
+        """
+        left = projection_result.position.x
+        right = left + projection_result.size.x
+
+        start_ray = max(int(left // FpsSettings.PROJECTION_SCALE), 0)
+        end_ray = min(int(right // FpsSettings.PROJECTION_SCALE), FpsSettings.RAY_COUNT - 1)
+
+        if start_ray > end_ray:
+            return False
+
+        sprite_depth = projection_result.near_depth if occlusion_depth is None else occlusion_depth
+
+        for ray_index in range(start_ray, end_ray + 1):
+            if sprite_depth <= self.object_renderer.depth_buffer[ray_index] + self.object_renderer.OCCLUSION_EPSILON:
+                return False
+
+        return True
 
     def __prepare_cells(self, raycast_hits):
         for ray_index, hits in enumerate(raycast_hits):

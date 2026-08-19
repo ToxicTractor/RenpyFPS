@@ -6,8 +6,8 @@ from game.code.fps.classes.rendering.Matrix3DRenderer_ren import Matrix3DRendere
 from game.code.fps.classes.rendering.RaycastingDDARenderer_ren import RaycastingDDARenderer
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.enums.ECellType_ren import ECellType
-from game.code.fps.other.helper_functions_ren import elementwise_add_tuple, ray_index_to_screen_x, screen_x_to_ray_index
-from game.code.fps.other.named_tuples_ren import ProjectionResult, Rect, Vector2
+from game.code.fps.other.helper_functions_ren import elementwise_add_tuple
+from game.code.fps.other.named_tuples_ren import ProjectionResult
 
 """renpy
 init python:
@@ -62,19 +62,10 @@ class ObjectRenderer():
 
 
     def draw_object_item(self, screen, offset, st, projection_result):
-        """
-        Draws a single projection result as one flat, cropped-and-resized
-        image blit. Shared by both renderers since sprites are always
-        drawn this way regardless of which technique (DDA or matrix) is
-        currently rendering the walls. What this blit actually covers
-        depends on who built the projection result: a single one-column
-        strip for a DDA wall/door face (one call per screen column - see
-        RaycastingDDARenderer.prepare_cells), or the sprite's whole image
-        in one call for a sprite/shadow (see SpriteObject.get_sprite_projection).
-        """
+
         offset_x, offset_y = offset
 
-        near_depth, far_depth, texture, crop, projection_size, pos, at, cell, hit_direction = projection_result
+        near_depth, far_depth, texture, crop, projection_size, pos, at, cell, _ = projection_result
 
         if (cell is not None and cell.type == ECellType.VerticalDoor):
             self._draw_vertical_door_horizontal_side(screen, offset, near_depth, far_depth, crop, pos, cell, st, at)
@@ -107,128 +98,14 @@ class ObjectRenderer():
 
 
     def _prepare_sprite_objects(self):
-
-        for sprite_object in self.game.sprite_objects + self.game.npcs:
-            projection_result = sprite_object.get_sprite_projection()
-
-            if (projection_result):
-                visible_segments = self._clip_projection_to_depth_buffer(projection_result)
-
-                if not visible_segments:
-                    continue
-
-                self.objects_to_render.extend(visible_segments)
-
-                shadow_projection = sprite_object.get_shadow_projection()
-
-                if (shadow_projection):
-                    ## shadow_projection.near_depth is deliberately forced to
-                    ## MAX_DEPTH (see get_shadow_projection) so it always sorts
-                    ## behind other objects - that's not its real distance, so
-                    ## clip using far_depth (the shadow's true distance) instead
-                    self.objects_to_render.extend(self._clip_projection_to_depth_buffer(shadow_projection, occlusion_depth=shadow_projection.far_depth))
-
-
-    def _clip_projection_to_depth_buffer(self, projection_result, occlusion_depth=None):
-        """
-        Splits a flat billboard projection (sprite or shadow) into however
-        many column-aligned sub-segments are actually nearer than the wall
-        depth buffer, so it only draws the part of it that's really
-        visible when it's standing partially behind a nearer wall (e.g.
-        at a corner), instead of either drawing whole or not at all. Each
-        segment reuses the same texture/depth, just cropped to its own
-        slice of screen columns.
-
-        occlusion_depth is the real world-space distance to compare
-        against the wall depth buffer, defaulting to near_depth - shadows
-        pass their actual far_depth instead, since their near_depth is
-        deliberately forced to MAX_DEPTH for draw-order purposes and
-        isn't their true distance.
-        """
-        left = projection_result.position.x
-        right = left + projection_result.size.x
-
         if (FpsSettings.USE_DDA_RENDERING):
-            start_ray = max(int(left // FpsSettings.PROJECTION_SCALE), 0)
-            end_ray = min(int(right // FpsSettings.PROJECTION_SCALE), FpsSettings.RAY_COUNT - 1)
+            self.dda_renderer.prepare_sprite_objects(self.game.sprite_objects, self.game.npcs)
         else:
-            start_ray = max(int(screen_x_to_ray_index(left)), 0)
-            end_ray = min(int(screen_x_to_ray_index(right)), FpsSettings.RAY_COUNT - 1)
-
-        ## no depth buffer coverage for this sprite's column range (fully
-        ## off the raycast FOV) - draw it unclipped rather than dropping it
-        if start_ray > end_ray:
-            return [projection_result]
-
-        sprite_depth = projection_result.near_depth if occlusion_depth is None else occlusion_depth
-
-        ## run-length encode the visible (nearer-than-wall) ray columns
-        ## into contiguous runs, since a sprite is only ever split at wall
-        ## depth discontinuities - typically once or twice near a corner,
-        ## never per-column
-        runs = []
-        run_start = None
-
-        for ray_index in range(start_ray, end_ray + 1):
-            visible = sprite_depth <= self.depth_buffer[ray_index] + self.OCCLUSION_EPSILON
-
-            if visible:
-                if run_start is None:
-                    run_start = ray_index
-            elif run_start is not None:
-                runs.append((run_start, ray_index - 1))
-                run_start = None
-
-        if run_start is not None:
-            runs.append((run_start, end_ray))
-
-        if not runs:
-            return []
-
-        ## fast path: the whole sprite is visible, no need to touch its crop/size
-        if runs[0] == (start_ray, end_ray):
-            return [projection_result]
-
-        segments = []
-
-        for run_start_ray, run_end_ray in runs:
-            if (FpsSettings.USE_DDA_RENDERING):
-                run_left_x = run_start_ray * FpsSettings.PROJECTION_SCALE
-                run_right_x = (run_end_ray + 1) * FpsSettings.PROJECTION_SCALE
-            else:
-                run_left_x = ray_index_to_screen_x(run_start_ray)
-                run_right_x = ray_index_to_screen_x(run_end_ray + 1)
-
-            seg_left = max(left, run_left_x)
-            seg_right = min(right, run_right_x)
-
-            if seg_right - seg_left <= 0.5:
-                continue
-
-            u0 = (seg_left - left) / projection_result.size.x
-            u1 = (seg_right - left) / projection_result.size.x
-
-            orig_crop = projection_result.crop
-            crop_x0 = orig_crop.x + int(u0 * orig_crop.width)
-            crop_x1 = orig_crop.x + int(u1 * orig_crop.width)
-
-            segments.append(projection_result._replace(
-                crop=Rect(crop_x0, orig_crop.y, max(1, crop_x1 - crop_x0), orig_crop.height),
-                size=Vector2(seg_right - seg_left, projection_result.size.y),
-                position=Vector2(seg_left, projection_result.position.y),
-            ))
-
-        return segments
+            self.matrix_renderer.prepare_sprite_objects(self.game.sprite_objects, self.game.npcs)
 
 
     def _draw_vertical_door_horizontal_side(self, screen, offset, near_depth, far_depth, crop, pos, cell, st, at):
-        """
-        Draws the horizontal surface exposed above/below a vertical door
-        as it slides open, one screen-column strip at a time - called
-        from draw_object_item for each DDA wall/door column that hits a
-        vertical door, so unlike that caller's generic blit this one is
-        always genuinely a per-column pixel strip.
-        """
+
         ## if the door is less than half open, we cannot see the surface so we just return.
         if (cell.open_amount < 0.5):
             return

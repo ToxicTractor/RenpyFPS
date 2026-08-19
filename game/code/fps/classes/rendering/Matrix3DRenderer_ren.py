@@ -6,7 +6,8 @@ from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.enums.ECellType_ren import ECellType
 from game.code.fps.enums.EDirection_ren import EDirection
 from game.code.fps.enums.EGridAlignment_ren import EGridAlignment
-from game.code.fps.other.named_tuples_ren import RaycastHitDDA
+from game.code.fps.other.helper_functions_ren import ray_index_to_screen_x, screen_x_to_ray_index
+from game.code.fps.other.named_tuples_ren import RaycastHitDDA, Rect, Vector2
 
 """renpy
 init python:
@@ -33,9 +34,9 @@ class Matrix3DRenderer():
         have lost to. Sprite/shadow projections are already clipped
         column-by-column against the true per-ray wall depth buffer before
         they ever reach objects_to_render (see
-        ObjectRenderer._clip_projection_to_depth_buffer) - anything that
-        survives that clip is guaranteed nearer than every wall at the
-        exact columns it occupies, so it can draw on top of all walls
+        _clip_projection_to_depth_buffer below) - anything that survives
+        that clip is guaranteed nearer than every wall at the exact
+        columns it occupies, so it can draw on top of all walls
         unconditionally and only needs sorting against other objects.
         """
         wall_items = self._collect_matrix_draw_items()
@@ -51,6 +52,116 @@ class Matrix3DRenderer():
 
         for projection_result in object_items:
             self.object_renderer.draw_object_item(screen, offset, st, projection_result)
+
+
+    def prepare_sprite_objects(self, sprite_objects, npcs):
+        for sprite_object in sprite_objects + npcs:
+            projection_result = sprite_object.get_sprite_projection()
+
+            if (projection_result):
+                visible_segments = self._clip_projection_to_depth_buffer(projection_result)
+
+                if not visible_segments:
+                    continue
+
+                self.object_renderer.objects_to_render.extend(visible_segments)
+
+                shadow_projection = sprite_object.get_shadow_projection()
+
+                if (shadow_projection):
+                    ## shadow_projection.near_depth is deliberately forced to
+                    ## MAX_DEPTH (see get_shadow_projection) so it always sorts
+                    ## behind other objects - that's not its real distance, so
+                    ## clip using far_depth (the shadow's true distance) instead
+                    self.object_renderer.objects_to_render.extend(self._clip_projection_to_depth_buffer(shadow_projection, occlusion_depth=shadow_projection.far_depth))
+
+
+    def _clip_projection_to_depth_buffer(self, projection_result, occlusion_depth=None):
+        """
+        Splits a flat billboard projection (sprite or shadow) into however
+        many column-aligned sub-segments are actually nearer than the wall
+        depth buffer, so it only draws the part of it that's really
+        visible when it's standing partially behind a nearer wall (e.g.
+        at a corner), instead of either drawing whole or not at all. Each
+        segment reuses the same texture/depth, just cropped to its own
+        slice of screen columns.
+
+        Needed here (and not in the DDA renderer) because this renderer's
+        walls are whole per-face quads keyed by one representative depth,
+        not per-column strips - see draw() above.
+
+        occlusion_depth is the real world-space distance to compare
+        against the wall depth buffer, defaulting to near_depth - shadows
+        pass their actual far_depth instead, since their near_depth is
+        deliberately forced to MAX_DEPTH for draw-order purposes and
+        isn't their true distance.
+        """
+        left = projection_result.position.x
+        right = left + projection_result.size.x
+
+        start_ray = max(int(screen_x_to_ray_index(left)), 0)
+        end_ray = min(int(screen_x_to_ray_index(right)), FpsSettings.RAY_COUNT - 1)
+
+        ## no depth buffer coverage for this sprite's column range (fully
+        ## off the raycast FOV) - draw it unclipped rather than dropping it
+        if start_ray > end_ray:
+            return [projection_result]
+
+        sprite_depth = projection_result.near_depth if occlusion_depth is None else occlusion_depth
+
+        ## run-length encode the visible (nearer-than-wall) ray columns
+        ## into contiguous runs, since a sprite is only ever split at wall
+        ## depth discontinuities - typically once or twice near a corner,
+        ## never per-column
+        runs = []
+        run_start = None
+
+        for ray_index in range(start_ray, end_ray + 1):
+            visible = sprite_depth <= self.object_renderer.depth_buffer[ray_index] + self.object_renderer.OCCLUSION_EPSILON
+
+            if visible:
+                if run_start is None:
+                    run_start = ray_index
+            elif run_start is not None:
+                runs.append((run_start, ray_index - 1))
+                run_start = None
+
+        if run_start is not None:
+            runs.append((run_start, end_ray))
+
+        if not runs:
+            return []
+
+        ## fast path: the whole sprite is visible, no need to touch its crop/size
+        if runs[0] == (start_ray, end_ray):
+            return [projection_result]
+
+        segments = []
+
+        for run_start_ray, run_end_ray in runs:
+            run_left_x = ray_index_to_screen_x(run_start_ray)
+            run_right_x = ray_index_to_screen_x(run_end_ray + 1)
+
+            seg_left = max(left, run_left_x)
+            seg_right = min(right, run_right_x)
+
+            if seg_right - seg_left <= 0.5:
+                continue
+
+            u0 = (seg_left - left) / projection_result.size.x
+            u1 = (seg_right - left) / projection_result.size.x
+
+            orig_crop = projection_result.crop
+            crop_x0 = orig_crop.x + int(u0 * orig_crop.width)
+            crop_x1 = orig_crop.x + int(u1 * orig_crop.width)
+
+            segments.append(projection_result._replace(
+                crop=Rect(crop_x0, orig_crop.y, max(1, crop_x1 - crop_x0), orig_crop.height),
+                size=Vector2(seg_right - seg_left, projection_result.size.y),
+                position=Vector2(seg_left, projection_result.position.y),
+            ))
+
+        return segments
 
 #endregion
 
