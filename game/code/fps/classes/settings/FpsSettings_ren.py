@@ -45,6 +45,7 @@ class FpsSettings(ABC):
     ## UI settings
     CROSSHAIR_COLOR = "#fff"
     CROSSHAIR_ALPHA = 0.75
+    SHOW_FACE = False
 
     DEFAULT_NOTIFICATION_COLOR = "#fff"
     DEFAULT_NOTIFICATION_OUTLINES = [(2, "#111", 0, 0)]

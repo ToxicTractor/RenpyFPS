@@ -1,6 +1,6 @@
 from renpy.display.transform import Transform
 from renpy.display.layout import Composite
-from game.code.fps.classes.settings.Constants_ren import FpsConstants
+from game.code.fps.classes.settings.FpsConstants_ren import FpsConstants
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.classes.world.cells.CellBase_ren import CellBase
 from game.code.fps.enums.ECellType_ren import ECellType
@@ -64,18 +64,3 @@ class WallCell(CellBase):
             return self._overlay_images.get(side), 1.0
         else:
             return self._images.get(side), 1.0
-
-"""renpy
-define FPS_WALL_TEXTURES = {
-    1: Image("images/fps/textures/walls/stone_wall_01.jpg", oversample=4),
-    2: Image("images/fps/textures/walls/stone_wall_02.png", oversample=1.875),
-    3: Image("images/fps/textures/walls/stone_wall_03.png", oversample=1.875),
-    4: Image("images/fps/textures/walls/stone_wall_04.png", oversample=1.875),
-    5: Image("images/fps/textures/walls/wood_wall_01.png", oversample=1.875),
-    6: Image("images/fps/textures/walls/stone_wall_05.png", oversample=1.875),
-}
-
-define FPS_WALL_OVERLAY_TEXTURES = {
-    0: Image("images/fps/textures/walls/overlays/get_a_job.png")
-}
-"""

@@ -8,13 +8,6 @@ from game.code.fps.other.named_tuples_ren import Position
 init python:
 """
 
-red_keycard_pickup_anim = AnimationData("red_keycard", None)
-red_key_pickup_anim = AnimationData("red_key", None)
-yellow_keycard_pickup_anim = AnimationData("yellow_keycard", None)
-yellow_key_pickup_anim = AnimationData("yellow_key", None)
-blue_keycard_pickup_anim = AnimationData("blue_keycard", None)
-blue_key_pickup_anim = AnimationData("blue_key", None)
-
 class KeyPickup(PickupObject):
     def __init__(self, 
             game, 

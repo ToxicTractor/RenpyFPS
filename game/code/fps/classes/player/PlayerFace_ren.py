@@ -1,51 +1,13 @@
 import random
-from renpy.display.image import ImageReference
+from game.code.fps.classes.settings.FpsTextures_ren import FpsTextures
 from game.code.fps.classes.GameEvent_ren import GameEvent
-from game.code.fps.classes.settings.Constants_ren import FpsConstants
+from game.code.fps.classes.settings.FpsConstants_ren import FpsConstants
 from game.code.fps.enums.EEmotion_ren import EFaceEmote
 from game.code.fps.other.helper_functions_ren import clamp
 
 """renpy
 init python:
 """
-
-FPS_FACE_IMAGES = {
-    EFaceEmote.Neutral: [
-        ImageReference("fps_face_20_neutral"),
-        ImageReference("fps_face_40_neutral"),
-        ImageReference("fps_face_60_neutral"),
-        ImageReference("fps_face_80_neutral"),
-        ImageReference("fps_face_100_neutral"),
-    ],
-    EFaceEmote.Crazed: [
-        ImageReference("fps_face_20_crazed"),
-        ImageReference("fps_face_40_crazed"),
-        ImageReference("fps_face_60_crazed"),
-        ImageReference("fps_face_80_crazed"),
-        ImageReference("fps_face_100_crazed"),
-    ],
-    EFaceEmote.Hurt: [
-        ImageReference("fps_face_20_hurt"),
-        ImageReference("fps_face_40_hurt"),
-        ImageReference("fps_face_60_hurt"),
-        ImageReference("fps_face_80_hurt"),
-        ImageReference("fps_face_100_hurt"),
-    ],
-    EFaceEmote.LookLeft: [
-        ImageReference("fps_face_20_left"),
-        ImageReference("fps_face_40_left"),
-        ImageReference("fps_face_60_left"),
-        ImageReference("fps_face_80_left"),
-        ImageReference("fps_face_100_left"),
-    ],
-    EFaceEmote.LookRight: [
-        ImageReference("fps_face_20_right"),
-        ImageReference("fps_face_40_right"),
-        ImageReference("fps_face_60_right"),
-        ImageReference("fps_face_80_right"),
-        ImageReference("fps_face_100_right"),
-    ]
-}
 
 class PlayerFace():
     def __init__(self, player_health):
@@ -60,7 +22,7 @@ class PlayerFace():
         self.hurt_event = GameEvent(self._set_hurt_emote)
         self.attack_event = GameEvent(self._set_crazed_emote)
 
-        self.emote_count = len(FPS_FACE_IMAGES[EFaceEmote.Neutral])
+        self.emote_count = len(FpsTextures.FACES[EFaceEmote.Neutral])
 
 
     def update(self, delta_time, player_health):
@@ -81,7 +43,7 @@ class PlayerFace():
 
         index = clamp(self.player_health // self.damage_threshold_interval, 0, self.emote_count - 1)
 
-        return FPS_FACE_IMAGES[self.current_emote][index]
+        return FpsTextures.FACES[self.current_emote][index]
 
 
     def _get_neutral_emote_duration(self):

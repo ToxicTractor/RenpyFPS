@@ -8,6 +8,8 @@ from game.code.fps.classes.ScreenEffect_ren import ScreenEffect
 from game.code.fps.classes.npcs.ZombieNPC_ren import ZombieNPC
 from game.code.fps.classes.player.Player_ren import Player
 from game.code.fps.classes.rendering.ObjectRenderer_ren import ObjectRenderer
+from game.code.fps.classes.settings.FpsAnimations_ren import FpsAnimations
+from game.code.fps.classes.settings.FpsTextures_ren import FpsTextures
 from game.code.fps.classes.ui.Notification_ren import Notification
 from game.code.fps.classes.world.SpriteObject_ren import SpriteObject
 from game.code.fps.classes.world.Trigger_ren import Trigger
@@ -45,17 +47,17 @@ class FpsDisplayable(renpy.Displayable):
 
         self.notification = Notification()
         self.map = Map01(scale)
-        self.map.world_map[(7, 8)] = HorizontalDoorCell((7, 8), FPS_DOOR_TEXTURES[0], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Right, flip_main_texture=True, is_locked=True, unlocked_by_item=FpsItem.RED_KEYCARD)
-        self.map.world_map[(7, 14)] = HorizontalDoorCell((7, 14), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Left, allow_interaction=False)
+        self.map.world_map[(7, 8)] = HorizontalDoorCell((7, 8), FpsTextures.DOORS[0], FpsTextures.DOORS[1000], EGridAlignment.X, EDirection.Right, flip_main_texture=True, is_locked=True, unlocked_by_item=FpsItem.RED_KEYCARD)
+        self.map.world_map[(7, 14)] = HorizontalDoorCell((7, 14), FpsTextures.DOORS[1], FpsTextures.DOORS[1000], EGridAlignment.Y, EDirection.Left, allow_interaction=False)
         self.map.world_map[(7, 14)].is_locked = True
-        self.map.world_map[(7, 13)] = ButtonCell((7, 13), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[0], FPS_BUTTON_TEXTURES[1], sides=[EDirection.Right, EDirection.Left])
-        self.map.world_map[(7, 16)] = ButtonCell((7, 16), FPS_WALL_TEXTURES[3], FPS_BUTTON_TEXTURES[2], FPS_BUTTON_TEXTURES[3], sides=[EDirection.Right], can_be_closed=False, is_locked=True, unlocked_by_item=FpsItem.BLUE_KEYCARD, consumed_on_unlock_count=1)
+        self.map.world_map[(7, 13)] = ButtonCell((7, 13), FpsTextures.WALLS[3], FpsTextures.BUTTONS[0], FpsTextures.BUTTONS[1], sides=[EDirection.Right, EDirection.Left])
+        self.map.world_map[(7, 16)] = ButtonCell((7, 16), FpsTextures.WALLS[3], FpsTextures.BUTTONS[2], FpsTextures.BUTTONS[3], sides=[EDirection.Right], can_be_closed=False, is_locked=True, unlocked_by_item=FpsItem.BLUE_KEYCARD, consumed_on_unlock_count=1)
         self.map.world_map[(7, 13)].button_event.add_listener(self.map.world_map[7,14].toggle_door_state)
-        self.map.world_map[(2, 25)] = HorizontalDoorCell((2, 25), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Left, is_locked=True, unlocked_by_item=FpsItem.BLUE_KEY, consumed_on_unlock_count=1)
-        self.map.world_map[(0, 14)]._overlay_images = self.map.world_map[(0, 14)]._construct_overlay_images_dict({ EDirection.Right: FPS_WALL_OVERLAY_TEXTURES[0] })
+        self.map.world_map[(2, 25)] = HorizontalDoorCell((2, 25), FpsTextures.DOORS[1], FpsTextures.DOORS[1000], EGridAlignment.X, EDirection.Left, is_locked=True, unlocked_by_item=FpsItem.BLUE_KEY, consumed_on_unlock_count=1)
+        #self.map.world_map[(0, 14)]._overlay_images = self.map.world_map[(0, 14)]._construct_overlay_images_dict({ EDirection.Right: FPS_WALL_OVERLAY_TEXTURES[0] })
 
-        self.map.world_map[(11, 21)] = VerticalDoorCell((11, 21), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.X, EDirection.Up, can_be_closed=False)
-        self.map.world_map[(14, 18)] = VerticalDoorCell((14, 18), FPS_DOOR_TEXTURES[1], FPS_DOOR_TEXTURES[1000], EGridAlignment.Y, EDirection.Down, allow_interaction=False)
+        self.map.world_map[(11, 21)] = VerticalDoorCell((11, 21), FpsTextures.DOORS[1], FpsTextures.DOORS[1000], EGridAlignment.X, EDirection.Up, can_be_closed=False)
+        self.map.world_map[(14, 18)] = VerticalDoorCell((14, 18), FpsTextures.DOORS[1], FpsTextures.DOORS[1000], EGridAlignment.Y, EDirection.Down, allow_interaction=False)
 
         self.jukebox = FpsJukebox(self.map)
         self.player = Player(self, pos=self.map.player_start_pos, angle=0)
@@ -64,18 +66,18 @@ class FpsDisplayable(renpy.Displayable):
         self.object_renderer = ObjectRenderer(self, self.player, self.map)
 
         self.sprite_objects = [
-            SpriteObject(self, candlestick_anim, scale=0.7, is_solid=True),
-            SpriteObject(self, torch_anim, pos=(14.5, 15.5), shadow_scale=0.5),
+            SpriteObject(self, FpsAnimations.candlestick, scale=0.7, is_solid=True),
+            SpriteObject(self, FpsAnimations.torch, pos=(14.5, 15.5), shadow_scale=0.5),
             HealthPickup(self, (2.5, 14.5)),
             ArmorPickup(self, (3.5, 14.5)),
             ShotgunAmmoPickup(self, (2.5, 15.5)),
             RevolverPickup(self, (7.5, 4.5)),
-            KeyPickup(self, (1.5, 18.5), red_keycard_pickup_anim, FpsItem.RED_KEYCARD, scale=0.25),
-            KeyPickup(self, (1.5, 19.5), yellow_keycard_pickup_anim, FpsItem.YELLOW_KEYCARD, scale=0.25),
-            KeyPickup(self, (1.5, 20.5), blue_keycard_pickup_anim, FpsItem.BLUE_KEYCARD, scale=0.25),
-            KeyPickup(self, (1.5, 21.5), red_key_pickup_anim, FpsItem.RED_KEY),
-            KeyPickup(self, (1.5, 22.5), yellow_key_pickup_anim, FpsItem.YELLOW_KEY),
-            KeyPickup(self, (1.5, 23.5), blue_key_pickup_anim, FpsItem.BLUE_KEY),
+            KeyPickup(self, (1.5, 18.5), FpsAnimations.red_keycard_pickup, FpsItem.RED_KEYCARD, scale=0.25),
+            KeyPickup(self, (1.5, 19.5), FpsAnimations.yellow_keycard_pickup, FpsItem.YELLOW_KEYCARD, scale=0.25),
+            KeyPickup(self, (1.5, 20.5), FpsAnimations.blue_keycard_pickup, FpsItem.BLUE_KEYCARD, scale=0.25),
+            KeyPickup(self, (1.5, 21.5), FpsAnimations.red_key_pickup, FpsItem.RED_KEY),
+            KeyPickup(self, (1.5, 22.5), FpsAnimations.yellow_key_pickup, FpsItem.YELLOW_KEY),
+            KeyPickup(self, (1.5, 23.5), FpsAnimations.blue_key_pickup, FpsItem.BLUE_KEY),
         ]
 
         self.npcs = [
@@ -112,9 +114,6 @@ class FpsDisplayable(renpy.Displayable):
         self.player.gain_armor_event.add_listener(self.screen_effect.trigger_armor_pickup)
 
         self.won_event = GameEvent()
-
-        ## fade from black at the beginning of the game
-        fps_fader.fade_to_clear()
 
 
     @staticmethod

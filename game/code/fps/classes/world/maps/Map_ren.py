@@ -2,6 +2,7 @@ import renpy
 from abc import ABC
 from game.code.fps.classes.world.cells.EmptyCell_ren import EmptyCell
 from game.code.fps.classes.world.cells.WallCell_ren import WallCell
+from game.code.fps.classes.settings.FpsTextures_ren import FpsTextures
 from game.code.fps.enums.ECellType_ren import ECellType
 from game.code.fps.other.named_tuples_ren import Vector2
 
@@ -74,7 +75,7 @@ class Map(ABC): ## abstract class to enforce inheritance for maps
                 ## if the value is greater than 0 we add the value to the world_map
                 ## 0 is empty space
                 if (value > 0):
-                    self.world_map[(x, y)] = WallCell((x, y), FPS_WALL_TEXTURES[value])
+                    self.world_map[(x, y)] = WallCell((x, y), FpsTextures.WALLS[value])
                 else:
                     self.world_map[(x, y)] = EmptyCell((x, y))
 

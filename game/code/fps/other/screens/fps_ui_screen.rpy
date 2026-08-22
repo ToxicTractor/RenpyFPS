@@ -62,13 +62,14 @@ screen fps_ui_screen(fps):
         pos 832, 818
         xysize 256, 256
 
-        if (debug_mode):    
+        if (debug_mode or not FpsSettings.SHOW_FACE):    
             add Solid("#f0f")
             text "FACE":
                 color "#fff"
                 align 0.5, 0.5
 
-        add fps.player.face.get_image()
+        if (FpsSettings.SHOW_FACE):
+            add fps.player.face.get_image()
 
     $ block_width   = 814
     $ block_height  = 256

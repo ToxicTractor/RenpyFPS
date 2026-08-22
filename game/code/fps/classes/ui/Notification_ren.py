@@ -1,5 +1,5 @@
 from game.code.fps.classes.GameEvent_ren import GameEvent
-from game.code.fps.classes.settings.Constants_ren import FpsConstants
+from game.code.fps.classes.settings.FpsConstants_ren import FpsConstants
 from game.code.fps.enums.ENotificationType_ren import ENotificationType
 from game.code.fps.other.named_tuples_ren import NotificationEntry
 

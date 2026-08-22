@@ -3,7 +3,7 @@ from renpy.display.transform import Transform
 from renpy.display.im import Image
 from renpy.display.layout import Composite
 from game.code.fps.classes.GameEvent_ren import GameEvent
-from game.code.fps.classes.settings.Constants_ren import FpsConstants
+from game.code.fps.classes.settings.FpsConstants_ren import FpsConstants
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.classes.world.cells.CellBase_ren import CellBase
 from game.code.fps.enums.ECellType_ren import ECellType
@@ -13,17 +13,6 @@ from game.code.fps.enums.ENotificationType_ren import ENotificationType
 """renpy
 init python:
 """
-
-FPS_BUTTON_TEXTURES = {
-    0: Image("images/fps/textures/buttons/switch_01_on.png"),
-    1: Image("images/fps/textures/buttons/switch_01_off.png"),
-    2: Image("images/fps/textures/buttons/blue_keycard_reader_on.png"),
-    3: Image("images/fps/textures/buttons/blue_keycard_reader_off.png"),
-    4: Image("images/fps/textures/buttons/red_keycard_reader_on.png"),
-    5: Image("images/fps/textures/buttons/red_keycard_reader_off.png"),
-    6: Image("images/fps/textures/buttons/yellow_keycard_reader_on.png"),
-    7: Image("images/fps/textures/buttons/yellow_keycard_reader_off.png"),
-}
 
 class ButtonCell(CellBase):
     def __init__(self, 

@@ -1,7 +1,7 @@
 import renpy
 from abc import ABC
 from renpy.display.im import Image
-from game.code.fps.classes.settings.Constants_ren import FpsConstants
+from game.code.fps.classes.settings.FpsConstants_ren import FpsConstants
 from game.code.fps.classes.world.cells.CellBase_ren import CellBase
 from game.code.fps.enums.EDirection_ren import EDirection
 from game.code.fps.enums.EGridAlignment_ren import EGridAlignment

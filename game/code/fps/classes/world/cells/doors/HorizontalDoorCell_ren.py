@@ -1,6 +1,6 @@
 from renpy.display.transform import Transform
 from renpy.display.im import Image
-from game.code.fps.classes.settings.Constants_ren import FpsConstants
+from game.code.fps.classes.settings.FpsConstants_ren import FpsConstants
 from game.code.fps.classes.world.cells.doors.BaseDoorCell_ren import BaseDoorCell
 from game.code.fps.enums.ECellType_ren import ECellType
 from game.code.fps.enums.EDirection_ren import EDirection
@@ -11,12 +11,6 @@ from game.code.fps.other.named_tuples_ren import AABB
 """renpy
 init python:
 """
-
-FPS_DOOR_TEXTURES = {
-    0: Image("images/fps/textures/doors/metal_door.png", oversample=0.25),
-    1: Image("images/fps/textures/doors/blue_door.png", oversample=0.25),
-    1000: Image("images/fps/textures/doors/door_slim_side.png", oversample=0.25)
-}
 
 class HorizontalDoorCell(BaseDoorCell):
     def __init__(self,            

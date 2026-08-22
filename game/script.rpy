@@ -11,6 +11,8 @@ label start:
 
     label start_game:
     $ fps = FpsDisplayable(scale=25)
+    ## fade from black at the beginning of the game
+    $ fps_fader.fade_to_clear()
     show screen fps_screen(fps)
 
     pause

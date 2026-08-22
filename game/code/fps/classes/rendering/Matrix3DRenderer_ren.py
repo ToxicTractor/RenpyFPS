@@ -1,13 +1,15 @@
 import math
 import renpy
+from renpy import Matrix, TintMatrix ## not real importable modules but supresses pylance warning
 from renpy.display.transform import Transform
-from game.code.fps.classes.settings.Constants_ren import FpsConstants
+from game.code.fps.classes.settings.FpsConstants_ren import FpsConstants
 from game.code.fps.classes.settings.FpsSettings_ren import FpsSettings
 from game.code.fps.enums.ECellType_ren import ECellType
 from game.code.fps.enums.EDirection_ren import EDirection
 from game.code.fps.enums.EGridAlignment_ren import EGridAlignment
 from game.code.fps.other.helper_functions_ren import ray_index_to_screen_x, screen_x_to_ray_index
 from game.code.fps.other.named_tuples_ren import RaycastHitDDA, Rect, Vector2
+
 
 """renpy
 init python:
